@@ -4,6 +4,11 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function getSession(): Promise<Session | null> {
   const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return null;
+  }
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -13,6 +18,11 @@ export async function getSession(): Promise<Session | null> {
 
 export async function getUser(): Promise<User | null> {
   const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return null;
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();

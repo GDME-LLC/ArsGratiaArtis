@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import {
+  createBrowserSupabaseClient,
+  hasSupabaseBrowserEnv,
+} from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 type AuthMode = "login" | "signup";
@@ -69,6 +72,7 @@ function validateForm(mode: AuthMode, email: string, password: string): FormErro
 export function AuthForm({ mode, initialError }: AuthFormProps) {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
+  const isAuthConfigured = hasSupabaseBrowserEnv();
   const content = contentByMode[mode];
 
   const [email, setEmail] = useState("");
@@ -86,6 +90,13 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
     const nextErrors = validateForm(mode, email.trim(), password);
     setErrors(nextErrors);
     setSuccessMessage("");
+
+    if (!supabase) {
+      setErrors({
+        form: "Supabase auth is not configured locally yet. Add env vars to enable sign-in.",
+      });
+      return;
+    }
 
     if (Object.keys(nextErrors).length > 0) {
       return;
@@ -139,6 +150,14 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
   async function handleGoogleAuth() {
     setErrors({});
     setSuccessMessage("");
+
+    if (!supabase) {
+      setErrors({
+        form: "Supabase auth is not configured locally yet. Add env vars to enable Google sign-in.",
+      });
+      return;
+    }
+
     setIsGoogleLoading(true);
 
     const { error } = await supabase.auth.signInWithOAuth({
@@ -160,6 +179,12 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
       <p className="eyebrow mt-4">{content.eyebrow}</p>
       <h1 className="headline-lg mt-4">{content.title}</h1>
       <p className="body-sm mt-4">{content.description}</p>
+
+      {!isAuthConfigured ? (
+        <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
+          Local startup is available, but auth is disabled until Supabase env vars are set.
+        </div>
+      ) : null}
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit} noValidate>
         <div className="space-y-2">

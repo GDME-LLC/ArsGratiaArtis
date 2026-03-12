@@ -5,10 +5,6 @@ function getSupabaseMiddlewareEnv() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error("Missing Supabase middleware environment variables.");
-  }
-
   return { supabaseUrl, supabaseAnonKey };
 }
 
@@ -18,6 +14,10 @@ export async function updateSession(request: NextRequest) {
   });
 
   const { supabaseUrl, supabaseAnonKey } = getSupabaseMiddlewareEnv();
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return response;
+  }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
