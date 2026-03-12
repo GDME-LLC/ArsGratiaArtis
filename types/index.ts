@@ -17,3 +17,22 @@ export type CreatorProfile = {
   bio: string | null;
   avatarUrl: string | null;
 };
+
+export type Profile = {
+  id: string;
+  handle: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  websiteUrl: string | null;
+  isCreator: boolean;
+};
+
+export type PublicFilmCard = {
+  id: string;
+  title: string;
+  slug: string;
+  synopsis: string | null;
+  publishedAt: string | null;
+};
