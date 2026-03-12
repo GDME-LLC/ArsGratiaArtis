@@ -10,6 +10,17 @@ export type Film = {
   createdAt: string;
 };
 
+export type CreatorFilmListItem = {
+  id: string;
+  title: string;
+  slug: string;
+  synopsis: string | null;
+  visibility: "public" | "unlisted" | "private";
+  publishStatus: "draft" | "published" | "archived";
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type CreatorProfile = {
   id: string;
   handle: string;
@@ -36,3 +47,30 @@ export type PublicFilmCard = {
   synopsis: string | null;
   publishedAt: string | null;
 };
+
+export type FilmEditorValues = {
+  id: string;
+  title: string;
+  slug: string;
+  synopsis: string;
+  description: string;
+  posterUrl: string;
+  visibility: "public" | "unlisted" | "private";
+  publishStatus: "draft" | "published" | "archived";
+};
+
+export type PublicFilmPageData =
+  {
+    id: string;
+    title: string;
+    slug: string;
+    synopsis: string | null;
+    description: string | null;
+    posterUrl: string | null;
+    publishedAt: string | null;
+    creator: {
+      handle: string;
+      displayName: string;
+      avatarUrl: string | null;
+    };
+  };

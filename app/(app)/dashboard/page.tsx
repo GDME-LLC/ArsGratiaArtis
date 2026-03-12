@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { ensureProfileForUser } from "@/lib/profiles";
+import { listCreatorFilms } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
@@ -27,6 +28,7 @@ export default async function DashboardPage() {
 
   try {
     const profile = await ensureProfileForUser(user);
+    const films = profile ? await listCreatorFilms(profile.id) : [];
 
     if (!profile) {
       return (
@@ -49,12 +51,21 @@ export default async function DashboardPage() {
                 {profile.displayName || profile.handle}
               </h1>
               <p className="body-lg mt-4">
-                Manage your public profile now. Film uploads are intentionally not implemented yet.
+                Manage your public profile and draft films from a single creator workspace.
               </p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="xl">
+              {profile.isCreator ? (
+                <Button asChild size="xl">
+                  <Link href="/upload">Create Draft Film</Link>
+                </Button>
+              ) : (
+                <Button asChild size="xl">
+                  <Link href="/settings">Enable Creator Mode</Link>
+                </Button>
+              )}
+              <Button asChild variant="ghost" size="xl">
                 <Link href="/settings">Edit Profile</Link>
               </Button>
               <Button asChild variant="ghost" size="xl">
@@ -78,7 +89,9 @@ export default async function DashboardPage() {
                 {profile.isCreator ? "Creator profile enabled" : "Viewer profile"}
               </p>
               <p className="body-sm mt-3">
-                Turn creator mode on in settings when you want your profile positioned for publishing.
+                {profile.isCreator
+                  ? "Creator tools are live for this account, including draft film management."
+                  : "Turn creator mode on in settings when you want your profile positioned for publishing."}
               </p>
             </article>
 
@@ -90,12 +103,73 @@ export default async function DashboardPage() {
             </article>
           </div>
 
-          <div className="mt-8 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
-            <p className="display-kicker">Next</p>
-            <p className="title-md mt-3 text-foreground">Film uploads are not part of this slice.</p>
-            <p className="body-sm mt-3">
-              The current implemented scope is profile creation, editing, and public creator pages.
-            </p>
+          <div className="mt-8 border-t border-white/10 pt-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="display-kicker">Films</p>
+                <h2 className="headline-lg mt-3">Your draft and published films</h2>
+              </div>
+              {profile.isCreator ? (
+                <Button asChild variant="ghost" size="xl">
+                  <Link href="/upload">New Draft</Link>
+                </Button>
+              ) : null}
+            </div>
+
+            {!profile.isCreator ? (
+              <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
+                <p className="display-kicker">Creator Mode</p>
+                <p className="title-md mt-3 text-foreground">Film tools are currently locked</p>
+                <p className="body-sm mt-3">
+                  Enable creator mode in settings to create draft film entries from the dashboard or upload flow.
+                </p>
+              </div>
+            ) : films.length === 0 ? (
+              <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
+                <p className="display-kicker">Empty State</p>
+                <p className="title-md mt-3 text-foreground">No films yet</p>
+                <p className="body-sm mt-3">
+                  Start by creating a draft film entry. You can refine the metadata now and add video delivery later.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-6 grid gap-4">
+                {films.map((film) => (
+                  <article
+                    key={film.id}
+                    className="rounded-[24px] border border-white/10 bg-white/5 p-6"
+                  >
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="max-w-3xl">
+                        <p className="display-kicker">
+                          {film.publishStatus} / {film.visibility}
+                        </p>
+                        <h3 className="title-md mt-3 text-foreground">{film.title}</h3>
+                        <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                          slug / {film.slug}
+                        </p>
+                        <p className="body-sm mt-3">
+                          {film.synopsis || "No synopsis yet."}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-3 sm:flex-row">
+                        {film.publishStatus === "draft" ? (
+                          <Button asChild variant="ghost" size="lg">
+                            <Link href={`/upload?film=${film.id}`}>Edit Draft</Link>
+                          </Button>
+                        ) : null}
+                        {film.publishStatus === "published" && film.visibility === "public" ? (
+                          <Button asChild size="lg">
+                            <Link href={`/film/${film.slug}`}>View Public Film</Link>
+                          </Button>
+                        ) : null}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

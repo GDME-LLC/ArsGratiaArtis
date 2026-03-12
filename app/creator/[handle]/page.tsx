@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { StatePanel } from "@/components/shared/state-panel";
@@ -107,6 +108,12 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     <p className="mt-4 text-xs uppercase tracking-[0.24em] text-muted-foreground">
                       slug / {film.slug}
                     </p>
+                    <Link
+                      href={`/film/${film.slug}`}
+                      className="mt-4 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                    >
+                      View film
+                    </Link>
                   </article>
                 ))}
               </div>
