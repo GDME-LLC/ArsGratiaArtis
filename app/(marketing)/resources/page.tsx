@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
 import { Button } from "@/components/ui/button";
-import { resourceSections } from "@/lib/constants/resources";
+import { exampleFilmStacks, resourceSections } from "@/lib/constants/resources";
 
 export default function ResourcesPage() {
   return (
@@ -65,6 +65,47 @@ export default function ResourcesPage() {
             </div>
           </article>
         ))}
+      </div>
+
+      <div className="mt-8">
+        <div className="surface-panel p-5 sm:p-6">
+          <p className="display-kicker">Example AI Film Stacks</p>
+          <h2 className="headline-lg mt-3 text-foreground">Example AI Film Stacks</h2>
+          <p className="body-lg mt-4">
+            A few practical tool combinations to help filmmakers move from idea to release without guessing at every stage.
+          </p>
+
+          <div className="mt-6 grid gap-4 xl:grid-cols-3">
+            {exampleFilmStacks.map((stack) => (
+              <article
+                key={stack.name}
+                className="rounded-[24px] border border-white/10 bg-white/5 p-5"
+              >
+                <p className="title-md text-foreground">{stack.name}</p>
+                <p className="body-sm mt-3">{stack.summary}</p>
+
+                <div className="mt-5 grid gap-3">
+                  <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
+                    <p className="display-kicker">Visual generation tools</p>
+                    <p className="mt-2 text-sm text-foreground">{stack.tools.visual.join(" + ")}</p>
+                  </div>
+                  <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
+                    <p className="display-kicker">Editing tools</p>
+                    <p className="mt-2 text-sm text-foreground">{stack.tools.editing.join(" + ")}</p>
+                  </div>
+                  <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
+                    <p className="display-kicker">Audio tools</p>
+                    <p className="mt-2 text-sm text-foreground">{stack.tools.audio.join(" + ")}</p>
+                  </div>
+                  <div className="rounded-[18px] border border-white/10 bg-black/20 p-4">
+                    <p className="display-kicker">Organization/story tools</p>
+                    <p className="mt-2 text-sm text-foreground">{stack.tools.story.join(" + ")}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
       </div>
     </SectionShell>
   );

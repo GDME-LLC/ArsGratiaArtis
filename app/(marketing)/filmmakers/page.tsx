@@ -38,8 +38,11 @@ export default async function FilmmakersPage() {
         </div>
       ) : (
         <div className="mt-8 grid gap-5 lg:grid-cols-2">
-          {creators.map((creator) => (
-            <article key={creator.id} className="surface-panel cinema-frame overflow-hidden p-5 sm:p-6">
+          {creators.map((creator) => {
+            const latestRelease = creator.featuredReleases[0] ?? null;
+
+            return (
+              <article key={creator.id} className="surface-panel cinema-frame overflow-hidden p-5 sm:p-6">
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
                   <p className="display-kicker">@{creator.handle}</p>
@@ -56,7 +59,7 @@ export default async function FilmmakersPage() {
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                   <p className="display-kicker">Released Films</p>
                   <p className="title-md mt-3 text-foreground">{creator.publicFilmCount}</p>
@@ -66,12 +69,19 @@ export default async function FilmmakersPage() {
                   <p className="title-md mt-3 text-foreground">{creator.seriesCount}</p>
                 </div>
                 <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+                  <p className="display-kicker">Followers</p>
+                  <p className="title-md mt-3 text-foreground">{creator.followerCount}</p>
+                </div>
+                <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                   <p className="display-kicker">Latest Release</p>
-                  <p className="mt-3 text-sm text-foreground">
-                    {creator.featuredReleases[0]?.publishedAt
-                      ? formatRelativeRelease(creator.featuredReleases[0].publishedAt)
-                      : "Release page live"}
+                  <p className="mt-3 line-clamp-2 text-sm text-foreground">
+                    {latestRelease?.title ?? "No public releases yet."}
                   </p>
+                  {latestRelease?.publishedAt ? (
+                    <p className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                      {formatRelativeRelease(latestRelease.publishedAt)}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -86,31 +96,36 @@ export default async function FilmmakersPage() {
                   </Link>
                 </div>
 
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {creator.featuredReleases.map((release) => (
-                    <article
-                      key={release.id}
-                      className="rounded-[20px] border border-white/10 bg-black/20 p-4"
-                    >
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                        {formatRelativeRelease(release.publishedAt)}
-                      </p>
-                      <h3 className="title-md mt-3 text-foreground">{release.title}</h3>
-                      <p className="body-sm mt-3">
-                        {release.synopsis || "Release notes and context will arrive with the film page."}
-                      </p>
-                      <Link
-                        href={`/film/${release.slug}`}
-                        className="mt-4 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                {creator.featuredReleases.length > 0 ? (
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {creator.featuredReleases.map((release) => (
+                      <article
+                        key={release.id}
+                        className="rounded-[20px] border border-white/10 bg-black/20 p-4"
                       >
-                        View release
-                      </Link>
-                    </article>
-                  ))}
-                </div>
+                        <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                          {formatRelativeRelease(release.publishedAt)}
+                        </p>
+                        <h3 className="title-md mt-3 text-foreground">{release.title}</h3>
+                        <p className="body-sm mt-3">
+                          {release.synopsis || "Release notes and context will arrive with the film page."}
+                        </p>
+                        <Link
+                          href={`/film/${release.slug}`}
+                          className="mt-4 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                        >
+                          View release
+                        </Link>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-muted-foreground">No public releases yet.</p>
+                )}
               </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       )}
     </SectionShell>

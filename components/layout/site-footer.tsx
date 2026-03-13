@@ -21,6 +21,9 @@ export function SiteFooter() {
           <p className="mt-2 text-sm text-muted-foreground">
             Releases, creator pages, and selected craft notes for invited filmmakers.
           </p>
+          <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            © 2026 ArsGratia
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-5">

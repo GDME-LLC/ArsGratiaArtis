@@ -30,25 +30,34 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
             </div>
           ) : null}
         </div>
-        <div className="px-4 py-4 sm:px-5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="display-kicker">@{film.creator.handle}</p>
-            <p className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              {film.commentCount} comment{film.commentCount === 1 ? "" : "s"}
-            </p>
-          </div>
-          <h3 className="title-md mt-2 text-foreground">{film.title}</h3>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+      </Link>
+      <div className="px-4 py-4 sm:px-5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
             {formatRelativeRelease(film.publishedAt)}
           </p>
+          <p className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            {film.commentCount} comment{film.commentCount === 1 ? "" : "s"}
+          </p>
+        </div>
+        <Link href={`/film/${film.slug}`} className="mt-3 block">
+          <h3 className="title-md text-foreground">{film.title}</h3>
+        </Link>
+        <Link
+          href={`/creator/${film.creator.handle}`}
+          className="mt-2 inline-block text-sm text-foreground/88 underline decoration-white/15 underline-offset-4 transition hover:text-foreground"
+        >
+          {film.creator.displayName || `@${film.creator.handle}`}
+        </Link>
+        <Link href={`/film/${film.slug}`} className="block">
           <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
             {film.synopsis || "Synopsis to follow."}
           </p>
           <p className="mt-4 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
             View release page
           </p>
-        </div>
-      </Link>
+        </Link>
+      </div>
       <div className="px-4 pb-4 sm:px-5">
         <LikeButton
           filmId={film.id}

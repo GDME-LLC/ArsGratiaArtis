@@ -302,10 +302,17 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
       featuredReleases: releasePreviewMap.get(String(profile.id)) ?? [],
       latestPublishedAt: latestPublishedAtMap.get(String(profile.id)) ?? "",
     }))
-    .filter((profile) => profile.publicFilmCount > 0)
     .sort((a, b) => {
       if (a.latestPublishedAt && b.latestPublishedAt) {
         return b.latestPublishedAt.localeCompare(a.latestPublishedAt);
+      }
+
+      if (a.latestPublishedAt) {
+        return -1;
+      }
+
+      if (b.latestPublishedAt) {
+        return 1;
       }
 
       return b.publicFilmCount - a.publicFilmCount;

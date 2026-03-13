@@ -1,48 +1,123 @@
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
 
-const sections = [
+type PolicySection = {
+  title: string;
+  paragraphs?: string[];
+  bullets?: string[];
+};
+
+const sections: PolicySection[] = [
   {
-    title: "Invite-stage notice",
-    body:
-      "These Terms are placeholder copy for an invite-stage product preview. They should be reviewed by qualified counsel before ArsGratia is opened more broadly or used for commercial release activity.",
+    title: "Welcome to ArsGratia.",
+    paragraphs: [
+      "ArsGratia is a platform for publishing and discovering independent films created with emerging tools and creative workflows. By accessing or using ArsGratia, you agree to these Terms.",
+      "These Terms may evolve as the platform grows.",
+    ],
   },
   {
-    title: "Use of the service",
-    body:
-      "ArsGratia is intended for publishing films, creator pages, and selected production context. Do not use the service to upload or present work you do not have the right to share.",
+    title: "1. Using ArsGratia",
+    paragraphs: ["You may use ArsGratia to:"],
+    bullets: [
+      "publish original films",
+      "share creative workflows and tools",
+      "discover and interact with work by other creators",
+    ],
   },
   {
-    title: "Creator responsibility",
-    body:
-      "Creators remain responsible for the rights, claims, credits, and supporting materials attached to their work, including posters, video, prompts, notes, and linked assets.",
+    title: "2. Creator Ownership and License",
+    paragraphs: [
+      "Creators retain ownership of the films, artwork, text, and related materials they publish on ArsGratia.",
+      "By publishing content on ArsGratia, a creator grants ArsGratia a non-exclusive, revocable license to host, display, stream, reproduce, and promote that content only as necessary to operate, improve, and promote the platform and the creator’s work within it.",
+      "ArsGratia does not claim ownership of creator works.",
+      "This license does not transfer ownership and does not prevent creators from publishing, licensing, selling, or exhibiting their work elsewhere unless they explicitly choose otherwise through a separate written agreement.",
+    ],
   },
   {
-    title: "Moderation and access",
-    body:
-      "ArsGratia may remove content, suspend access, or review accounts when safety, rights, or policy concerns arise. This section is intentionally high-level until a fuller moderation policy is reviewed.",
+    title: "3. Content Responsibility",
+    paragraphs: [
+      "Creators are responsible for the content they publish.",
+      "You agree not to upload material that:",
+    ],
+    bullets: [
+      "infringes copyright or intellectual property rights",
+      "contains unlawful, abusive, or harmful material",
+      "violates the rights of others",
+    ],
   },
   {
-    title: "No final legal review yet",
-    body:
-      "Nothing on this page should be treated as final legal language. It is here to signal intent and invite trust, not to replace proper legal drafting.",
+    title: "4. Accounts",
+    paragraphs: [
+      "You are responsible for maintaining the security of your account.",
+      "ArsGratia may suspend or terminate accounts that abuse the platform or violate these Terms.",
+    ],
   },
-] as const;
+  {
+    title: "5. Platform Availability",
+    paragraphs: [
+      "ArsGratia is an evolving platform. Features and services may change over time.",
+      "We may modify or discontinue parts of the service as the platform develops.",
+    ],
+  },
+  {
+    title: "6. Limitation of Liability",
+    paragraphs: [
+      "ArsGratia is provided \"as is\" without warranties of any kind.",
+      "To the extent permitted by law, ArsGratia is not liable for indirect or consequential damages arising from use of the platform.",
+    ],
+  },
+  {
+    title: "7. Changes to These Terms",
+    paragraphs: [
+      "These Terms may be updated as ArsGratia grows.",
+      "If material changes are made, update the \"Last updated\" date on this page.",
+    ],
+  },
+  {
+    title: "8. Contact",
+    paragraphs: [
+      "Questions about these Terms may be directed to:",
+      "contact@arsgratia.example",
+    ],
+  },
+];
 
 export default function TermsPage() {
   return (
     <SectionShell className="py-14 sm:py-16">
       <PageIntro
         eyebrow="Terms"
-        title="Working terms for an invite-stage release."
-        description="This page exists to make the current state of ArsGratia legible to invited creators. It is a trust surface, not final legal review."
+        title="Terms of Service"
+        description="Last updated: March 2026"
       />
 
       <div className="mt-8 grid gap-4">
         {sections.map((section) => (
-          <article key={section.title} className="surface-panel p-5 sm:p-6">
+          <article
+            key={section.title}
+            className={`surface-panel p-5 sm:p-6${
+              section.title === "2. Creator Ownership and License" ? " cinema-frame" : ""
+            }`}
+          >
             <h2 className="title-md text-foreground">{section.title}</h2>
-            <p className="body-sm mt-3">{section.body}</p>
+
+            {section.paragraphs ? (
+              <div className="mt-3 space-y-3">
+                {section.paragraphs.map((paragraph) => (
+                  <p key={paragraph} className="body-sm">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+
+            {section.bullets ? (
+              <ul className="mt-3 space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
+                {section.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
+            ) : null}
           </article>
         ))}
       </div>

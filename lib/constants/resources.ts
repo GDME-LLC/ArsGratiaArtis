@@ -223,6 +223,39 @@ export const categories = [
   },
 ] as const;
 
+export const exampleFilmStacks = [
+  {
+    name: "Fast visual short",
+    summary: "A lean stack for testing visual language quickly and cutting a first finished sequence.",
+    tools: {
+      visual: ["Midjourney", "Runway"],
+      editing: ["DaVinci Resolve"],
+      audio: ["ElevenLabs", "Suno"],
+      story: ["ChatGPT", "Notion"],
+    },
+  },
+  {
+    name: "Trailer or mood piece",
+    summary: "A good fit when tone, rhythm, and atmosphere matter more than long-form scene continuity.",
+    tools: {
+      visual: ["Luma Dream Machine", "Krea"],
+      editing: ["Adobe Premiere Pro"],
+      audio: ["Adobe Podcast", "Suno"],
+      story: ["Claude", "Notion"],
+    },
+  },
+  {
+    name: "Series proof-of-concept",
+    summary: "Useful for creators shaping a repeatable world, recurring characters, and a cleaner release package.",
+    tools: {
+      visual: ["FLUX", "Runway"],
+      editing: ["DaVinci Resolve", "Descript"],
+      audio: ["ElevenLabs"],
+      story: ["ChatGPT", "Claude", "Notion"],
+    },
+  },
+] as const;
+
 export const resourceSections = [
   {
     href: "/resources/featured-tools",
