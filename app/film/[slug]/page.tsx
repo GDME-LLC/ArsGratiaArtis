@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { CommentForm } from "@/components/comments/comment-form";
 import { CommentList } from "@/components/comments/comment-list";
 import { LikeButton } from "@/components/engagement/like-button";
+import { FilmArtwork } from "@/components/films/film-artwork";
 import { StatePanel } from "@/components/shared/state-panel";
+import { getFilmArtworkUrl } from "@/lib/films/artwork";
 import { getMuxPlaybackUrl } from "@/lib/films/playback";
 import { listFilmComments } from "@/lib/services/comments";
 import { getPublicFilmBySlug } from "@/lib/services/films";
@@ -41,6 +43,10 @@ export default async function FilmPage({ params }: FilmPageProps) {
   }
 
   const playbackUrl = data.muxPlaybackId ? getMuxPlaybackUrl(data.muxPlaybackId) : null;
+  const artworkUrl = getFilmArtworkUrl({
+    posterUrl: data.posterUrl,
+    muxPlaybackId: data.muxPlaybackId,
+  });
   const hasCreationPanel =
     data.creation.tools.length > 0 ||
     Boolean(data.creation.promptText) ||
@@ -66,20 +72,15 @@ export default async function FilmPage({ params }: FilmPageProps) {
             controls
             playsInline
             preload="metadata"
-            poster={data.posterUrl ?? undefined}
+            poster={artworkUrl ?? undefined}
             src={playbackUrl}
           />
         ) : (
-          <div
-            className="h-64 w-full bg-cover bg-center"
-            style={
-              data.posterUrl
-                ? {
-                    backgroundImage: `linear-gradient(rgba(4,4,6,0.3), rgba(4,4,6,0.82)), url(${data.posterUrl})`,
-                  }
-                : undefined
-            }
-          />
+          <div className="p-6 sm:p-8">
+            <div className="mx-auto w-full max-w-[280px]">
+              <FilmArtwork artworkUrl={artworkUrl} title={data.title} label="Release artwork" />
+            </div>
+          </div>
         )}
         <div className="px-6 py-8 sm:px-10">
           <p className="display-kicker">Film</p>

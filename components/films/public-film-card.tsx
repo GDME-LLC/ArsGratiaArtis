@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { FilmArtwork } from "@/components/films/film-artwork";
 import { LikeButton } from "@/components/engagement/like-button";
+import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { formatRelativeRelease } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
 
@@ -9,26 +11,18 @@ type PublicFilmCardProps = {
 };
 
 export function PublicFilmCard({ film }: PublicFilmCardProps) {
+  const artworkUrl = getFilmArtworkUrl({
+    posterUrl: film.posterUrl,
+    muxPlaybackId: film.muxPlaybackId,
+  });
+  const previewUrl = film.muxPlaybackId ? getMuxAnimatedPreviewUrl(film.muxPlaybackId) : null;
+  const releaseYear = film.publishedAt ? new Date(film.publishedAt).getFullYear() : null;
+
   return (
     <article className="surface-panel cinema-frame overflow-hidden">
       <Link href={`/film/${film.slug}`} className="block">
-        <div
-          className="aspect-[5/6] w-full bg-cover bg-center"
-          style={
-            film.posterUrl
-              ? {
-                  backgroundImage: `linear-gradient(rgba(4,4,6,0.12), rgba(4,4,6,0.58)), url(${film.posterUrl})`,
-                }
-              : undefined
-          }
-        >
-          {!film.posterUrl ? (
-            <div className="flex h-full items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))] p-4">
-              <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                Poster-led release
-              </p>
-            </div>
-          ) : null}
+        <div className="p-4 pb-0 sm:p-5 sm:pb-0">
+          <FilmArtwork artworkUrl={artworkUrl} previewUrl={previewUrl} title={film.title} />
         </div>
       </Link>
       <div className="px-4 py-4 sm:px-5">
@@ -49,6 +43,9 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
         >
           {film.creator.displayName || `@${film.creator.handle}`}
         </Link>
+        {releaseYear ? (
+          <p className="mt-2 text-sm text-muted-foreground">{releaseYear}</p>
+        ) : null}
         <Link href={`/film/${film.slug}`} className="block">
           <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
             {film.synopsis || "Release note to follow."}

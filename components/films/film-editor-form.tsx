@@ -187,17 +187,22 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
         </Field>
 
         <Field label="Poster URL">
-          <input
-            value={form.poster_url}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                poster_url: event.target.value,
-              }))
-            }
-            className={inputClassName}
-            placeholder="https://..."
-          />
+          <div className="grid gap-2">
+            <input
+              value={form.poster_url}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  poster_url: event.target.value,
+                }))
+              }
+              className={inputClassName}
+              placeholder="https://..."
+            />
+            <p className="text-sm text-muted-foreground">
+              Add a custom poster if you want to override the automatic thumbnail Mux generates from the uploaded video.
+            </p>
+          </div>
         </Field>
 
         <Field label="Prompt">

@@ -81,6 +81,38 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
             Poster-led release pages are supported. You can publish artwork, title, synopsis, and slug first, then attach video when the final delivery is ready.
           </p>
         </div>
+        <div className="mb-6 rounded-[24px] border border-white/10 bg-white/5 p-6">
+          <p className="display-kicker">Uploading Your Film</p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+              <p className="title-md text-foreground">Video Upload</p>
+              <p className="body-sm mt-2">
+                Upload your final video file. Once processing completes, ArsGratia will automatically generate a preview image from the video.
+              </p>
+            </article>
+            <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+              <p className="title-md text-foreground">Automatic Thumbnails</p>
+              <p className="body-sm mt-2">
+                When a video finishes processing, a thumbnail is generated automatically using Mux.
+              </p>
+            </article>
+            <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+              <p className="title-md text-foreground">Custom Posters</p>
+              <p className="body-sm mt-2">
+                If you prefer, you can upload a poster image. This will be shown instead of the auto-generated thumbnail.
+              </p>
+            </article>
+            <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+              <p className="title-md text-foreground">Draft Workflow</p>
+              <ol className="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">
+                <li>1. Create and save your film draft</li>
+                <li>2. Upload your video</li>
+                <li>3. Add poster or allow automatic thumbnail</li>
+                <li>4. Publish your film</li>
+              </ol>
+            </article>
+          </div>
+        </div>
         <FilmEditorForm initialFilm={film} />
       </section>
     );

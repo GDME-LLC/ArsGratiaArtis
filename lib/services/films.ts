@@ -24,6 +24,7 @@ type PublicFilmRow = {
   slug: string;
   synopsis: string | null;
   poster_url: string | null;
+  mux_playback_id: string | null;
   published_at: string | null;
   creator_id: string;
 };
@@ -37,7 +38,7 @@ export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmLi
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, visibility, publish_status, created_at, updated_at")
+    .select("id, title, slug, synopsis, poster_url, mux_playback_id, visibility, publish_status, created_at, updated_at")
     .eq("creator_id", creatorId)
     .order("updated_at", { ascending: false })
     .order("created_at", { ascending: false });
@@ -51,6 +52,8 @@ export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmLi
     title: film.title,
     slug: film.slug,
     synopsis: film.synopsis,
+    posterUrl: film.poster_url ?? null,
+    muxPlaybackId: film.mux_playback_id ?? null,
     visibility: film.visibility,
     publishStatus: film.publish_status,
     createdAt: film.created_at,
@@ -515,6 +518,7 @@ async function hydratePublicFilmCards(
     slug: film.slug,
     synopsis: film.synopsis,
     posterUrl: film.poster_url,
+    muxPlaybackId: film.mux_playback_id ?? null,
     likeCount: likeCounts.get(film.id) ?? 0,
     commentCount: commentCounts.get(film.id) ?? 0,
     viewerHasLiked: likedIds.has(film.id),
@@ -541,7 +545,7 @@ export async function listCuratedFilms(input?: {
   try {
     const { data, error } = await supabase
       .from("films")
-      .select("id, title, slug, synopsis, poster_url, published_at, creator_id, is_featured")
+      .select("id, title, slug, synopsis, poster_url, mux_playback_id, published_at, creator_id, is_featured")
       .eq("publish_status", "published")
       .eq("visibility", "public")
       .order("is_featured", { ascending: false })
@@ -559,7 +563,7 @@ export async function listCuratedFilms(input?: {
   } catch {
     const { data, error } = await supabase
       .from("films")
-      .select("id, title, slug, synopsis, poster_url, published_at, creator_id")
+      .select("id, title, slug, synopsis, poster_url, mux_playback_id, published_at, creator_id")
       .eq("publish_status", "published")
       .eq("visibility", "public")
       .order("published_at", { ascending: false })
@@ -593,7 +597,7 @@ export async function listPublishedFilms(input?: {
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, poster_url, published_at, creator_id")
+    .select("id, title, slug, synopsis, poster_url, mux_playback_id, published_at, creator_id")
     .eq("publish_status", "published")
     .eq("visibility", "public")
     .order("published_at", { ascending: false })

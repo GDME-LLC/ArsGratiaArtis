@@ -159,7 +159,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
 
   const { data: films, error: filmsError } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, published_at")
+    .select("id, title, slug, synopsis, poster_url, mux_playback_id, published_at")
     .eq("creator_id", profile.id)
     .eq("publish_status", "published")
     .eq("visibility", "public")
@@ -189,7 +189,8 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
       title: film.title,
       slug: film.slug,
       synopsis: film.synopsis,
-      posterUrl: null,
+      posterUrl: film.poster_url ?? null,
+      muxPlaybackId: film.mux_playback_id ?? null,
       likeCount: likeCounts.get(film.id) ?? 0,
       commentCount: commentCounts.get(film.id) ?? 0,
       viewerHasLiked: likedIds.has(film.id),

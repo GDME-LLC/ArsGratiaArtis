@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { FilmArtwork } from "@/components/films/film-artwork";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
+import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
@@ -140,7 +142,19 @@ export default async function DashboardPage() {
                     className="rounded-[24px] border border-white/10 bg-white/5 p-5"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="max-w-3xl">
+                      <div className="flex gap-4">
+                        <div className="w-[120px] shrink-0">
+                          <FilmArtwork
+                            artworkUrl={getFilmArtworkUrl({
+                              posterUrl: film.posterUrl,
+                              muxPlaybackId: film.muxPlaybackId,
+                            })}
+                            previewUrl={film.muxPlaybackId ? getMuxAnimatedPreviewUrl(film.muxPlaybackId) : null}
+                            title={film.title}
+                            className="rounded-[20px]"
+                          />
+                        </div>
+                        <div className="max-w-3xl">
                         <p className="display-kicker">
                           {film.publishStatus} / {film.visibility}
                         </p>
@@ -151,6 +165,7 @@ export default async function DashboardPage() {
                         <p className="body-sm mt-3">
                           {film.synopsis || "No synopsis added yet."}
                         </p>
+                        </div>
                       </div>
 
                       <div className="flex flex-col gap-3 sm:flex-row">

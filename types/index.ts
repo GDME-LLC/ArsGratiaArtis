@@ -18,6 +18,8 @@ export type CreatorFilmListItem = {
   title: string;
   slug: string;
   synopsis: string | null;
+  posterUrl: string | null;
+  muxPlaybackId: string | null;
   visibility: "public" | "unlisted" | "private";
   publishStatus: "draft" | "published" | "archived";
   createdAt: string;
@@ -49,6 +51,7 @@ export type PublicFilmCard = {
   slug: string;
   synopsis: string | null;
   posterUrl: string | null;
+  muxPlaybackId: string | null;
   likeCount: number;
   commentCount: number;
   viewerHasLiked: boolean;

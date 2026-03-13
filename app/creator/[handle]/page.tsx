@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { FilmArtwork } from "@/components/films/film-artwork";
 import { FollowButton } from "@/components/engagement/follow-button";
 import { StatePanel } from "@/components/shared/state-panel";
+import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { getPublicProfileByHandle } from "@/lib/profiles";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
@@ -120,8 +122,23 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {films.map((film) => (
                   <article key={film.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-                    <p className="display-kicker">{film.publishedAt ? "Published" : "Film"}</p>
+                    <Link href={`/film/${film.slug}`} className="block">
+                      <FilmArtwork
+                        artworkUrl={getFilmArtworkUrl({
+                          posterUrl: film.posterUrl,
+                          muxPlaybackId: film.muxPlaybackId,
+                        })}
+                        previewUrl={film.muxPlaybackId ? getMuxAnimatedPreviewUrl(film.muxPlaybackId) : null}
+                        title={film.title}
+                      />
+                    </Link>
+                    <p className="display-kicker mt-4">{film.publishedAt ? "Published" : "Film"}</p>
                     <h3 className="title-md mt-2 text-foreground">{film.title}</h3>
+                    {film.publishedAt ? (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {new Date(film.publishedAt).getFullYear()}
+                      </p>
+                    ) : null}
                     <p className="body-sm mt-2">{film.synopsis || "A synopsis will appear here when the release note is ready."}</p>
                     <p className="mt-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
                       {film.commentCount} comment{film.commentCount === 1 ? "" : "s"} / slug {film.slug}

@@ -90,7 +90,7 @@ export function FilmVideoUpload({
           <p className="display-kicker">Video</p>
           <h2 className="title-md mt-3 text-foreground">Attach video when the cut is ready</h2>
           <p className="body-sm mt-3">
-            Upload goes directly to Mux from the browser. Playback stays private until the film itself is published and visible.
+            Upload goes directly to Mux from the browser. When processing finishes, Mux generates a thumbnail automatically unless you provide a custom poster image.
           </p>
         </div>
 

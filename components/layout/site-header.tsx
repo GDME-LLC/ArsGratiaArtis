@@ -1,7 +1,9 @@
 import Link from "next/link";
 
+import { LogoutButton } from "@/components/auth/logout-button";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/constants/site";
+import { getUser } from "@/lib/supabase/auth";
 
 const navItems = [
   { href: "/manifesto", label: "Manifesto" },
@@ -9,7 +11,9 @@ const navItems = [
   { href: "/resources", label: "Resources" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const user = await getUser();
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-xl">
       <div className="container-shell flex min-h-20 items-center justify-between gap-6">
@@ -37,12 +41,23 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" className="hidden sm:inline-flex">
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/signup">Become a Creator</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button asChild variant="ghost" className="hidden sm:inline-flex">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <LogoutButton />
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" className="hidden sm:inline-flex">
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/signup">Become a Creator</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>
