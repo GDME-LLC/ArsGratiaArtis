@@ -51,7 +51,7 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
         </Link>
         <Link href={`/film/${film.slug}`} className="block">
           <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
-            {film.synopsis || "Synopsis to follow."}
+            {film.synopsis || "Release note to follow."}
           </p>
           <p className="mt-4 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
             View release page

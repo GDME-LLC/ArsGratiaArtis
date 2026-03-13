@@ -39,7 +39,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <section className="container-shell py-20">
           <StatePanel
             title="Profile unavailable"
-            description="Your account is signed in, but the creator record could not be loaded."
+            description="Your account is signed in, but the creator record could not be loaded right now."
           />
         </section>
       );
@@ -64,7 +64,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <section className="container-shell py-20">
           <StatePanel
             title="Draft not found"
-            description="That draft either does not exist or does not belong to the current account."
+            description="That release draft either does not exist or does not belong to the current account."
           />
         </section>
       );
@@ -78,7 +78,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
             {film ? "Refine your release page" : "Start a release page"}
           </h1>
           <p className="body-lg mt-4">
-            Poster-led film pages are supported. You can publish artwork, title, synopsis, and slug first, then attach video when delivery is ready.
+            Poster-led release pages are supported. You can publish artwork, title, synopsis, and slug first, then attach video when the final delivery is ready.
           </p>
         </div>
         <FilmEditorForm initialFilm={film} />

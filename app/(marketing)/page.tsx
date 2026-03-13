@@ -18,19 +18,15 @@ export default async function HomePage() {
 
   const staffPickIds = new Set(staffPicks.map((film) => film.id));
   const filmsOutsideStaffPicks = recentResponse.films.filter((film) => !staffPickIds.has(film.id));
-  const provisionalFeaturedReleases = filmsOutsideStaffPicks.slice(0, 3);
-  const provisionalFeaturedIds = new Set(provisionalFeaturedReleases.map((film) => film.id));
-  const provisionalNewReleases = filmsOutsideStaffPicks
-    .filter((film) => !provisionalFeaturedIds.has(film.id))
-    .slice(0, 3);
 
   const showStaffPicks = staffPicks.length > 0;
-  const showFeaturedReleases =
-    showStaffPicks && provisionalFeaturedReleases.length > 0 && provisionalNewReleases.length > 0;
-  const featuredReleases = showFeaturedReleases ? provisionalFeaturedReleases : [];
-  const newReleases = showFeaturedReleases
-    ? provisionalNewReleases
+  const canSplitIntoFeaturedAndNew = showStaffPicks && filmsOutsideStaffPicks.length > 3;
+  const featuredReleases = canSplitIntoFeaturedAndNew ? filmsOutsideStaffPicks.slice(0, 3) : [];
+  const featuredReleaseIds = new Set(featuredReleases.map((film) => film.id));
+  const newReleases = canSplitIntoFeaturedAndNew
+    ? filmsOutsideStaffPicks.filter((film) => !featuredReleaseIds.has(film.id)).slice(0, 3)
     : filmsOutsideStaffPicks.slice(0, 3);
+  const showFeaturedReleases = featuredReleases.length > 0 && newReleases.length > 0;
   const releaseFeed = newReleases.length > 0 ? newReleases : recentResponse.films.slice(0, 3);
   const spotlightFilm = staffPicks[0] ?? featuredReleases[0] ?? releaseFeed[0] ?? null;
   const spotlightLabel = staffPicks.length > 0 ? "Staff Pick" : featuredReleases.length > 0 ? "Featured Film" : "Latest Release";

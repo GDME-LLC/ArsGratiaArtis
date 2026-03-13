@@ -35,7 +35,7 @@ export default async function DashboardPage() {
         <section className="container-shell py-20">
           <StatePanel
             title="Profile unavailable"
-            description="Your account is signed in, but the creator record could not be loaded cleanly."
+            description="Your account is signed in, but the creator record could not be loaded right now."
           />
         </section>
       );
@@ -90,8 +90,8 @@ export default async function DashboardPage() {
               </p>
               <p className="body-sm mt-3">
                 {profile.isCreator
-                  ? "Drafts, film pages, and release controls are active for this account."
-                  : "Turn creator mode on in settings when you are ready to prepare work for release."}
+                  ? "Drafts, release pages, and publishing controls are active for this account."
+                  : "Turn creator mode on in settings when you are ready to prepare your first release."}
               </p>
             </article>
 
@@ -121,7 +121,7 @@ export default async function DashboardPage() {
                 <p className="display-kicker">Creator Mode</p>
                 <p className="title-md mt-3 text-foreground">Release tools are not active yet</p>
                 <p className="body-sm mt-3">
-                  Enable creator mode in settings to open draft tools, publish poster-led pages, and prepare films for release from this workspace.
+                  Enable creator mode in settings to open draft tools, publish poster-led release pages, and prepare films from this workspace.
                 </p>
               </div>
             ) : films.length === 0 ? (
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
                 <p className="display-kicker">First Release</p>
                 <p className="title-md mt-3 text-foreground">No films in your workspace yet</p>
                 <p className="body-sm mt-3">
-                  Start with a draft page. Poster-led releases are supported, so you can publish the film page first and attach video when the cut is ready.
+                  Start with a draft release page. Poster-led releases are supported, so you can publish artwork, title, and synopsis first, then attach video when the cut is ready.
                 </p>
               </div>
             ) : (
@@ -149,7 +149,7 @@ export default async function DashboardPage() {
                           slug / {film.slug}
                         </p>
                         <p className="body-sm mt-3">
-                          {film.synopsis || "No synopsis written yet."}
+                          {film.synopsis || "No synopsis added yet."}
                         </p>
                       </div>
 

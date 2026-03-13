@@ -59,7 +59,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         <div className="mt-8">
           <StatePanel
             title="No public releases yet"
-            description="This feed will fill as invited creators begin publishing. Poster-led pages are supported, so a film can arrive here before final video delivery is attached."
+            description="This feed will fill as invited creators begin publishing. Poster-led release pages are supported, so a film can appear here before the final video is attached."
           />
         </div>
       ) : (

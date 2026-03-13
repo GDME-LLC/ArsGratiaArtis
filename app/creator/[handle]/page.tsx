@@ -60,7 +60,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                 <p className="display-kicker">@{profile.handle}</p>
                 <h1 className="headline-lg mt-1">{profile.displayName}</h1>
                 <p className="body-sm mt-2 max-w-2xl">
-                  {profile.bio || "This creator page is live. A fuller bio has not been published yet."}
+                  {profile.bio || "This filmmaker page is live. A fuller note will appear here as releases and context are added."}
                 </p>
               </div>
             </div>
@@ -78,9 +78,9 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                 Followers: <span className="text-foreground">{profile.followerCount}</span>
               </p>
               <p>
-                Creator status:{" "}
+                Filmmaker status:{" "}
                 <span className="text-foreground">
-                  {profile.isCreator ? "Creator" : "Viewer"}
+                  {profile.isCreator ? "Public filmmaker" : "Viewer"}
                 </span>
               </p>
               {profile.websiteUrl ? (
@@ -122,7 +122,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                   <article key={film.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
                     <p className="display-kicker">{film.publishedAt ? "Published" : "Film"}</p>
                     <h3 className="title-md mt-2 text-foreground">{film.title}</h3>
-                    <p className="body-sm mt-2">{film.synopsis || "Synopsis to follow."}</p>
+                    <p className="body-sm mt-2">{film.synopsis || "A synopsis will appear here when the release note is ready."}</p>
                     <p className="mt-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
                       {film.commentCount} comment{film.commentCount === 1 ? "" : "s"} / slug {film.slug}
                     </p>
