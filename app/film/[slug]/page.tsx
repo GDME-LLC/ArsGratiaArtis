@@ -10,6 +10,7 @@ import { listFilmComments } from "@/lib/services/comments";
 import { getPublicFilmBySlug } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
+import { formatReleaseDate } from "@/lib/utils";
 
 type FilmPageProps = {
   params: Promise<{
@@ -44,11 +45,17 @@ export default async function FilmPage({ params }: FilmPageProps) {
     data.creation.tools.length > 0 ||
     Boolean(data.creation.promptText) ||
     Boolean(data.creation.workflowNotes);
-  const episodeLabel = data.series?.episodeNumber
-    ? `Episode ${data.series.episodeNumber}`
-    : data.series
-      ? "Episode"
+  const releaseDate = formatReleaseDate(data.publishedAt);
+  const seriesMeta =
+    data.series && (data.series.seasonNumber || data.series.episodeNumber)
+      ? `${data.series.seasonNumber ? `Season ${data.series.seasonNumber}` : "Series"}${data.series.episodeNumber ? ` / Episode ${data.series.episodeNumber}` : ""}`
       : null;
+  const promptVisibilityLabel =
+    data.creation.promptVisibility === "public"
+      ? "Prompt visible on this release page."
+      : data.creation.promptVisibility === "followers"
+        ? "Prompt visible to approved viewers."
+        : "Prompt kept private by the creator.";
 
   return (
     <section className="container-shell py-16">
@@ -80,6 +87,67 @@ export default async function FilmPage({ params }: FilmPageProps) {
           <p className="body-lg mt-4 max-w-3xl">
             {data.synopsis || "Synopsis to follow."}
           </p>
+          <div className="mt-6 grid gap-6 border-t border-white/10 pt-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)]">
+            <div className="max-w-3xl">
+              <p className="display-kicker">Description</p>
+              <p className="body-sm mt-3">
+                {data.description || "No extended note has been published for this release yet."}
+              </p>
+            </div>
+
+            <aside className="rounded-[24px] border border-white/10 bg-white/5 p-5">
+              <p className="display-kicker">About this release</p>
+              <div className="mt-4 space-y-4">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                    Released on ArsGratia
+                  </p>
+                  <p className="mt-2 text-sm text-foreground">{releaseDate || "Publication date to follow."}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Creator</p>
+                  <Link
+                    href={`/creator/${data.creator.handle}`}
+                    className="mt-2 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                  >
+                    {data.creator.displayName}
+                  </Link>
+                </div>
+                {data.series ? (
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Series</p>
+                    <Link
+                      href={`/series/${data.series.slug}`}
+                      className="mt-2 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                    >
+                      {data.series.title}
+                    </Link>
+                    {seriesMeta ? (
+                      <p className="mt-2 text-sm text-muted-foreground">{seriesMeta}</p>
+                    ) : null}
+                  </div>
+                ) : null}
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Tools behind the work</p>
+                  {data.creation.tools.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {data.creation.tools.map((tool) => (
+                        <span
+                          key={tool.id}
+                          className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs uppercase tracking-[0.16em] text-foreground"
+                        >
+                          {tool.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm text-muted-foreground">No tools were listed for this release.</p>
+                  )}
+                </div>
+              </div>
+            </aside>
+          </div>
+
           <div className="mt-6">
             <LikeButton
               filmId={data.id}
@@ -97,96 +165,46 @@ export default async function FilmPage({ params }: FilmPageProps) {
             </Link>
           </div>
 
-          {data.series ? (
-            <div className="mt-6 rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">Series</p>
-              <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <Link
-                    href={`/series/${data.series.slug}`}
-                    className="title-md text-foreground underline decoration-white/20 underline-offset-4"
-                  >
-                    {data.series.title}
-                  </Link>
-                  {episodeLabel ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {data.series.seasonNumber ? `Season ${data.series.seasonNumber} / ` : ""}
-                      {episodeLabel}
-                    </p>
-                  ) : null}
-                </div>
-
-                {data.series.nextEpisode ? (
-                  <Link
-                    href={`/film/${data.series.nextEpisode.slug}`}
-                    className="inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
-                  >
-                    Next episode: {data.series.nextEpisode.title}
-                  </Link>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
-
-          <div className="mt-8 flex flex-col gap-6 border-t border-white/10 pt-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="display-kicker">Description</p>
-              <p className="body-sm mt-3">
-                {data.description || "No extended note has been published for this release yet."}
-              </p>
-            </div>
-
-            <div className="min-w-[220px] rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">Creator</p>
-              <p className="title-md mt-3 text-foreground">{data.creator.displayName}</p>
-              <Link
-                href={`/creator/${data.creator.handle}`}
-                className="mt-3 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
-              >
-                Visit creator page
-              </Link>
-            </div>
-          </div>
-
           {hasCreationPanel ? (
             <div className="mt-8 border-t border-white/10 pt-6">
-              <p className="display-kicker">Creation</p>
-              <div className="mt-4 grid gap-5 lg:grid-cols-3">
+              <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-                  <p className="display-kicker">Tools Used</p>
-                  {data.creation.tools.length > 0 ? (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {data.creation.tools.map((tool) => (
-                        <span
-                          key={tool.id}
-                          className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs uppercase tracking-[0.16em] text-foreground"
-                        >
-                          {tool.name}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="body-sm mt-4 text-muted-foreground">
-                      No tools were shared for this release.
+                  <p className="display-kicker">Tools behind the work</p>
+                  <p className="mt-4 text-sm text-muted-foreground">{promptVisibilityLabel}</p>
+                  <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Prompt visibility</p>
+                    <p className="mt-2 text-sm text-foreground">
+                      {data.creation.promptVisibility === "public"
+                        ? "Public"
+                        : data.creation.promptVisibility === "followers"
+                          ? "Approved viewers"
+                          : "Private"}
                     </p>
-                  )}
+                  </div>
+                  <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Prompt</p>
+                    <p className="mt-2 body-sm">
+                      {data.creation.promptText || promptVisibilityLabel}
+                    </p>
+                  </div>
                 </article>
 
                 <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-                  <p className="display-kicker">Prompt</p>
-                  <p className="body-sm mt-4">
-                    {data.creation.promptText ||
-                      (data.creation.promptVisibility === "private"
-                        ? "The creator kept the prompt private."
-                        : "The prompt is only available to approved viewers.")}
-                  </p>
-                </article>
-
-                <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-                  <p className="display-kicker">Workflow Notes</p>
+                  <p className="display-kicker">Workflow notes</p>
                   <p className="body-sm mt-4">
                     {data.creation.workflowNotes || "No workflow notes were shared for this release."}
                   </p>
+                  {data.series?.nextEpisode ? (
+                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Series continuity</p>
+                      <Link
+                        href={`/film/${data.series.nextEpisode.slug}`}
+                        className="mt-2 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                      >
+                        Next episode: {data.series.nextEpisode.title}
+                      </Link>
+                    </div>
+                  ) : null}
                 </article>
               </div>
             </div>

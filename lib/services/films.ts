@@ -18,6 +18,16 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 const GLOBAL_FILM_SLUG_MESSAGE =
   "That slug is already in use. For this v1 route, public film slugs must stay globally unique.";
 
+type PublicFilmRow = {
+  id: string;
+  title: string;
+  slug: string;
+  synopsis: string | null;
+  poster_url: string | null;
+  published_at: string | null;
+  creator_id: string;
+};
+
 export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmListItem[]> {
   const supabase = await createServerSupabaseClient();
 
@@ -460,6 +470,109 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
   };
 }
 
+async function hydratePublicFilmCards(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  films: PublicFilmRow[],
+): Promise<PublicFilmCard[]> {
+  if (!supabase || films.length === 0) {
+    return [];
+  }
+
+  const creatorIds = [...new Set(films.map((film) => film.creator_id))];
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profiles, error: profilesError } = await supabase
+    .from("profiles")
+    .select("id, handle, display_name, avatar_url")
+    .in("id", creatorIds);
+
+  if (profilesError) {
+    throw new Error(profilesError.message);
+  }
+
+  const likeCounts = await getFilmLikeCounts(films.map((film) => film.id));
+  const commentCounts = await getFilmCommentCounts(films.map((film) => film.id));
+  const likedIds = await getViewerLikedFilmIds(
+    films.map((film) => film.id),
+    user?.id,
+  );
+
+  const profileMap = new Map(
+    (profiles ?? []).map((profile) => [
+      profile.id,
+      {
+        handle: String(profile.handle ?? ""),
+        displayName: String(profile.display_name ?? ""),
+        avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
+      },
+    ]),
+  );
+
+  return films.map((film) => ({
+    id: film.id,
+    title: film.title,
+    slug: film.slug,
+    synopsis: film.synopsis,
+    posterUrl: film.poster_url,
+    likeCount: likeCounts.get(film.id) ?? 0,
+    commentCount: commentCounts.get(film.id) ?? 0,
+    viewerHasLiked: likedIds.has(film.id),
+    publishedAt: film.published_at,
+    creator: profileMap.get(film.creator_id) ?? {
+      handle: "",
+      displayName: "",
+      avatarUrl: null,
+    },
+  }));
+}
+
+export async function listCuratedFilms(input?: {
+  pageSize?: number;
+}): Promise<PublicFilmCard[]> {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const pageSize = Math.min(12, Math.max(1, input?.pageSize ?? 3));
+
+  try {
+    const { data, error } = await supabase
+      .from("films")
+      .select("id, title, slug, synopsis, poster_url, published_at, creator_id, is_featured")
+      .eq("publish_status", "published")
+      .eq("visibility", "public")
+      .order("is_featured", { ascending: false })
+      .order("published_at", { ascending: false })
+      .limit(pageSize * 3);
+
+    if (error) {
+      throw error;
+    }
+
+    const featuredRows = (data ?? []).filter((film) => Boolean(film.is_featured));
+    const selectedRows = (featuredRows.length > 0 ? featuredRows : data ?? []).slice(0, pageSize);
+
+    return hydratePublicFilmCards(supabase, selectedRows);
+  } catch {
+    const { data, error } = await supabase
+      .from("films")
+      .select("id, title, slug, synopsis, poster_url, published_at, creator_id")
+      .eq("publish_status", "published")
+      .eq("visibility", "public")
+      .order("published_at", { ascending: false })
+      .limit(pageSize);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return hydratePublicFilmCards(supabase, (data ?? []) as PublicFilmRow[]);
+  }
+}
+
 export async function listPublishedFilms(input?: {
   page?: number;
   pageSize?: number;
@@ -499,54 +612,8 @@ export async function listPublishedFilms(input?: {
     };
   }
 
-  const creatorIds = [...new Set(films.map((film) => film.creator_id))];
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select("id, handle, display_name, avatar_url")
-    .in("id", creatorIds);
-
-  if (profilesError) {
-    throw new Error(profilesError.message);
-  }
-
-  const likeCounts = await getFilmLikeCounts(films.map((film) => film.id));
-  const commentCounts = await getFilmCommentCounts(films.map((film) => film.id));
-  const likedIds = await getViewerLikedFilmIds(
-    films.map((film) => film.id),
-    user?.id,
-  );
-
-  const profileMap = new Map(
-    (profiles ?? []).map((profile) => [
-      profile.id,
-      {
-        handle: String(profile.handle ?? ""),
-        displayName: String(profile.display_name ?? ""),
-        avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
-      },
-    ]),
-  );
-
   return {
-    films: films.slice(0, pageSize).map((film) => ({
-      id: film.id,
-      title: film.title,
-      slug: film.slug,
-      synopsis: film.synopsis,
-      posterUrl: film.poster_url,
-      likeCount: likeCounts.get(film.id) ?? 0,
-      commentCount: commentCounts.get(film.id) ?? 0,
-      viewerHasLiked: likedIds.has(film.id),
-      publishedAt: film.published_at,
-      creator: profileMap.get(film.creator_id) ?? {
-        handle: "",
-        displayName: "",
-        avatarUrl: null,
-      },
-    })),
+    films: await hydratePublicFilmCards(supabase, films.slice(0, pageSize) as PublicFilmRow[]),
     hasMore: films.length > pageSize,
   };
 }

@@ -105,7 +105,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
           <div className="mt-8 border-t border-white/10 pt-6">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="display-kicker">Published Films</p>
+                <p className="display-kicker">The filmmakers behind the work</p>
                 <h2 className="title-md mt-2 text-foreground">
                   {films.length === 0 ? "No public releases yet" : `${films.length} public release${films.length === 1 ? "" : "s"}`}
                 </h2>

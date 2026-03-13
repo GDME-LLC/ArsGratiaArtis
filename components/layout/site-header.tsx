@@ -5,7 +5,7 @@ import { siteConfig } from "@/lib/constants/site";
 
 const navItems = [
   { href: "/manifesto", label: "Manifesto" },
-  { href: "/feed", label: "Feed" },
+  { href: "/feed", label: "New Releases" },
   { href: "/resources", label: "Resources" },
 ];
 

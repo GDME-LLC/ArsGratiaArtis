@@ -2,7 +2,7 @@ import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
 import { StatePanel } from "@/components/shared/state-panel";
-import { listPublishedFilms } from "@/lib/services/films";
+import { listCuratedFilms, listPublishedFilms } from "@/lib/services/films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 type FeedPageProps = {
@@ -26,6 +26,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const params = searchParams ? await searchParams : undefined;
   const page = Number(params?.page ?? "1");
   const currentPage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const staffPicks = await listCuratedFilms({ pageSize: 3 });
   const { films, hasMore } = await listPublishedFilms({
     page: currentPage,
     pageSize: 9,
@@ -33,10 +34,25 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
   return (
     <SectionShell className="py-14 sm:py-16">
+      {staffPicks.length > 0 ? (
+        <div>
+          <PageIntro
+            eyebrow="Staff Picks"
+            title="Staff Picks"
+            description="Selected for craft, voice, or originality."
+          />
+
+          <div className="mt-8">
+            <PublicFilmFeed films={staffPicks} />
+          </div>
+        </div>
+      ) : null}
+
+      <div className={staffPicks.length > 0 ? "mt-12" : ""}>
       <PageIntro
-        eyebrow="Feed"
-        title="A running feed of recent releases."
-        description="Browse newly published films across ArsGratia, with enough context to keep discovery useful without slowing the scan."
+        eyebrow="New Releases"
+        title="New Releases"
+        description="Fresh films published on ArsGratia."
       />
 
       {films.length === 0 ? (
@@ -55,6 +71,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           />
         </div>
       )}
+      </div>
     </SectionShell>
   );
 }

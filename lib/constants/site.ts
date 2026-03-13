@@ -1,9 +1,9 @@
 export const siteConfig = {
   name: "ArsGratia",
-  motto: "Ars Gratia Artis",
+  motto: "ARS GRATIA ARTIS",
   description:
     "A creator-first home for releasing films, shaping a public presence, and sharing the craft behind the work.",
-  heroTitle: "Cinema for creators who want the work to land with authorship.",
+  heroTitle: "Cinema belongs to creators again.",
   heroDescription:
-    "ArsGratia gives filmmakers a serious public home for releases, creator pages, and selected process notes without flattening the work into generic product furniture.",
+    "ArsGratia is a home for AI filmmakers publishing authored work with releases, process, and presence attached.",
 } as const;

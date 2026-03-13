@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/constants/site";
 
 const footerLinks = [
   { href: "/manifesto", label: "Manifesto" },
-  { href: "/feed", label: "Feed" },
+  { href: "/feed", label: "New Releases" },
   { href: "/resources", label: "Resources" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
