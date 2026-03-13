@@ -12,46 +12,60 @@ export default async function HomePage() {
   const staffPicks = hasSupabaseServerEnv()
     ? await listCuratedFilms({ pageSize: 3 })
     : [];
-  const featuredFilms = hasSupabaseServerEnv()
-    ? await listPublishedFilms({ page: 1, pageSize: 3 })
+  const recentResponse = hasSupabaseServerEnv()
+    ? await listPublishedFilms({ page: 1, pageSize: 9 })
     : { films: [], hasMore: false };
-  const spotlightFilm = staffPicks[0] ?? featuredFilms.films[0] ?? null;
+
+  const staffPickIds = new Set(staffPicks.map((film) => film.id));
+  const featuredReleases = recentResponse.films
+    .filter((film) => !staffPickIds.has(film.id))
+    .slice(0, 3);
+  const featuredReleaseIds = new Set(featuredReleases.map((film) => film.id));
+  const newReleases = recentResponse.films
+    .filter((film) => !staffPickIds.has(film.id) && !featuredReleaseIds.has(film.id))
+    .slice(0, 3);
+
+  const showStaffPicks = staffPicks.length > 0;
+  const showFeaturedReleases = featuredReleases.length > 0;
+  const releaseFeed = showFeaturedReleases || showStaffPicks ? newReleases : recentResponse.films.slice(0, 3);
+  const spotlightFilm = staffPicks[0] ?? featuredReleases[0] ?? recentResponse.films[0] ?? null;
+  const spotlightLabel = staffPicks.length > 0 ? "Staff Pick" : featuredReleases.length > 0 ? "Featured Film" : "Latest Release";
 
   return (
     <div className="pb-20">
-      <Hero spotlightFilm={spotlightFilm} spotlightLabel="Staff Pick" />
+      <Hero spotlightFilm={spotlightFilm} spotlightLabel={spotlightLabel} />
 
-      <SectionShell className="mt-3">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="eyebrow">Staff Picks</p>
-            <h2 className="headline-lg mt-3 text-foreground">Staff Picks</h2>
-            <p className="body-lg mt-3">Selected for craft, voice, or originality.</p>
+      {showStaffPicks ? (
+        <SectionShell className="mt-3">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <p className="eyebrow">Staff Picks</p>
+              <h2 className="headline-lg mt-3 text-foreground">Staff Picks</h2>
+              <p className="body-lg mt-3">Selected for craft, voice, or originality.</p>
+            </div>
           </div>
-        </div>
 
-        {staffPicks.length > 0 ? (
           <div className="mt-6">
             <PublicFilmFeed films={staffPicks} />
           </div>
-        ) : null}
-      </SectionShell>
+        </SectionShell>
+      ) : null}
 
-      <SectionShell className="mt-7">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="eyebrow">Featured Releases</p>
-            <h2 className="headline-lg mt-3 text-foreground">Featured Releases</h2>
-            <p className="body-lg mt-3">A rotating selection of standout work.</p>
+      {showFeaturedReleases ? (
+        <SectionShell className="mt-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <p className="eyebrow">Featured Releases</p>
+              <h2 className="headline-lg mt-3 text-foreground">Featured Releases</h2>
+              <p className="body-lg mt-3">A rotating selection of standout work.</p>
+            </div>
           </div>
-        </div>
 
-        {staffPicks.length > 0 ? (
           <div className="mt-6">
-            <PublicFilmFeed films={staffPicks} />
+            <PublicFilmFeed films={featuredReleases} />
           </div>
-        ) : null}
-      </SectionShell>
+        </SectionShell>
+      ) : null}
 
       <SectionShell className="mt-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -65,9 +79,9 @@ export default async function HomePage() {
           </Button>
         </div>
 
-        {featuredFilms.films.length > 0 ? (
+        {releaseFeed.length > 0 ? (
           <div className="mt-6">
-            <PublicFilmFeed films={featuredFilms.films} />
+            <PublicFilmFeed films={releaseFeed} />
           </div>
         ) : (
           <div className="surface-panel mt-6 p-6">
@@ -89,7 +103,7 @@ export default async function HomePage() {
 
         <div className="grid gap-3 sm:grid-cols-2">
           <article className="surface-panel p-5">
-            <p className="display-kicker">Primary</p>
+            <p className="display-kicker">Watch</p>
             <h3 className="title-md mt-3 text-foreground">Watch New Work</h3>
             <p className="body-sm mt-2">Start with recent releases and move directly into individual film pages.</p>
             <Button asChild size="lg" className="mt-4">
@@ -97,15 +111,15 @@ export default async function HomePage() {
             </Button>
           </article>
           <article className="surface-panel p-5">
-            <p className="display-kicker">Profiles</p>
+            <p className="display-kicker">Filmmakers</p>
             <h3 className="title-md mt-3 text-foreground">Meet the Filmmakers</h3>
             <p className="body-sm mt-2">The filmmakers behind the work stay close to the releases, so discovery begins with the film rather than profile-chasing.</p>
             <Button asChild size="lg" variant="ghost" className="mt-4">
-              <Link href="/feed">Meet the Filmmakers</Link>
+              <Link href="/filmmakers">Meet the Filmmakers</Link>
             </Button>
           </article>
           <article className="surface-panel p-5">
-            <p className="display-kicker">Context</p>
+            <p className="display-kicker">Process</p>
             <h3 className="title-md mt-3 text-foreground">Tools Behind the Work</h3>
             <p className="body-sm mt-2">Prompts, workflows, and tool choices connected to the films.</p>
             <Button asChild size="lg" variant="ghost" className="mt-4">
@@ -113,7 +127,7 @@ export default async function HomePage() {
             </Button>
           </article>
           <article className="surface-panel p-5">
-            <p className="display-kicker">Publishing</p>
+            <p className="display-kicker">Publish</p>
             <h3 className="title-md mt-3 text-foreground">Start your release page</h3>
             <p className="body-sm mt-2">Claim a creator page, shape your public presence, and begin preparing your first film entry.</p>
             <Button asChild size="lg" variant="ghost" className="mt-4">
@@ -121,7 +135,7 @@ export default async function HomePage() {
             </Button>
           </article>
           <article className="surface-panel p-5">
-            <p className="display-kicker">Editorial</p>
+            <p className="display-kicker">Manifesto</p>
             <h3 className="title-md mt-3 text-foreground">Read the Manifesto</h3>
             <p className="body-sm mt-2">Read the editorial stance behind ArsGratia before you step further into the work.</p>
             <Button asChild size="lg" variant="ghost" className="mt-4">

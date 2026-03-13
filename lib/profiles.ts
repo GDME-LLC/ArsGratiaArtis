@@ -8,7 +8,12 @@ import {
 } from "@/lib/services/engagement";
 import { getFilmCommentCounts } from "@/lib/services/comments";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import type { Profile, PublicCreatorProfileData, PublicFilmCard } from "@/types";
+import type {
+  Profile,
+  PublicCreatorListItem,
+  PublicCreatorProfileData,
+  PublicFilmCard,
+} from "@/types";
 
 function normalizeHandleCandidate(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9_]/g, "");
@@ -196,6 +201,117 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
       publishedAt: film.published_at,
     })) satisfies PublicFilmCard[],
   };
+}
+
+export async function listPublicCreators(limit = 12): Promise<PublicCreatorListItem[]> {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data: profiles, error: profilesError } = await supabase
+    .from("profiles")
+    .select("id, handle, display_name, bio, avatar_url, is_creator")
+    .eq("is_public", true)
+    .eq("is_creator", true)
+    .limit(limit);
+
+  if (profilesError) {
+    throw new Error(profilesError.message);
+  }
+
+  const profileIds = (profiles ?? []).map((profile) => profile.id);
+
+  if (profileIds.length === 0) {
+    return [];
+  }
+
+  const { data: films, error: filmsError } = await supabase
+    .from("films")
+    .select("id, creator_id, title, slug, synopsis, published_at, series_id")
+    .in("creator_id", profileIds)
+    .eq("publish_status", "published")
+    .eq("visibility", "public")
+    .order("published_at", { ascending: false });
+
+  if (filmsError) {
+    throw new Error(filmsError.message);
+  }
+
+  const filmCountMap = new Map<string, number>();
+  const latestPublishedAtMap = new Map<string, string>();
+  const seriesCountMap = new Map<string, Set<string>>();
+  const releasePreviewMap = new Map<
+    string,
+    Array<{
+      id: string;
+      title: string;
+      slug: string;
+      synopsis: string | null;
+      publishedAt: string | null;
+    }>
+  >();
+
+  for (const film of films ?? []) {
+    filmCountMap.set(film.creator_id, (filmCountMap.get(film.creator_id) ?? 0) + 1);
+
+    if (film.published_at && !latestPublishedAtMap.has(film.creator_id)) {
+      latestPublishedAtMap.set(film.creator_id, film.published_at);
+    }
+
+    if (film.series_id) {
+      if (!seriesCountMap.has(film.creator_id)) {
+        seriesCountMap.set(film.creator_id, new Set());
+      }
+
+      seriesCountMap.get(film.creator_id)?.add(film.series_id);
+    }
+
+    const existingPreviews = releasePreviewMap.get(film.creator_id) ?? [];
+    if (existingPreviews.length < 2) {
+      existingPreviews.push({
+        id: film.id,
+        title: film.title,
+        slug: film.slug,
+        synopsis: film.synopsis,
+        publishedAt: film.published_at,
+      });
+      releasePreviewMap.set(film.creator_id, existingPreviews);
+    }
+  }
+
+  const followerCounts = new Map<string, number>();
+  await Promise.all(
+    profileIds.map(async (profileId) => {
+      followerCounts.set(String(profileId), await getFollowerCount(String(profileId)));
+    }),
+  );
+
+  return (profiles ?? [])
+    .map((profile) => ({
+      id: String(profile.id),
+      handle: String(profile.handle),
+      displayName: String(profile.display_name ?? ""),
+      bio: typeof profile.bio === "string" ? profile.bio : null,
+      avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
+      isCreator: Boolean(profile.is_creator),
+      followerCount: followerCounts.get(String(profile.id)) ?? 0,
+      publicFilmCount: filmCountMap.get(String(profile.id)) ?? 0,
+      seriesCount: seriesCountMap.get(String(profile.id))?.size ?? 0,
+      featuredReleases: releasePreviewMap.get(String(profile.id)) ?? [],
+      latestPublishedAt: latestPublishedAtMap.get(String(profile.id)) ?? "",
+    }))
+    .filter((profile) => profile.publicFilmCount > 0)
+    .sort((a, b) => {
+      if (a.latestPublishedAt && b.latestPublishedAt) {
+        return b.latestPublishedAt.localeCompare(a.latestPublishedAt);
+      }
+
+      return b.publicFilmCount - a.publicFilmCount;
+    })
+    .slice(0, limit)
+    .map(({ latestPublishedAt, ...profile }) => profile);
 }
 
 export function mapProfile(row: Record<string, unknown>): Profile {

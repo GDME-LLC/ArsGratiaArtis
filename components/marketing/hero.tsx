@@ -62,7 +62,7 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
               <Link href="/feed">Watch New Work</Link>
             </Button>
             <Button asChild size="lg" variant="ghost">
-              <Link href="/feed">Meet the Filmmakers</Link>
+              <Link href="/filmmakers">Meet the Filmmakers</Link>
             </Button>
             <Button asChild size="lg" variant="ghost">
               <Link href="/signup">Become a Creator</Link>

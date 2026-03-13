@@ -163,6 +163,25 @@ export type PublicCreatorProfileData = {
   films: PublicFilmCard[];
 };
 
+export type PublicCreatorListItem = {
+  id: string;
+  handle: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  isCreator: boolean;
+  followerCount: number;
+  publicFilmCount: number;
+  seriesCount: number;
+  featuredReleases: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    synopsis: string | null;
+    publishedAt: string | null;
+  }>;
+};
+
 export type FilmComment = {
   id: string;
   authorId: string;
