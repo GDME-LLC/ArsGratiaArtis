@@ -6,6 +6,8 @@ const footerLinks = [
   { href: "/manifesto", label: "Manifesto" },
   { href: "/feed", label: "Feed" },
   { href: "/resources", label: "Resources" },
+  { href: "/terms", label: "Terms" },
+  { href: "/privacy", label: "Privacy" },
 ];
 
 export function SiteFooter() {
@@ -17,7 +19,7 @@ export function SiteFooter() {
             {siteConfig.name}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            {siteConfig.description}
+            Releases, creator pages, and selected craft notes for invited filmmakers.
           </p>
         </div>
 

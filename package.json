@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "clean:dev": "node scripts/clean-dist.mjs .next",
+    "clean:build": "node scripts/clean-dist.mjs .next-build",
+    "dev": "npm run clean:dev && next dev",
+    "build": "npm run clean:build && set NEXT_DIST_DIR=.next-build && next build",
+    "start": "set NEXT_DIST_DIR=.next-build && next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "verify:safe": "npm run lint && npm run typecheck"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
@@ -15,19 +19,19 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.511.0",
-    "next": "^15.2.2",
+    "next": "15.5.12",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^15.2.2",
+    "@next/eslint-plugin-next": "15.5.12",
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.21.0",
-    "eslint-config-next": "^15.2.2",
+    "eslint-config-next": "15.5.12",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.2"

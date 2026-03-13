@@ -1,9 +1,11 @@
 .next
+.next-build
 node_modules
 .vercel
 dist
 build
 coverage
+*.tsbuildinfo
 *.log
 .env
 .env.local

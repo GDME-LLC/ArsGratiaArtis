@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { FilmVideoUpload } from "@/components/films/film-video-upload";
 import { Button } from "@/components/ui/button";
 import { normalizeSlug } from "@/lib/films/slug";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,9 @@ type FormState = {
   synopsis: string;
   description: string;
   poster_url: string;
+  prompt_text: string;
+  workflow_notes: string;
+  prompt_visibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publish_status: "draft" | "published" | "archived";
 };
@@ -30,6 +34,9 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
     synopsis: initialFilm?.synopsis ?? "",
     description: initialFilm?.description ?? "",
     poster_url: initialFilm?.posterUrl ?? "",
+    prompt_text: initialFilm?.promptText ?? "",
+    workflow_notes: initialFilm?.workflowNotes ?? "",
+    prompt_visibility: initialFilm?.promptVisibility ?? "private",
     visibility: initialFilm?.visibility ?? "private",
     publish_status: initialFilm?.publishStatus ?? "draft",
   });
@@ -38,8 +45,8 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
   const submitLabel = isSaving
     ? "Saving..."
     : initialFilm?.id
-      ? "Save Film"
-      : "Create Draft";
+      ? "Save Release"
+      : "Create Draft Release";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,6 +80,9 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
           synopsis: form.synopsis.trim() || null,
           description: form.description.trim() || null,
           poster_url: form.poster_url.trim() || null,
+          prompt_text: form.prompt_text.trim() || null,
+          workflow_notes: form.workflow_notes.trim() || null,
+          prompt_visibility: form.prompt_visibility,
           visibility: form.visibility,
           publish_status: form.publish_status,
         }),
@@ -95,18 +105,30 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
   }
 
   return (
-    <form className="surface-panel cinema-frame p-8 sm:p-10" onSubmit={handleSubmit}>
+    <form className="surface-panel cinema-frame p-6 sm:p-8" onSubmit={handleSubmit}>
       <div className="space-y-1">
         <p className="display-kicker">Film Draft</p>
         <h1 className="headline-lg">
-          {initialFilm?.id ? "Edit your draft film" : "Create a new film draft"}
+          {initialFilm?.id ? "Edit your draft release" : "Create a new draft release"}
         </h1>
         <p className="body-sm">
-          Set the core film metadata now. Video upload and streaming come later.
+          Set the core release details now. Poster-led film pages are supported, and video can be attached later.
+        </p>
+      </div>
+
+      <div className="mt-6 rounded-[22px] border border-white/10 bg-white/5 p-5">
+        <p className="display-kicker">Publishing Notes</p>
+        <p className="body-sm mt-3">
+          A strong poster, title, synopsis, and public slug are enough to open the page well. Add video when the cut is ready to screen.
         </p>
       </div>
 
       <div className="mt-8 grid gap-5">
+        <FilmVideoUpload
+          filmId={initialFilm?.id}
+          initialMuxPlaybackId={initialFilm?.muxPlaybackId ?? null}
+        />
+
         <Field label="Title">
           <input
             value={form.title}
@@ -118,7 +140,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
               }))
             }
             className={inputClassName}
-            placeholder="Film title"
+            placeholder="Title of the film"
           />
         </Field>
 
@@ -146,7 +168,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
               }))
             }
             className={cn(inputClassName, "min-h-24 py-3")}
-            placeholder="Short synopsis"
+            placeholder="Short line for the public page"
           />
         </Field>
 
@@ -160,7 +182,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
               }))
             }
             className={cn(inputClassName, "min-h-36 py-3")}
-            placeholder="Longer description"
+            placeholder="Longer note about the film, release, or context"
           />
         </Field>
 
@@ -178,7 +200,52 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
           />
         </Field>
 
+        <Field label="Prompt">
+          <textarea
+            value={form.prompt_text}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                prompt_text: event.target.value,
+              }))
+            }
+            className={cn(inputClassName, "min-h-32 py-3")}
+            placeholder="Optional prompt text, creative brief, or excerpt"
+          />
+        </Field>
+
+        <Field label="Workflow Notes">
+          <textarea
+            value={form.workflow_notes}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                workflow_notes: event.target.value,
+              }))
+            }
+            className={cn(inputClassName, "min-h-32 py-3")}
+            placeholder="Optional notes on process, iteration, tools, or production approach"
+          />
+        </Field>
+
         <div className="grid gap-5 md:grid-cols-2">
+          <Field label="Prompt visibility">
+            <select
+              value={form.prompt_visibility}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  prompt_visibility: event.target.value as FormState["prompt_visibility"],
+                }))
+              }
+              className={inputClassName}
+            >
+              <option value="private">Private</option>
+              <option value="followers">Followers</option>
+              <option value="public">Public</option>
+            </select>
+          </Field>
+
           <Field label="Visibility">
             <select
               value={form.visibility}
@@ -195,7 +262,9 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
               <option value="public">Public</option>
             </select>
           </Field>
+        </div>
 
+        <div className="grid gap-5 md:grid-cols-2">
           <Field label="Publish status">
             <select
               value={form.publish_status}
@@ -225,7 +294,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
             {submitLabel}
           </Button>
           <p className="body-sm self-center">
-            Public route target:{" "}
+            Public route:{" "}
             <span className="text-foreground">
               /film/{normalizeSlug(form.slug || form.title || "your-film")}
             </span>

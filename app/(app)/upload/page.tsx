@@ -18,8 +18,8 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     return (
       <section className="container-shell py-20">
         <StatePanel
-          title="Upload is in local fallback mode"
-          description="The route renders locally without Supabase, but draft film creation activates only when auth and database env vars are present."
+          title="The creator editor needs live auth and database access"
+          description="Local shell mode can render this page, but draft creation and saved edits only work once Supabase is connected."
         />
       </section>
     );
@@ -39,7 +39,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <section className="container-shell py-20">
           <StatePanel
             title="Profile unavailable"
-            description="Your account is signed in, but the creator profile could not be loaded."
+            description="Your account is signed in, but the creator record could not be loaded."
           />
         </section>
       );
@@ -50,7 +50,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <section className="container-shell py-20">
           <StatePanel
             title="Creator mode required"
-            description="Turn on creator mode in settings before creating or editing film drafts."
+            description="Turn on creator mode in settings before creating or editing releases."
           />
         </section>
       );
@@ -64,14 +64,23 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <section className="container-shell py-20">
           <StatePanel
             title="Draft not found"
-            description="That draft either does not exist or does not belong to the current user."
+            description="That draft either does not exist or does not belong to the current account."
           />
         </section>
       );
     }
 
     return (
-      <section className="container-shell py-20">
+      <section className="container-shell py-14">
+        <div className="mb-6 max-w-2xl">
+          <p className="display-kicker">Creator Workspace</p>
+          <h1 className="headline-lg mt-3">
+            {film ? "Refine your release page" : "Start a release page"}
+          </h1>
+          <p className="body-lg mt-4">
+            Poster-led film pages are supported. You can publish artwork, title, synopsis, and slug first, then attach video when delivery is ready.
+          </p>
+        </div>
         <FilmEditorForm initialFilm={film} />
       </section>
     );
@@ -79,7 +88,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     return (
       <section className="container-shell py-20">
         <StatePanel
-          title="Film editor failed to load"
+          title="The release editor could not be loaded"
           description={error instanceof Error ? error.message : "An unexpected error occurred."}
         />
       </section>

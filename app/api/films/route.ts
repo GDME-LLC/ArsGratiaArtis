@@ -17,6 +17,9 @@ type FilmPayload = {
   synopsis?: string | null;
   description?: string | null;
   poster_url?: string | null;
+  prompt_text?: string | null;
+  workflow_notes?: string | null;
+  prompt_visibility?: "public" | "followers" | "private";
   visibility?: "public" | "unlisted" | "private";
   publish_status?: "draft" | "published" | "archived";
 };
@@ -61,6 +64,7 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
   const slug = normalizeSlug(payload.slug || title);
   const visibility = payload.visibility ?? "private";
   const publishStatus = payload.publish_status ?? "draft";
+  const promptVisibility = payload.prompt_visibility ?? "private";
 
   if (!title) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
@@ -83,6 +87,9 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
       synopsis: payload.synopsis?.trim() || null,
       description: payload.description?.trim() || null,
       posterUrl: payload.poster_url?.trim() || null,
+      promptText: payload.prompt_text?.trim() || null,
+      workflowNotes: payload.workflow_notes?.trim() || null,
+      promptVisibility,
       visibility,
       publishStatus,
     });
