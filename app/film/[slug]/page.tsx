@@ -12,7 +12,7 @@ import { listFilmComments } from "@/lib/services/comments";
 import { getPublicFilmBySlug } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
-import { formatReleaseDate } from "@/lib/utils";
+import { formatCommentCount, formatReleaseDate } from "@/lib/utils";
 
 type FilmPageProps = {
   params: Promise<{
@@ -47,21 +47,26 @@ export default async function FilmPage({ params }: FilmPageProps) {
     posterUrl: data.posterUrl,
     muxPlaybackId: data.muxPlaybackId,
   });
-  const hasCreationPanel =
-    data.creation.tools.length > 0 ||
-    Boolean(data.creation.promptText) ||
-    Boolean(data.creation.workflowNotes);
   const releaseDate = formatReleaseDate(data.publishedAt);
+  const hasTools = data.creation.tools.length > 0;
+  const hasWorkflowNotes = Boolean(data.creation.workflowNotes);
+  const hasPromptText = Boolean(data.creation.promptText);
+  const hasAnyProcessMaterial = hasTools || hasWorkflowNotes || hasPromptText;
+  const promptVisibilityLabel =
+    data.creation.promptVisibility === "public"
+      ? "Visible on this release page"
+      : data.creation.promptVisibility === "followers"
+        ? "Visible to approved viewers"
+        : "Kept private by the creator";
+  const processSummary = !hasAnyProcessMaterial
+    ? "No process materials were shared for this release."
+    : data.creation.promptVisibility === "followers" && !hasPromptText && !hasWorkflowNotes && !hasTools
+      ? "Process materials are available only to approved viewers."
+      : "Selected process materials accompany this release.";
   const seriesMeta =
     data.series && (data.series.seasonNumber || data.series.episodeNumber)
       ? `${data.series.seasonNumber ? `Season ${data.series.seasonNumber}` : "Series"}${data.series.episodeNumber ? ` / Episode ${data.series.episodeNumber}` : ""}`
       : null;
-  const promptVisibilityLabel =
-    data.creation.promptVisibility === "public"
-      ? "Prompt visible on this release page."
-      : data.creation.promptVisibility === "followers"
-        ? "Prompt visible to approved viewers."
-        : "Prompt kept private by the creator.";
 
   return (
     <section className="container-shell py-16">
@@ -86,7 +91,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
           <p className="display-kicker">Film</p>
           <h1 className="headline-xl mt-4">{data.title}</h1>
           <p className="body-lg mt-4 max-w-3xl">
-            {data.synopsis || "Synopsis to follow."}
+            {data.synopsis || "A release note will appear here when the creator publishes one."}
           </p>
           <div className="mt-6 grid gap-6 border-t border-white/10 pt-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)]">
             <div className="max-w-3xl">
@@ -130,7 +135,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                 ) : null}
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Tools behind the work</p>
-                  {data.creation.tools.length > 0 ? (
+                  {hasTools ? (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {data.creation.tools.map((tool) => (
                         <span
@@ -142,7 +147,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-2 text-sm text-muted-foreground">No tools were listed for this release.</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{processSummary}</p>
                   )}
                 </div>
               </div>
@@ -156,7 +161,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
               initialLiked={data.engagement.viewerHasLiked}
             />
             <p className="mt-3 text-sm text-muted-foreground">
-              {data.engagement.commentCount} comment{data.engagement.commentCount === 1 ? "" : "s"}
+              {formatCommentCount(data.engagement.commentCount)}
             </p>
             <Link
               href={`/report?type=film&slug=${data.slug}`}
@@ -166,28 +171,37 @@ export default async function FilmPage({ params }: FilmPageProps) {
             </Link>
           </div>
 
-          {hasCreationPanel ? (
+          {hasAnyProcessMaterial ? (
             <div className="mt-8 border-t border-white/10 pt-6">
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
                   <p className="display-kicker">Tools behind the work</p>
-                  <p className="mt-4 text-sm text-muted-foreground">{promptVisibilityLabel}</p>
+                  <p className="mt-4 text-sm text-muted-foreground">{processSummary}</p>
                   <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Prompt visibility</p>
-                    <p className="mt-2 text-sm text-foreground">
-                      {data.creation.promptVisibility === "public"
-                        ? "Public"
-                        : data.creation.promptVisibility === "followers"
-                          ? "Approved viewers"
-                          : "Private"}
-                    </p>
+                    <p className="mt-2 text-sm text-foreground">{promptVisibilityLabel}</p>
                   </div>
-                  <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Prompt</p>
-                    <p className="mt-2 body-sm">
-                      {data.creation.promptText || promptVisibilityLabel}
-                    </p>
-                  </div>
+                  {hasPromptText ? (
+                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Prompt</p>
+                      <p className="mt-2 body-sm">{data.creation.promptText}</p>
+                    </div>
+                  ) : null}
+                  {hasTools ? (
+                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Listed tools</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {data.creation.tools.map((tool) => (
+                          <span
+                            key={tool.id}
+                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.16em] text-foreground"
+                          >
+                            {tool.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </article>
 
                 <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">

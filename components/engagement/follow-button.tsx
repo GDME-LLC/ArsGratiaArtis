@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { formatFollowerCount } from "@/lib/utils";
 
 type FollowButtonProps = {
   creatorId: string;
@@ -71,7 +72,8 @@ export function FollowButton({
       onClick={handleClick}
       disabled={isPending}
     >
-      {following ? "Following" : "Follow"} {count}
+      {following ? "Following" : "Follow"}
+      <span className="ml-2 text-muted-foreground">{formatFollowerCount(count)}</span>
     </Button>
   );
 }

@@ -26,7 +26,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const params = searchParams ? await searchParams : undefined;
   const page = Number(params?.page ?? "1");
   const currentPage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
-  const staffPicks = await listCuratedFilms({ pageSize: 3 });
+  const staffPicks = await listCuratedFilms({ pageSize: 6 });
   const { films, hasMore } = await listPublishedFilms({
     page: currentPage,
     pageSize: 9,
@@ -43,34 +43,34 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           />
 
           <div className="mt-8">
-            <PublicFilmFeed films={staffPicks} />
+            <PublicFilmFeed films={staffPicks} variant="row" />
           </div>
         </div>
       ) : null}
 
       <div className={staffPicks.length > 0 ? "mt-12" : ""}>
-      <PageIntro
-        eyebrow="New Releases"
-        title="New Releases"
-        description="Fresh films published on ArsGratia."
-      />
+        <PageIntro
+          eyebrow="New Releases"
+          title="New Releases"
+          description="Fresh films published on ArsGratia."
+        />
 
-      {films.length === 0 ? (
-        <div className="mt-8">
-          <StatePanel
-            title="No public releases yet"
-            description="This feed will fill as invited creators begin publishing. Poster-led release pages are supported, so a film can appear here before the final video is attached."
-          />
-        </div>
-      ) : (
-        <div className="mt-8">
-          <PublicFilmFeed
-            films={films}
-            hasMore={hasMore}
-            nextPageHref={`/feed?page=${currentPage + 1}`}
-          />
-        </div>
-      )}
+        {films.length === 0 ? (
+          <div className="mt-8">
+            <StatePanel
+              title="No public releases yet"
+              description="As creators begin publishing, new work will land here first. Until then, the homepage spotlight and filmmaker roster remain the best way into ArsGratia."
+            />
+          </div>
+        ) : (
+          <div className="mt-8">
+            <PublicFilmFeed
+              films={films}
+              hasMore={hasMore}
+              nextPageHref={`/feed?page=${currentPage + 1}`}
+            />
+          </div>
+        )}
       </div>
     </SectionShell>
   );

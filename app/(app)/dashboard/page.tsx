@@ -54,7 +54,7 @@ export default async function DashboardPage() {
                 {profile.displayName || profile.handle}
               </h1>
               <p className="body-lg mt-4">
-                Prepare releases, shape your public page, and keep the next film moving without losing the thread.
+                Prepare releases, shape your creator page, and keep the next film moving without losing the thread.
               </p>
             </div>
 
@@ -65,14 +65,14 @@ export default async function DashboardPage() {
                 </Button>
               ) : (
                 <Button asChild size="lg">
-                  <Link href="/settings">Enable Creator Mode</Link>
+                  <Link href="/settings">Request Creator Access</Link>
                 </Button>
               )}
               <Button asChild variant="ghost" size="lg">
                 <Link href="/settings">Edit Profile</Link>
               </Button>
               <Button asChild variant="ghost" size="lg">
-                <Link href={`/creator/${profile.handle}`}>View Public Page</Link>
+                <Link href={`/creator/${profile.handle}`}>View Creator Page</Link>
               </Button>
             </div>
           </div>
@@ -82,26 +82,26 @@ export default async function DashboardPage() {
               <p className="display-kicker">Handle</p>
               <p className="title-md mt-3 text-foreground">@{profile.handle}</p>
               <p className="body-sm mt-3">
-                This is the address viewers will return to when the work starts to circulate.
+                This is the address viewers will return to when your releases start circulating.
               </p>
             </article>
 
             <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">Creator Status</p>
+              <p className="display-kicker">Creator Access</p>
               <p className="title-md mt-3 text-foreground">
-                {profile.isCreator ? "Creator profile enabled" : "Viewer profile"}
+                {profile.isCreator ? "Publishing tools enabled" : "Account active, publishing access pending"}
               </p>
               <p className="body-sm mt-3">
                 {profile.isCreator
                   ? "Drafts, release pages, and publishing controls are active for this account."
-                  : "Turn creator mode on in settings when you are ready to prepare your first release."}
+                  : "New accounts can sign in immediately, while creator publishing access is enabled separately in smaller groups."}
               </p>
             </article>
 
             <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
               <p className="display-kicker">Bio</p>
               <p className="body-sm mt-3">
-                {profile.bio || "No public bio yet. Add one in settings so the page carries some authorship before the first visitor arrives."}
+                {profile.bio || "No public bio yet. Add one in settings so the page carries authorship before the first visitor arrives."}
               </p>
             </article>
           </div>
@@ -109,8 +109,8 @@ export default async function DashboardPage() {
           <div className="mt-8 border-t border-white/10 pt-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="display-kicker">Films</p>
-                <h2 className="headline-lg mt-3">Releases in progress and already out in public</h2>
+                <p className="display-kicker">Releases</p>
+                <h2 className="headline-lg mt-3">Drafts, poster-led pages, and published work</h2>
               </div>
               {profile.isCreator ? (
                 <Button asChild variant="ghost" size="lg">
@@ -121,18 +121,18 @@ export default async function DashboardPage() {
 
             {!profile.isCreator ? (
               <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
-                <p className="display-kicker">Creator Mode</p>
-                <p className="title-md mt-3 text-foreground">Release tools are not active yet</p>
+                <p className="display-kicker">Creator Access</p>
+                <p className="title-md mt-3 text-foreground">Publishing tools are not active yet</p>
                 <p className="body-sm mt-3">
-                  Enable creator mode in settings to open draft tools, publish poster-led release pages, and prepare films from this workspace.
+                  Complete your profile first. Creator publishing access is enabled separately so filmmaker pages and early releases can be onboarded with care.
                 </p>
               </div>
             ) : films.length === 0 ? (
               <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
                 <p className="display-kicker">First Release</p>
-                <p className="title-md mt-3 text-foreground">No films in your workspace yet</p>
+                <p className="title-md mt-3 text-foreground">No releases in your workspace yet</p>
                 <p className="body-sm mt-3">
-                  Start with a draft release page. Poster-led releases are supported, so you can publish artwork, title, and synopsis first, then attach video when the cut is ready.
+                  Start with a draft release page. Poster-led release pages are supported, so artwork, title, and synopsis can go live before the final video is attached.
                 </p>
               </div>
             ) : (
@@ -156,19 +156,19 @@ export default async function DashboardPage() {
                           />
                         </div>
                         <div className="max-w-3xl">
-                        <p className="display-kicker">
-                          {film.publishStatus} / {film.visibility}
-                        </p>
-                        <p className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/88">
-                          {getFilmCategoryLabel(film.category)}
-                        </p>
-                        <h3 className="title-md mt-3 text-foreground">{film.title}</h3>
-                        <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                          slug / {film.slug}
-                        </p>
-                        <p className="body-sm mt-3">
-                          {film.synopsis || "No synopsis added yet."}
-                        </p>
+                          <p className="display-kicker">
+                            {film.publishStatus} / {film.visibility}
+                          </p>
+                          <p className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/88">
+                            {getFilmCategoryLabel(film.category)}
+                          </p>
+                          <h3 className="title-md mt-3 text-foreground">{film.title}</h3>
+                          <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                            slug / {film.slug}
+                          </p>
+                          <p className="body-sm mt-3">
+                            {film.synopsis || "No synopsis added yet."}
+                          </p>
                         </div>
                       </div>
 

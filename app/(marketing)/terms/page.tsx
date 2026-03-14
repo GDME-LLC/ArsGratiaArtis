@@ -1,5 +1,6 @@
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
+import { siteConfig } from "@/lib/constants/site";
 
 type PolicySection = {
   title: string;
@@ -12,7 +13,7 @@ const sections: PolicySection[] = [
     title: "Welcome to ArsGratia.",
     paragraphs: [
       "ArsGratia is a platform for publishing and discovering independent films created with emerging tools and creative workflows. By accessing or using ArsGratia, you agree to these Terms.",
-      "These Terms may evolve as the platform grows.",
+      "These Terms are a baseline for the current invite-stage platform and may evolve as the service, moderation tooling, and creator program grow.",
     ],
   },
   {
@@ -28,7 +29,7 @@ const sections: PolicySection[] = [
     title: "2. Creator Ownership and License",
     paragraphs: [
       "Creators retain ownership of the films, artwork, text, and related materials they publish on ArsGratia.",
-      "By publishing content on ArsGratia, a creator grants ArsGratia a non-exclusive, revocable license to host, display, stream, reproduce, and promote that content only as necessary to operate, improve, and promote the platform and the creator’s work within it.",
+      "By publishing content on ArsGratia, a creator grants ArsGratia a non-exclusive, revocable license to host, display, stream, reproduce, and promote that content only as necessary to operate, improve, and promote the platform and the creator's work within it.",
       "ArsGratia does not claim ownership of creator works.",
       "This license does not transfer ownership and does not prevent creators from publishing, licensing, selling, or exhibiting their work elsewhere unless they explicitly choose otherwise through a separate written agreement.",
     ],
@@ -50,6 +51,7 @@ const sections: PolicySection[] = [
     paragraphs: [
       "You are responsible for maintaining the security of your account.",
       "ArsGratia may suspend or terminate accounts that abuse the platform or violate these Terms.",
+      "Account creation may be open while creator publishing access is enabled in smaller groups. That access model may change as the platform grows.",
     ],
   },
   {
@@ -70,14 +72,15 @@ const sections: PolicySection[] = [
     title: "7. Changes to These Terms",
     paragraphs: [
       "These Terms may be updated as ArsGratia grows.",
-      "If material changes are made, update the \"Last updated\" date on this page.",
+      "If material changes are made, the Last updated date on this page should be revised so creators can track the current baseline.",
     ],
   },
   {
     title: "8. Contact",
     paragraphs: [
       "Questions about these Terms may be directed to:",
-      "contact@arsgratia.example",
+      siteConfig.contactEmail,
+      "This address should route to a monitored inbox before broader public launch.",
     ],
   },
 ];
@@ -88,7 +91,7 @@ export default function TermsPage() {
       <PageIntro
         eyebrow="Terms"
         title="Terms of Service"
-        description="Last updated: March 2026"
+        description={`Last updated: ${siteConfig.legalLastUpdated}`}
       />
 
       <div className="mt-8 grid gap-4">

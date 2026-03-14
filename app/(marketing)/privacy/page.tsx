@@ -1,5 +1,6 @@
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
+import { siteConfig } from "@/lib/constants/site";
 
 type PolicySection = {
   title: string;
@@ -9,8 +10,11 @@ type PolicySection = {
 
 const sections: PolicySection[] = [
   {
-    title: "ArsGratia respects your privacy and aims to collect only the information necessary to operate the platform.",
-    paragraphs: ["This Privacy Policy may evolve as ArsGratia grows."],
+    title: "Overview",
+    paragraphs: [
+      "ArsGratia respects your privacy and aims to collect only the information necessary to operate the platform.",
+      "This Privacy Policy reflects the current invite-stage service and may evolve as the platform, infrastructure, and review process mature.",
+    ],
   },
   {
     title: "1. Information We Collect",
@@ -35,7 +39,7 @@ const sections: PolicySection[] = [
   {
     title: "3. Public Information",
     paragraphs: [
-      "Content published on ArsGratia — including films, creator profiles, comments, and interactions — may be publicly visible depending on your settings.",
+      "Content published on ArsGratia, including films, creator profiles, comments, and interactions, may be publicly visible depending on your settings.",
     ],
   },
   {
@@ -64,14 +68,15 @@ const sections: PolicySection[] = [
     title: "7. Changes to This Policy",
     paragraphs: [
       "We may update this Privacy Policy as ArsGratia evolves.",
-      "Changes will be reflected by updating the \"Last updated\" date.",
+      "Changes will be reflected by updating the Last updated date on this page.",
     ],
   },
   {
     title: "8. Contact",
     paragraphs: [
       "Privacy questions may be directed to:",
-      "privacy@arsgratia.example",
+      siteConfig.privacyEmail,
+      "This address should route to a monitored inbox before broader public launch.",
     ],
   },
 ];
@@ -82,7 +87,7 @@ export default function PrivacyPage() {
       <PageIntro
         eyebrow="Privacy"
         title="Privacy Policy"
-        description="Last updated: March 2026"
+        description={`Last updated: ${siteConfig.legalLastUpdated}`}
       />
 
       <div className="mt-8 grid gap-4">

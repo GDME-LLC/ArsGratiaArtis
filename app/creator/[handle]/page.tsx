@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { FilmArtwork } from "@/components/films/film-artwork";
+import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { FollowButton } from "@/components/engagement/follow-button";
 import { StatePanel } from "@/components/shared/state-panel";
-import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
-import { getFilmCategoryLabel } from "@/lib/films/categories";
 import { getPublicProfileByHandle } from "@/lib/profiles";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
+import { formatFollowerCount } from "@/lib/utils";
 
 type CreatorPageProps = {
   params: Promise<{
@@ -78,7 +77,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                 />
               </div>
               <p>
-                Followers: <span className="text-foreground">{profile.followerCount}</span>
+                Followers: <span className="text-foreground">{formatFollowerCount(profile.followerCount)}</span>
               </p>
               <p>
                 Filmmaker status:{" "}
@@ -108,58 +107,20 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
           <div className="mt-8 border-t border-white/10 pt-6">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="display-kicker">The filmmakers behind the work</p>
+                <p className="display-kicker">The filmmaker behind the work</p>
                 <h2 className="title-md mt-2 text-foreground">
-                  {films.length === 0 ? "No public releases yet" : `${films.length} public release${films.length === 1 ? "" : "s"}`}
+                  {films.length === 0 ? "No public releases yet" : `${films.length} public ${films.length === 1 ? "release" : "releases"}`}
                 </h2>
               </div>
             </div>
 
             {films.length === 0 ? (
               <div className="mt-6 rounded-[24px] border border-white/10 bg-white/5 px-6 py-8 text-sm text-muted-foreground">
-                This creator page is ready, but no public releases have premiered here yet.
+                This creator page is ready, but no public releases have premiered here yet. Return to the homepage to browse current work.
               </div>
             ) : (
-              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {films.map((film) => (
-                  <article key={film.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-                    <Link href={`/film/${film.slug}`} className="block">
-                      <FilmArtwork
-                        artworkUrl={getFilmArtworkUrl({
-                          posterUrl: film.posterUrl,
-                          muxPlaybackId: film.muxPlaybackId,
-                        })}
-                        previewUrl={film.muxPlaybackId ? getMuxAnimatedPreviewUrl(film.muxPlaybackId) : null}
-                        title={film.title}
-                      />
-                    </Link>
-                    <p className="display-kicker mt-4">{film.publishedAt ? "Published" : "Film"}</p>
-                    <p className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/88">
-                      {getFilmCategoryLabel(film.category)}
-                    </p>
-                    <h3 className="title-md mt-2 text-foreground">{film.title}</h3>
-                    {film.publishedAt ? (
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {new Date(film.publishedAt).getFullYear()}
-                      </p>
-                    ) : null}
-                    <p className="body-sm mt-2">{film.synopsis || "A synopsis will appear here when the release note is ready."}</p>
-                    <p className="mt-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-                      {film.commentCount} comment{film.commentCount === 1 ? "" : "s"} / slug {film.slug}
-                    </p>
-                    <div className="mt-3">
-                      <span className="text-sm text-muted-foreground">
-                        {film.likeCount} like{film.likeCount === 1 ? "" : "s"}
-                      </span>
-                    </div>
-                    <Link
-                      href={`/film/${film.slug}`}
-                      className="mt-4 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
-                    >
-                      Open release page
-                    </Link>
-                  </article>
-                ))}
+              <div className="mt-6">
+                <PublicFilmFeed films={films} variant="row" />
               </div>
             )}
           </div>

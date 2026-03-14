@@ -4,7 +4,7 @@ import { FilmArtwork } from "@/components/films/film-artwork";
 import { LikeButton } from "@/components/engagement/like-button";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { getFilmCategoryLabel } from "@/lib/films/categories";
-import { formatRelativeRelease } from "@/lib/utils";
+import { formatCommentCount, formatRelativeRelease } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
 
 type PublicFilmCardProps = {
@@ -17,7 +17,6 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
     muxPlaybackId: film.muxPlaybackId,
   });
   const previewUrl = film.muxPlaybackId ? getMuxAnimatedPreviewUrl(film.muxPlaybackId) : null;
-  const releaseYear = film.publishedAt ? new Date(film.publishedAt).getFullYear() : null;
 
   return (
     <article className="surface-panel cinema-frame flex h-full flex-col overflow-hidden">
@@ -32,7 +31,7 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
             {formatRelativeRelease(film.publishedAt)}
           </p>
           <p className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            {film.commentCount} comment{film.commentCount === 1 ? "" : "s"}
+            {formatCommentCount(film.commentCount)}
           </p>
         </div>
         <Link href={`/film/${film.slug}`} className="mt-3 block">
@@ -54,9 +53,8 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
         >
           {film.creator.displayName || `@${film.creator.handle}`}
         </Link>
-        {releaseYear ? <p className="mt-2 text-sm text-muted-foreground">{releaseYear}</p> : null}
         <Link href={`/film/${film.slug}`} className="block flex-1">
-          <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
+          <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
             {film.synopsis || "Release note to follow."}
           </p>
           <p className="mt-4 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">

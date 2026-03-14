@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { Hero } from "@/components/marketing/hero";
 import { SectionShell } from "@/components/marketing/section-shell";
+import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { Button } from "@/components/ui/button";
 import { BEYOND_CINEMA_CATEGORIES } from "@/lib/films/categories";
 import { listCreatorsToWatch } from "@/lib/profiles";
@@ -159,50 +160,52 @@ export default async function HomePage() {
             </Button>
           </div>
 
-          <div className="mt-6 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {creatorsToWatch.map((creator) => {
-              const latestRelease = creator.featuredReleases[0] ?? null;
+          <div className="mt-6">
+            <HorizontalRail ariaLabel="creators to watch">
+              {creatorsToWatch.map((creator) => {
+                const latestRelease = creator.featuredReleases[0] ?? null;
 
-              return (
-                <article
-                  key={creator.id}
-                  className="surface-panel cinema-frame w-[min(82vw,21rem)] shrink-0 overflow-hidden p-5 sm:w-[20rem]"
-                >
-                  <p className="display-kicker">Filmmaker</p>
-                  <h3 className="title-md mt-3 text-foreground">{creator.displayName}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">@{creator.handle}</p>
-                  <p className="body-sm mt-4 line-clamp-3">
-                    {creator.bio || "A public filmmaker page is live, with releases and series beginning to take shape."}
-                  </p>
-
-                  <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                    <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
-                      <p className="display-kicker">Followers</p>
-                      <p className="mt-2 text-foreground">{creator.followerCount}</p>
-                    </div>
-                    <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
-                      <p className="display-kicker">Films</p>
-                      <p className="mt-2 text-foreground">{creator.publicFilmCount}</p>
-                    </div>
-                    <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
-                      <p className="display-kicker">Series</p>
-                      <p className="mt-2 text-foreground">{creator.seriesCount}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 rounded-[20px] border border-white/10 bg-black/20 p-4">
-                    <p className="display-kicker">Latest Release</p>
-                    <p className="mt-3 text-sm text-foreground">
-                      {latestRelease?.title ?? "No public releases yet."}
+                return (
+                  <article
+                    key={creator.id}
+                    className="surface-panel cinema-frame w-[min(82vw,21rem)] shrink-0 snap-start overflow-hidden p-5 sm:w-[20rem]"
+                  >
+                    <p className="display-kicker">Filmmaker</p>
+                    <h3 className="title-md mt-3 text-foreground">{creator.displayName}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">@{creator.handle}</p>
+                    <p className="body-sm mt-4 line-clamp-3">
+                      {creator.bio || "A public filmmaker page is live, with releases and series beginning to take shape."}
                     </p>
-                  </div>
 
-                  <Button asChild size="lg" variant="ghost" className="mt-5">
-                    <Link href={`/creator/${creator.handle}`}>View filmmaker</Link>
-                  </Button>
-                </article>
-              );
-            })}
+                    <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
+                      <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
+                        <p className="display-kicker">Followers</p>
+                        <p className="mt-2 text-foreground">{creator.followerCount}</p>
+                      </div>
+                      <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
+                        <p className="display-kicker">Films</p>
+                        <p className="mt-2 text-foreground">{creator.publicFilmCount}</p>
+                      </div>
+                      <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
+                        <p className="display-kicker">Series</p>
+                        <p className="mt-2 text-foreground">{creator.seriesCount}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 rounded-[20px] border border-white/10 bg-black/20 p-4">
+                      <p className="display-kicker">Latest Release</p>
+                      <p className="mt-3 text-sm text-foreground">
+                        {latestRelease?.title ?? "No public releases yet."}
+                      </p>
+                    </div>
+
+                    <Button asChild size="lg" variant="ghost" className="mt-5">
+                      <Link href={`/creator/${creator.handle}`}>View filmmaker</Link>
+                    </Button>
+                  </article>
+                );
+              })}
+            </HorizontalRail>
           </div>
         </SectionShell>
       ) : null}

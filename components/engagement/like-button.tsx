@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { formatLikeCount } from "@/lib/utils";
 
 type LikeButtonProps = {
   filmId: string;
@@ -61,7 +62,8 @@ export function LikeButton({
       onClick={handleClick}
       disabled={isPending}
     >
-      {liked ? "Liked" : "Like"} {count}
+      {liked ? "Liked" : "Like"}
+      <span className="ml-2 text-muted-foreground">{formatLikeCount(count)}</span>
     </Button>
   );
 }

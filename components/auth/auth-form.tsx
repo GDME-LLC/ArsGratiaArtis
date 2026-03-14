@@ -27,23 +27,25 @@ type FormErrors = {
 const contentByMode = {
   login: {
     eyebrow: "Login",
-    title: "Enter the screening room",
+    title: "Return to your release workspace",
     description:
-      "Sign in to manage your films, creator profile, and publishing flow.",
+      "Sign in to manage your films, creator page, and publishing tools.",
     cta: "Log In",
     alternateHref: "/signup",
     alternateLabel: "Need an account?",
     submittingLabel: "Logging In...",
+    note: "Accounts are open now. Creator publishing access is enabled separately.",
   },
   signup: {
-    eyebrow: "Signup",
-    title: "Build your creator presence",
+    eyebrow: "Join ArsGratia",
+    title: "Start your account",
     description:
-      "Create your ArsGratia account to publish films and shape your cinematic identity.",
+      "Create your ArsGratia account now. Creator publishing access is being enabled in small groups through review or invitation.",
     cta: "Create Account",
     alternateHref: "/login",
     alternateLabel: "Already inside?",
     submittingLabel: "Creating Account...",
+    note: "After signup, your account is live but creator publishing access may remain off until review is complete.",
   },
 } as const;
 
@@ -140,7 +142,9 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
         return;
       }
 
-      setSuccessMessage("Check your email to confirm your account and finish signing in.");
+      setSuccessMessage(
+        "Check your email to confirm your account. New accounts can sign in immediately after confirmation, while creator publishing access is enabled separately.",
+      );
       setPassword("");
     } finally {
       setIsSubmitting(false);
@@ -179,6 +183,9 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
       <p className="eyebrow mt-4">{content.eyebrow}</p>
       <h1 className="headline-lg mt-4">{content.title}</h1>
       <p className="body-sm mt-4">{content.description}</p>
+      <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-muted-foreground">
+        {content.note}
+      </div>
 
       {!isAuthConfigured ? (
         <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
@@ -265,8 +272,9 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
       </Button>
 
       <p className="body-sm mt-6">
-        {mode === "signup" ? "By creating an account, you enter ArsGratia under " : "Inside ArsGratia, under "}
-        <span className="font-medium text-foreground">Ars Gratia Artis</span>.
+        {mode === "signup"
+          ? "Account creation is open now. Creator publishing access is reviewed separately so new filmmaker pages can come online with intention."
+          : "Once you are inside, you can manage your page, releases, and creator access from the dashboard."}
       </p>
 
       <Button asChild variant="ghost" size="lg" className="mt-6 w-full">

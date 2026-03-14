@@ -1,11 +1,12 @@
 import Link from "next/link";
 
+import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
 import { StatePanel } from "@/components/shared/state-panel";
 import { listPublicCreators } from "@/lib/profiles";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
-import { formatRelativeRelease } from "@/lib/utils";
+import { formatFollowerCount, formatRelativeRelease } from "@/lib/utils";
 
 export default async function FilmmakersPage() {
   if (!hasSupabaseServerEnv()) {
@@ -33,7 +34,7 @@ export default async function FilmmakersPage() {
         <div className="mt-8">
           <StatePanel
             title="No public filmmakers yet"
-            description="As invited creators begin publishing work, this roster will fill with filmmaker pages, released films, and connected series."
+            description="As creators begin publishing work, this roster will fill with filmmaker pages, released films, and connected series. Until then, browse the current front page selections."
           />
         </div>
       ) : (
@@ -55,9 +56,7 @@ export default async function FilmmakersPage() {
 
                   <div className="rounded-[22px] border border-white/10 bg-black/20 px-4 py-4 text-sm text-muted-foreground md:min-w-[210px]">
                     <p className="display-kicker">Presence</p>
-                    <p className="mt-2 text-foreground">
-                      {creator.followerCount} follower{creator.followerCount === 1 ? "" : "s"}
-                    </p>
+                    <p className="mt-2 text-foreground">{formatFollowerCount(creator.followerCount)}</p>
                     <Link
                       href={`/creator/${creator.handle}`}
                       className="mt-4 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
@@ -67,7 +66,7 @@ export default async function FilmmakersPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                     <p className="display-kicker">Released Films</p>
                     <p className="title-md mt-3 text-foreground">{creator.publicFilmCount}</p>
@@ -75,10 +74,6 @@ export default async function FilmmakersPage() {
                   <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                     <p className="display-kicker">Series</p>
                     <p className="title-md mt-3 text-foreground">{creator.seriesCount}</p>
-                  </div>
-                  <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
-                    <p className="display-kicker">Followers</p>
-                    <p className="title-md mt-3 text-foreground">{creator.followerCount}</p>
                   </div>
                   <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                     <p className="display-kicker">Latest Release</p>
@@ -105,27 +100,29 @@ export default async function FilmmakersPage() {
                   </div>
 
                   {creator.featuredReleases.length > 0 ? (
-                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                      {creator.featuredReleases.map((release) => (
-                        <article
-                          key={release.id}
-                          className="rounded-[20px] border border-white/10 bg-black/20 p-4"
-                        >
-                          <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                            {formatRelativeRelease(release.publishedAt)}
-                          </p>
-                          <h3 className="title-md mt-3 text-foreground">{release.title}</h3>
-                          <p className="body-sm mt-3">
-                            {release.synopsis || "Release notes and context will arrive with the film page."}
-                          </p>
-                          <Link
-                            href={`/film/${release.slug}`}
-                            className="mt-4 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                    <div className="mt-4">
+                      <HorizontalRail ariaLabel={`${creator.displayName} releases`}>
+                        {creator.featuredReleases.map((release) => (
+                          <article
+                            key={release.id}
+                            className="w-[min(75vw,17rem)] shrink-0 snap-start rounded-[20px] border border-white/10 bg-black/20 p-4 sm:w-[16rem]"
                           >
-                            View release
-                          </Link>
-                        </article>
-                      ))}
+                            <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                              {formatRelativeRelease(release.publishedAt)}
+                            </p>
+                            <h3 className="title-md mt-3 text-foreground">{release.title}</h3>
+                            <p className="body-sm mt-3">
+                              {release.synopsis || "Release notes and context will arrive with the film page."}
+                            </p>
+                            <Link
+                              href={`/film/${release.slug}`}
+                              className="mt-4 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                            >
+                              View release
+                            </Link>
+                          </article>
+                        ))}
+                      </HorizontalRail>
                     </div>
                   ) : (
                     <p className="mt-4 text-sm text-muted-foreground">No public releases yet.</p>

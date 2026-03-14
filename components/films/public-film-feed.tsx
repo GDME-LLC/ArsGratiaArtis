@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PublicFilmCard } from "@/components/films/public-film-card";
+import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { Button } from "@/components/ui/button";
 import type { PublicFilmCard as PublicFilmCardType } from "@/types";
 
@@ -20,13 +21,13 @@ export function PublicFilmFeed({
   if (variant === "row") {
     return (
       <>
-        <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <HorizontalRail ariaLabel="film releases">
           {films.map((film) => (
-            <div key={film.id} className="w-[min(76vw,18rem)] shrink-0 sm:w-[17rem] lg:w-[18rem]">
+            <div key={film.id} className="w-[min(76vw,18rem)] shrink-0 snap-start sm:w-[17rem] lg:w-[18rem]">
               <PublicFilmCard film={film} />
             </div>
           ))}
-        </div>
+        </HorizontalRail>
 
         {hasMore && nextPageHref ? (
           <div className="mt-8 flex justify-center">

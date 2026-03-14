@@ -20,7 +20,10 @@ export function SiteFooter() {
             {siteConfig.name}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Releases, creator pages, and selected craft notes for invited filmmakers.
+            Releases, creator pages, and selected craft notes for filmmakers publishing on ArsGratia.
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Contact: {siteConfig.contactEmail}
           </p>
           <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Copyright 2026 ArsGratia

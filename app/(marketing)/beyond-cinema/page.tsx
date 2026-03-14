@@ -46,8 +46,8 @@ export default async function BeyondCinemaPage() {
       {films.length === 0 ? (
         <div className="mt-8">
           <StatePanel
-            title="No releases in Beyond Cinema yet"
-            description="As creators publish animation, experimental, commercial, commentary, and short-form work, those releases will appear here."
+            title="Beyond Cinema is still taking shape"
+            description="As creators publish animation, experimental, commercial, commentary, and short-form work, those releases will collect here. For now, return to New Releases or the filmmaker roster."
           />
         </div>
       ) : (
