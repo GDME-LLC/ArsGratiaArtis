@@ -19,6 +19,10 @@ type NotificationRow = {
   read: boolean;
 };
 
+function isMissingRelationError(error: { message?: string } | null) {
+  return Boolean(error?.message?.toLowerCase().includes("notifications"));
+}
+
 export async function listNotificationsForUser(userId: string, limit = 10): Promise<NotificationItem[]> {
   const supabase = await createServerSupabaseClient();
 
@@ -34,6 +38,10 @@ export async function listNotificationsForUser(userId: string, limit = 10): Prom
     .limit(limit);
 
   if (error) {
+    if (isMissingRelationError(error)) {
+      return [];
+    }
+
     throw new Error(error.message);
   }
 
@@ -167,6 +175,10 @@ export async function getUnreadNotificationCount(userId: string): Promise<number
     .eq("read", false);
 
   if (error) {
+    if (isMissingRelationError(error)) {
+      return 0;
+    }
+
     throw new Error(error.message);
   }
 
@@ -193,6 +205,10 @@ export async function markNotificationsReadForUser(userId: string, ids?: string[
   const { error } = await query;
 
   if (error) {
+    if (isMissingRelationError(error)) {
+      return;
+    }
+
     throw new Error(error.message);
   }
 }
