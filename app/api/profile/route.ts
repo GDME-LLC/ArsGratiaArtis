@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { ensureProfileForUser, isValidHandle, mapProfile } from "@/lib/profiles";
+import { moderateTextFields } from "@/lib/security/moderation";
+import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 export async function PUT(request: Request) {
@@ -27,6 +29,16 @@ export async function PUT(request: Request) {
 
   await ensureProfileForUser(user);
 
+  const ip = await getRequestIp();
+  const rateLimit = await enforceRateLimit({
+    ...rateLimitPresets.profile,
+    key: `profile:${ip}:${user.id}`,
+  });
+
+  if (!rateLimit.ok) {
+    return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
+  }
+
   const payload = (await request.json()) as {
     handle?: string;
     display_name?: string;
@@ -51,6 +63,15 @@ export async function PUT(request: Request) {
 
   if (!displayName) {
     return NextResponse.json({ error: "Display name is required." }, { status: 400 });
+  }
+
+  const moderation = await moderateTextFields([
+    { label: "display_name", value: displayName },
+    { label: "bio", value: payload.bio ?? null },
+  ]);
+
+  if (!moderation.ok) {
+    return NextResponse.json({ error: moderation.message }, { status: 400 });
   }
 
   const { data: conflictingProfile } = await supabase

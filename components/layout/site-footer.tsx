@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { securityConfig } from "@/lib/constants/security";
 import { siteConfig } from "@/lib/constants/site";
 
 const footerLinks = [
@@ -7,6 +8,7 @@ const footerLinks = [
   { href: "/feed", label: "New Releases" },
   { href: "/beyond-cinema", label: "Beyond Cinema" },
   { href: "/resources", label: "Resources" },
+  { href: "/report", label: "Report Abuse" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
 ];
@@ -23,7 +25,13 @@ export function SiteFooter() {
             Releases, creator pages, and selected craft notes for filmmakers publishing on ArsGratia.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            Contact: {siteConfig.contactEmail}
+            Support: {siteConfig.contactEmail}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Abuse: {securityConfig.abuseEmail}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Copyright: {securityConfig.copyrightEmail}
           </p>
           <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Copyright 2026 ArsGratia

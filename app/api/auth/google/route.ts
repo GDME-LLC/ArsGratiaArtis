@@ -1,0 +1,58 @@
+import { NextResponse } from "next/server";
+
+import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
+import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
+import { verifyTurnstileToken } from "@/lib/security/turnstile";
+
+type GoogleAuthPayload = {
+  turnstileToken?: string;
+};
+
+export async function POST(request: Request) {
+  if (!hasSupabaseServerEnv()) {
+    return NextResponse.json({ error: "Authentication is not configured right now." }, { status: 503 });
+  }
+
+  const payload = (await request.json().catch(() => null)) as GoogleAuthPayload | null;
+  const ip = await getRequestIp();
+
+  const rateLimit = await enforceRateLimit({
+    ...rateLimitPresets.auth,
+    key: `auth:google:${ip}`,
+  });
+
+  if (!rateLimit.ok) {
+    return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
+  }
+
+  const turnstile = await verifyTurnstileToken({
+    token: payload?.turnstileToken,
+    ip,
+    action: "login",
+  });
+
+  if (!turnstile.ok) {
+    return NextResponse.json({ error: turnstile.message }, { status: 400 });
+  }
+
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return NextResponse.json({ error: "Authentication is not configured right now." }, { status: 503 });
+  }
+
+  const origin = new URL(request.url).origin;
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+      skipBrowserRedirect: true,
+    },
+  });
+
+  if (error || !data.url) {
+    return NextResponse.json({ error: error?.message || "Google sign-in could not be started." }, { status: 400 });
+  }
+
+  return NextResponse.json({ ok: true, url: data.url });
+}

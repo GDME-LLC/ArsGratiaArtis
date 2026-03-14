@@ -9,7 +9,11 @@ import {
   createServerSupabaseClient,
   hasSupabaseServerEnv,
 } from "@/lib/supabase/server";
-import { MAX_VIDEO_UPLOAD_BYTES, VIDEO_UPLOAD_LIMIT_MESSAGE } from "@/lib/films/upload";
+import {
+  validateVideoUploadMetadata,
+} from "@/lib/films/upload";
+import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
+import { verifyTurnstileToken } from "@/lib/security/turnstile";
 import {
   createMuxDirectUpload,
   getMuxAsset,
@@ -84,15 +88,41 @@ export async function POST(request: Request, { params }: VideoUploadRouteProps) 
   }
 
   try {
-    const body = (await request.json().catch(() => null)) as { fileSize?: number } | null;
-    const fileSize = typeof body?.fileSize === "number" ? body.fileSize : null;
+    const body = (await request.json().catch(() => null)) as {
+      fileSize?: number;
+      fileName?: string;
+      fileType?: string;
+      turnstileToken?: string;
+    } | null;
+    const ip = await getRequestIp();
 
-    if (!fileSize || !Number.isFinite(fileSize) || fileSize <= 0) {
-      return NextResponse.json({ error: "A valid file size is required before upload begins." }, { status: 400 });
+    const rateLimit = await enforceRateLimit({
+      ...rateLimitPresets.uploadInit,
+      key: `upload-init:${ip}:${access.profile.id}`,
+    });
+
+    if (!rateLimit.ok) {
+      return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
     }
 
-    if (fileSize > MAX_VIDEO_UPLOAD_BYTES) {
-      return NextResponse.json({ error: VIDEO_UPLOAD_LIMIT_MESSAGE }, { status: 400 });
+    const turnstile = await verifyTurnstileToken({
+      token: body?.turnstileToken,
+      ip,
+      action: "upload",
+    });
+
+    if (!turnstile.ok) {
+      return NextResponse.json({ error: turnstile.message }, { status: 400 });
+    }
+
+    const uploadValidation = validateVideoUploadMetadata({
+      fileSize: body?.fileSize ?? null,
+      fileName: body?.fileName ?? null,
+      fileType: body?.fileType ?? null,
+    });
+
+    if (!uploadValidation.ok) {
+      return NextResponse.json({ error: uploadValidation.message }, { status: 400 });
     }
 
     const upload = await createMuxDirectUpload({

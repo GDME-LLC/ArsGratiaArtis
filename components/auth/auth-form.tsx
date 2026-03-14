@@ -4,11 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { TurnstileWidget } from "@/components/security/turnstile-widget";
 import { Button } from "@/components/ui/button";
-import {
-  createBrowserSupabaseClient,
-  hasSupabaseBrowserEnv,
-} from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 type AuthMode = "login" | "signup";
@@ -35,6 +32,7 @@ const contentByMode = {
     alternateLabel: "Need an account?",
     submittingLabel: "Logging In...",
     note: "Accounts are open now. Creator publishing access is enabled separately.",
+    action: "login" as const,
   },
   signup: {
     eyebrow: "Join ArsGratia",
@@ -46,6 +44,7 @@ const contentByMode = {
     alternateLabel: "Already inside?",
     submittingLabel: "Creating Account...",
     note: "After signup, your account is live but creator publishing access may remain off until review is complete.",
+    action: "signup" as const,
   },
 } as const;
 
@@ -73,12 +72,12 @@ function validateForm(mode: AuthMode, email: string, password: string): FormErro
 
 export function AuthForm({ mode, initialError }: AuthFormProps) {
   const router = useRouter();
-  const supabase = createBrowserSupabaseClient();
-  const isAuthConfigured = hasSupabaseBrowserEnv();
   const content = contentByMode[mode];
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [errors, setErrors] = useState<FormErrors>(
     initialError ? { form: initialError } : {},
   );
@@ -93,59 +92,53 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
     setErrors(nextErrors);
     setSuccessMessage("");
 
-    if (!supabase) {
-      setErrors({
-        form: "Supabase auth is not configured locally yet. Add env vars to enable sign-in.",
-      });
+    if (Object.keys(nextErrors).length > 0) {
       return;
     }
 
-    if (Object.keys(nextErrors).length > 0) {
+    if (!turnstileToken) {
+      setErrors({ form: "Complete the security check and try again." });
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
+      const response = await fetch(`/api/auth/${mode}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           email: email.trim(),
           password,
-        });
-
-        if (error) {
-          setErrors({ form: error.message });
-          return;
-        }
-
-        router.push("/dashboard");
-        router.refresh();
-        return;
-      }
-
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+          turnstileToken,
+        }),
       });
 
-      if (error) {
-        setErrors({ form: error.message });
+      const payload = (await response.json()) as { error?: string; redirectTo?: string; message?: string };
+
+      if (!response.ok) {
+        setErrors({ form: payload.error ?? "Authentication could not be completed." });
+        setTurnstileToken("");
+        setTurnstileResetKey((current) => current + 1);
         return;
       }
 
-      if (data.session) {
-        router.push("/dashboard");
+      if (payload.redirectTo) {
+        router.push(payload.redirectTo);
         router.refresh();
         return;
       }
 
-      setSuccessMessage(
-        "Check your email to confirm your account. New accounts can sign in immediately after confirmation, while creator publishing access is enabled separately.",
-      );
+      setSuccessMessage(payload.message ?? "Check your email for the next step.");
       setPassword("");
+      setTurnstileToken("");
+      setTurnstileResetKey((current) => current + 1);
+    } catch {
+      setErrors({ form: "Network error. Please try again." });
+      setTurnstileToken("");
+      setTurnstileResetKey((current) => current + 1);
     } finally {
       setIsSubmitting(false);
     }
@@ -155,24 +148,36 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
     setErrors({});
     setSuccessMessage("");
 
-    if (!supabase) {
-      setErrors({
-        form: "Supabase auth is not configured locally yet. Add env vars to enable Google sign-in.",
-      });
+    if (!turnstileToken) {
+      setErrors({ form: "Complete the security check and try again." });
       return;
     }
 
     setIsGoogleLoading(true);
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      const response = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ turnstileToken }),
+      });
 
-    if (error) {
-      setErrors({ form: error.message });
+      const payload = (await response.json()) as { error?: string; url?: string };
+
+      if (!response.ok || !payload.url) {
+        setErrors({ form: payload.error ?? "Google sign-in could not be started." });
+        setTurnstileToken("");
+        setTurnstileResetKey((current) => current + 1);
+        return;
+      }
+
+      window.location.href = payload.url;
+    } catch {
+      setErrors({ form: "Network error. Please try again." });
+      setTurnstileToken("");
+      setTurnstileResetKey((current) => current + 1);
       setIsGoogleLoading(false);
     }
   }
@@ -186,12 +191,6 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-muted-foreground">
         {content.note}
       </div>
-
-      {!isAuthConfigured ? (
-        <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
-          Local startup is available, but auth is disabled until Supabase env vars are set.
-        </div>
-      ) : null}
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit} noValidate>
         <div className="space-y-2">
@@ -236,6 +235,12 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
           />
           {errors.password ? <p className="text-sm text-destructive">{errors.password}</p> : null}
         </div>
+
+        <TurnstileWidget
+          action={content.action}
+          onTokenChange={setTurnstileToken}
+          resetKey={turnstileResetKey}
+        />
 
         {errors.form ? (
           <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">

@@ -179,6 +179,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
       .eq("creator_id", profile.id)
       .eq("publish_status", "published")
       .eq("visibility", "public")
+      .eq("moderation_status", "active")
       .order("published_at", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -194,6 +195,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
       .eq("creator_id", profile.id)
       .eq("publish_status", "published")
       .eq("visibility", "public")
+      .eq("moderation_status", "active")
       .order("published_at", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -271,7 +273,8 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
     .in("creator_id", profileIds)
     .eq("publish_status", "published")
     .eq("visibility", "public")
-    .order("published_at", { ascending: false });
+      .eq("moderation_status", "active")
+      .order("published_at", { ascending: false });
 
   if (filmsError) {
     throw new Error(filmsError.message);
@@ -389,3 +392,4 @@ export async function listCreatorsToWatch(limit = 8): Promise<PublicCreatorListI
     })
     .slice(0, limit);
 }
+

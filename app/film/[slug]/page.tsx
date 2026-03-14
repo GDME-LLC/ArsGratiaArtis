@@ -7,6 +7,7 @@ import { LikeButton } from "@/components/engagement/like-button";
 import { FilmArtwork } from "@/components/films/film-artwork";
 import { StatePanel } from "@/components/shared/state-panel";
 import { getFilmArtworkUrl } from "@/lib/films/artwork";
+import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
 import { getMuxPlaybackUrl } from "@/lib/films/playback";
 import { listFilmComments } from "@/lib/services/comments";
 import { getPublicFilmBySlug } from "@/lib/services/films";
@@ -67,10 +68,18 @@ export default async function FilmPage({ params }: FilmPageProps) {
     data.series && (data.series.seasonNumber || data.series.episodeNumber)
       ? `${data.series.seasonNumber ? `Season ${data.series.seasonNumber}` : "Series"}${data.series.episodeNumber ? ` / Episode ${data.series.episodeNumber}` : ""}`
       : null;
+  const moderationLabel = getModerationStatusLabel(data.moderationStatus);
+  const moderationDescription = getModerationStatusDescription(data.moderationStatus, data.moderationReason);
 
   return (
     <section className="container-shell py-16">
       <div className="surface-panel cinema-frame overflow-hidden">
+        {data.isOwner && data.moderationStatus !== "active" ? (
+          <div className="border-b border-amber-500/25 bg-amber-500/10 px-6 py-4 text-sm text-amber-100 sm:px-10">
+            <p className="display-kicker text-amber-100/90">{moderationLabel}</p>
+            <p className="mt-2">{moderationDescription}</p>
+          </div>
+        ) : null}
         {playbackUrl ? (
           <video
             className="aspect-video w-full bg-black"
@@ -116,7 +125,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                     href={`/creator/${data.creator.handle}`}
                     className="mt-2 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
                   >
-                    {data.creator.displayName}
+                    {data.creator.displayName || `@${data.creator.handle}`}
                   </Link>
                 </div>
                 {data.series ? (

@@ -2,9 +2,10 @@
 
 import { useMemo, useRef, useState } from "react";
 
+import { TurnstileWidget } from "@/components/security/turnstile-widget";
 import { Button } from "@/components/ui/button";
 import { getMuxPlaybackUrl } from "@/lib/films/playback";
-import { MAX_VIDEO_UPLOAD_BYTES, VIDEO_UPLOAD_LIMIT_MESSAGE } from "@/lib/films/upload";
+import { validateVideoUploadMetadata } from "@/lib/films/upload";
 
 type FilmVideoUploadProps = {
   filmId?: string;
@@ -21,6 +22,8 @@ export function FilmVideoUpload({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const [muxPlaybackId, setMuxPlaybackId] = useState(initialMuxPlaybackId ?? null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const playbackUrl = useMemo(
     () => (muxPlaybackId ? getMuxPlaybackUrl(muxPlaybackId) : null),
@@ -41,9 +44,20 @@ export function FilmVideoUpload({
       return;
     }
 
-    if (file.size > MAX_VIDEO_UPLOAD_BYTES) {
+    if (!turnstileToken) {
+      setError("Complete the security check and try again.");
+      return;
+    }
+
+    const uploadValidation = validateVideoUploadMetadata({
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+    });
+
+    if (!uploadValidation.ok) {
       setPhase("error");
-      setError(VIDEO_UPLOAD_LIMIT_MESSAGE);
+      setError(uploadValidation.message);
       return;
     }
 
@@ -55,6 +69,9 @@ export function FilmVideoUpload({
         },
         body: JSON.stringify({
           fileSize: file.size,
+          fileName: file.name,
+          fileType: file.type,
+          turnstileToken,
         }),
       });
 
@@ -90,9 +107,14 @@ export function FilmVideoUpload({
 
         return false;
       });
+
+      setTurnstileToken("");
+      setTurnstileResetKey((current) => current + 1);
     } catch (uploadError) {
       setPhase("error");
       setError(uploadError instanceof Error ? uploadError.message : "Video upload failed.");
+      setTurnstileToken("");
+      setTurnstileResetKey((current) => current + 1);
     }
   }
 
@@ -104,6 +126,9 @@ export function FilmVideoUpload({
           <h2 className="title-md mt-3 text-foreground">Attach video when the cut is ready</h2>
           <p className="body-sm mt-3">
             Upload goes directly to Mux from the browser. When processing finishes, Mux generates a thumbnail automatically unless you provide a custom poster image.
+          </p>
+          <p className="body-sm mt-3 text-muted-foreground">
+            Supported formats: MP4, MOV, M4V, and WebM. For stability and lower ingest cost, export H.264 MP4 at 1080p and keep files under 1GB when possible.
           </p>
         </div>
 
@@ -117,6 +142,10 @@ export function FilmVideoUpload({
             Upload Cut
           </Button>
         </div>
+      </div>
+
+      <div className="mt-5 max-w-md">
+        <TurnstileWidget action="upload" onTokenChange={setTurnstileToken} resetKey={turnstileResetKey} />
       </div>
 
       {!filmId ? (
@@ -164,7 +193,7 @@ export function FilmVideoUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="video/*"
+        accept="video/mp4,video/quicktime,video/x-m4v,video/webm,.mp4,.mov,.m4v,.webm"
         className="sr-only"
         onChange={handleFileChange}
         disabled={!filmId || phase === "uploading" || phase === "processing"}

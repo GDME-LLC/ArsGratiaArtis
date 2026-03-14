@@ -1,5 +1,6 @@
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
+import { securityConfig } from "@/lib/constants/security";
 import { siteConfig } from "@/lib/constants/site";
 
 type PolicySection = {
@@ -23,7 +24,7 @@ const sections: PolicySection[] = [
       "email address",
       "profile information you provide",
       "content you publish",
-      "interactions such as likes, follows, and comments",
+      "interactions such as likes, follows, comments, and reports",
     ],
   },
   {
@@ -34,6 +35,7 @@ const sections: PolicySection[] = [
       "display creator profiles and published films",
       "improve platform features",
       "communicate important updates",
+      "support trust and safety review",
     ],
   },
   {
@@ -49,6 +51,7 @@ const sections: PolicySection[] = [
       "hosting infrastructure",
       "database services",
       "video streaming services",
+      "security tools for bot protection, rate limiting, and moderation review",
     ],
   },
   {
@@ -62,6 +65,7 @@ const sections: PolicySection[] = [
     title: "6. Security",
     paragraphs: [
       "We take reasonable measures to protect account and platform data, though no online service can guarantee complete security.",
+      `Security questions may be directed to ${securityConfig.securityEmail}.`,
     ],
   },
   {
@@ -76,7 +80,8 @@ const sections: PolicySection[] = [
     paragraphs: [
       "Privacy questions may be directed to:",
       siteConfig.privacyEmail,
-      "This address should route to a monitored inbox before broader public launch.",
+      `Security: ${securityConfig.securityEmail}`,
+      `Abuse: ${securityConfig.abuseEmail}`,
     ],
   },
 ];

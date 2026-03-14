@@ -69,7 +69,8 @@ async function selectPublicFilmRows(
       .from("films")
       .select(selectClause)
       .eq("publish_status", "published")
-      .eq("visibility", "public");
+      .eq("visibility", "public")
+      .eq("moderation_status", "active");
 
     if (options.categories && options.categories.length > 0) {
       query = query.in("category", options.categories);
@@ -112,7 +113,7 @@ export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmLi
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, visibility, publish_status, created_at, updated_at")
+    .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, visibility, publish_status, moderation_status, moderation_reason, reviewed_at, created_at, updated_at")
     .eq("creator_id", creatorId)
     .order("updated_at", { ascending: false })
     .order("created_at", { ascending: false });
@@ -131,6 +132,9 @@ export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmLi
     muxPlaybackId: film.mux_playback_id ?? null,
     visibility: film.visibility,
     publishStatus: film.publish_status,
+    moderationStatus: film.moderation_status ?? "active",
+    moderationReason: film.moderation_reason ?? null,
+    reviewedAt: film.reviewed_at ?? null,
     createdAt: film.created_at,
     updatedAt: film.updated_at,
   }));
@@ -148,7 +152,7 @@ export async function getCreatorFilmById(
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, description, category, poster_url, mux_asset_id, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, visibility, publish_status")
+    .select("id, title, slug, synopsis, description, category, poster_url, mux_asset_id, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, visibility, publish_status, moderation_status, moderation_reason, reviewed_at")
     .eq("id", filmId)
     .eq("creator_id", creatorId)
     .eq("publish_status", "draft")
@@ -177,6 +181,9 @@ export async function getCreatorFilmById(
     promptVisibility: data.prompt_visibility,
     visibility: data.visibility,
     publishStatus: data.publish_status,
+    moderationStatus: data.moderation_status ?? "active",
+    moderationReason: data.moderation_reason ?? "",
+    reviewedAt: data.reviewed_at ?? null,
   };
 }
 
@@ -388,12 +395,15 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     return null;
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, description, category, poster_url, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, published_at, creator_id, series_id, season_number, episode_number")
+    .select("id, title, slug, synopsis, description, category, poster_url, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, published_at, creator_id, visibility, moderation_status, moderation_reason, reviewed_at, series_id, season_number, episode_number")
     .eq("slug", slug.toLowerCase())
     .eq("publish_status", "published")
-    .eq("visibility", "public")
     .maybeSingle();
 
   if (error) {
@@ -404,9 +414,12 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     return null;
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const isOwner = user?.id === data.creator_id;
+
+  if ((!isOwner && data.visibility !== "public") || (!isOwner && data.moderation_status !== "active")) {
+    return null;
+  }
+
   const commentCounts = await getFilmCommentCounts([data.id]);
   const likeCounts = await getFilmLikeCounts([data.id]);
   const likedIds = await getViewerLikedFilmIds([data.id], user?.id);
@@ -493,6 +506,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
         .eq("series_id", data.series_id)
         .eq("publish_status", "published")
         .eq("visibility", "public")
+        .eq("moderation_status", "active")
         .order("season_number", { ascending: true, nullsFirst: false })
         .order("episode_number", { ascending: true, nullsFirst: false })
         .order("published_at", { ascending: true });
@@ -546,13 +560,17 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     series,
     publishedAt: data.published_at,
     creator: {
+      id: data.creator_id,
       handle: String(profile?.handle ?? ""),
       displayName: String(profile?.display_name ?? ""),
       avatarUrl: typeof profile?.avatar_url === "string" ? profile.avatar_url : null,
     },
+    isOwner,
+    moderationStatus: data.moderation_status ?? "active",
+    moderationReason: data.moderation_reason ?? null,
+    reviewedAt: data.reviewed_at ?? null,
   };
 }
-
 async function hydratePublicFilmCards(
   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   films: PublicFilmRow[],
@@ -642,6 +660,7 @@ export async function listStaffPickFilms(limit = 8): Promise<PublicFilmCard[]> {
       .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, staff_pick")
       .eq("publish_status", "published")
       .eq("visibility", "public")
+      .eq("moderation_status", "active")
       .eq("staff_pick", true)
       .order("created_at", { ascending: false })
       .limit(pageSize);
@@ -658,6 +677,7 @@ export async function listStaffPickFilms(limit = 8): Promise<PublicFilmCard[]> {
         .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, is_featured")
         .eq("publish_status", "published")
         .eq("visibility", "public")
+        .eq("moderation_status", "active")
         .eq("is_featured", true)
         .order("created_at", { ascending: false })
         .limit(pageSize);
@@ -778,6 +798,7 @@ export async function getPublicSeriesBySlug(
     .eq("series_id", seriesRow.id)
     .eq("publish_status", "published")
     .eq("visibility", "public")
+    .eq("moderation_status", "active")
     .order("season_number", { ascending: true, nullsFirst: false })
     .order("episode_number", { ascending: true, nullsFirst: false })
     .order("published_at", { ascending: true });
@@ -812,4 +833,11 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
+
+
+
+
+
+
+
 

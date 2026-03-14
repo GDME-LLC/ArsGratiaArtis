@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { isFilmCategory } from "@/lib/films/categories";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { isValidFilmSlug, normalizeSlug } from "@/lib/films/slug";
+import { moderateTextFields } from "@/lib/security/moderation";
+import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import {
   createOrUpdateFilm,
 } from "@/lib/services/films";
@@ -61,6 +63,16 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
     );
   }
 
+  const ip = await getRequestIp();
+  const rateLimit = await enforceRateLimit({
+    ...rateLimitPresets.films,
+    key: `films:${ip}:${profile.id}`,
+  });
+
+  if (!rateLimit.ok) {
+    return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
+  }
+
   const payload = (await request.json()) as FilmPayload;
   const title = payload.title?.trim() ?? "";
   const slug = normalizeSlug(payload.slug || title);
@@ -79,6 +91,16 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
 
   if (!isFilmCategory(category)) {
     return NextResponse.json({ error: "Category is invalid." }, { status: 400 });
+  }
+
+  const moderation = await moderateTextFields([
+    { label: "title", value: title },
+    { label: "synopsis", value: payload.synopsis ?? null },
+    { label: "description", value: payload.description ?? null },
+  ]);
+
+  if (!moderation.ok) {
+    return NextResponse.json({ error: moderation.message }, { status: 400 });
   }
 
   if (method === "PUT" && !payload.id) {

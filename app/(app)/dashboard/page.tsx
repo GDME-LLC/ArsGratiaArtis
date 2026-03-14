@@ -6,6 +6,7 @@ import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { getFilmCategoryLabel } from "@/lib/films/categories";
+import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
@@ -137,56 +138,71 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="mt-6 grid gap-4">
-                {films.map((film) => (
-                  <article
-                    key={film.id}
-                    className="rounded-[24px] border border-white/10 bg-white/5 p-5"
-                  >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="flex gap-4">
-                        <div className="w-[120px] shrink-0">
-                          <FilmArtwork
-                            artworkUrl={getFilmArtworkUrl({
-                              posterUrl: film.posterUrl,
-                              muxPlaybackId: film.muxPlaybackId,
-                            })}
-                            previewUrl={film.muxPlaybackId ? getMuxAnimatedPreviewUrl(film.muxPlaybackId) : null}
-                            title={film.title}
-                            className="rounded-[20px]"
-                          />
-                        </div>
-                        <div className="max-w-3xl">
-                          <p className="display-kicker">
-                            {film.publishStatus} / {film.visibility}
-                          </p>
-                          <p className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/88">
-                            {getFilmCategoryLabel(film.category)}
-                          </p>
-                          <h3 className="title-md mt-3 text-foreground">{film.title}</h3>
-                          <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                            slug / {film.slug}
-                          </p>
-                          <p className="body-sm mt-3">
-                            {film.synopsis || "No synopsis added yet."}
-                          </p>
-                        </div>
-                      </div>
+                {films.map((film) => {
+                  const moderationLabel = getModerationStatusLabel(film.moderationStatus);
+                  const moderationDescription = getModerationStatusDescription(film.moderationStatus, film.moderationReason);
 
-                      <div className="flex flex-col gap-3 sm:flex-row">
-                        {film.publishStatus === "draft" ? (
-                          <Button asChild variant="ghost" size="lg">
-                            <Link href={`/upload?film=${film.id}`}>Continue Editing</Link>
-                          </Button>
-                        ) : null}
-                        {film.publishStatus === "published" && film.visibility === "public" ? (
-                          <Button asChild size="lg">
-                            <Link href={`/film/${film.slug}`}>Open Public Release</Link>
-                          </Button>
-                        ) : null}
+                  return (
+                    <article
+                      key={film.id}
+                      className="rounded-[24px] border border-white/10 bg-white/5 p-5"
+                    >
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex gap-4">
+                          <div className="w-[120px] shrink-0">
+                            <FilmArtwork
+                              artworkUrl={getFilmArtworkUrl({
+                                posterUrl: film.posterUrl,
+                                muxPlaybackId: film.muxPlaybackId,
+                              })}
+                              previewUrl={film.muxPlaybackId ? getMuxAnimatedPreviewUrl(film.muxPlaybackId) : null}
+                              title={film.title}
+                              className="rounded-[20px]"
+                            />
+                          </div>
+                          <div className="max-w-3xl">
+                            <p className="display-kicker">
+                              {film.publishStatus} / {film.visibility}
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <p className="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/88">
+                                {getFilmCategoryLabel(film.category)}
+                              </p>
+                              <p className="inline-flex rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/88">
+                                {moderationLabel}
+                              </p>
+                            </div>
+                            <h3 className="title-md mt-3 text-foreground">{film.title}</h3>
+                            <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                              slug / {film.slug}
+                            </p>
+                            <p className="body-sm mt-3">
+                              {film.synopsis || "No synopsis added yet."}
+                            </p>
+                            {film.moderationStatus !== "active" ? (
+                              <div className="mt-4 rounded-[18px] border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                                {moderationDescription}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                          {film.publishStatus === "draft" ? (
+                            <Button asChild variant="ghost" size="lg">
+                              <Link href={`/upload?film=${film.id}`}>Continue Editing</Link>
+                            </Button>
+                          ) : null}
+                          {film.publishStatus === "published" && film.visibility === "public" ? (
+                            <Button asChild size="lg">
+                              <Link href={`/film/${film.slug}`}>Open Release Page</Link>
+                            </Button>
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
             )}
           </div>

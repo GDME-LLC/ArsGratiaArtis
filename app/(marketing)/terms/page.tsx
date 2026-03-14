@@ -1,5 +1,6 @@
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
+import { securityConfig } from "@/lib/constants/security";
 import { siteConfig } from "@/lib/constants/site";
 
 type PolicySection = {
@@ -80,7 +81,8 @@ const sections: PolicySection[] = [
     paragraphs: [
       "Questions about these Terms may be directed to:",
       siteConfig.contactEmail,
-      "This address should route to a monitored inbox before broader public launch.",
+      `Abuse reports: ${securityConfig.abuseEmail}`,
+      `Copyright and takedown notices: ${securityConfig.copyrightEmail}`,
     ],
   },
 ];

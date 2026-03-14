@@ -4,6 +4,8 @@ import { ReportForm } from "@/components/report/report-form";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
 import { Button } from "@/components/ui/button";
+import { securityConfig } from "@/lib/constants/security";
+import { getUser } from "@/lib/supabase/auth";
 
 type ReportPageProps = {
   searchParams?: Promise<{
@@ -15,6 +17,7 @@ type ReportPageProps = {
 
 export default async function ReportPage({ searchParams }: ReportPageProps) {
   const params = searchParams ? await searchParams : undefined;
+  const user = await getUser();
   const type = params?.type === "creator" ? "creator" : "film";
   const targetLabel = type === "creator" ? "Creator profile" : "Film";
   const targetValue =
@@ -42,18 +45,31 @@ export default async function ReportPage({ searchParams }: ReportPageProps) {
         <PageIntro
           eyebrow="Report"
           title="Flag something that needs review."
-          description="Use this page to document a concern clearly. In this invite-stage build, reports are handled manually and this flow should be treated as an interim review surface."
+          description="Use this page to submit a report directly into ArsGratia's review queue. Reports are reviewed manually in this invite-stage build."
         />
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-        <ReportForm targetLabel={targetLabel} targetValue={targetValue} />
+        <ReportForm
+          targetLabel={targetLabel}
+          targetValue={targetValue}
+          targetType={type}
+          slug={params?.slug}
+          handle={params?.handle}
+          signedIn={Boolean(user)}
+        />
 
         <aside className="surface-panel p-6">
-          <p className="display-kicker">Important Note</p>
-          <h2 className="title-md mt-3 text-foreground">Placeholder trust surface</h2>
+          <p className="display-kicker">Review</p>
+          <h2 className="title-md mt-3 text-foreground">Manual trust and safety queue</h2>
           <p className="body-sm mt-3">
-            This page is intentionally honest about being a manual interim flow. Before wider rollout, ArsGratia should add reviewed policies, real intake handling, and logged moderation actions.
+            ArsGratia does not claim automated media moderation that it does not have. Reports, copyright concerns, and abusive behavior are currently reviewed by hand.
+          </p>
+          <p className="body-sm mt-4">
+            Abuse contact: <span className="text-foreground">{securityConfig.abuseEmail}</span>
+          </p>
+          <p className="body-sm mt-2">
+            Copyright and takedown: <span className="text-foreground">{securityConfig.copyrightEmail}</span>
           </p>
         </aside>
       </div>

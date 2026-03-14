@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { TurnstileWidget } from "@/components/security/turnstile-widget";
 import { Button } from "@/components/ui/button";
 
 type CommentFormProps = {
@@ -16,6 +17,8 @@ export function CommentForm({ filmId, signedIn }: CommentFormProps) {
   const [body, setBody] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const remaining = 5000 - body.length;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -39,6 +42,11 @@ export function CommentForm({ filmId, signedIn }: CommentFormProps) {
       return;
     }
 
+    if (!turnstileToken) {
+      setError("Complete the security check and try again.");
+      return;
+    }
+
     setIsPending(true);
 
     try {
@@ -49,6 +57,7 @@ export function CommentForm({ filmId, signedIn }: CommentFormProps) {
         },
         body: JSON.stringify({
           body: trimmedBody,
+          turnstileToken,
         }),
       });
 
@@ -61,10 +70,14 @@ export function CommentForm({ filmId, signedIn }: CommentFormProps) {
 
       if (!response.ok) {
         setError(payload.error ?? "Comment could not be posted.");
+        setTurnstileToken("");
+        setTurnstileResetKey((current) => current + 1);
         return;
       }
 
       setBody("");
+      setTurnstileToken("");
+      setTurnstileResetKey((current) => current + 1);
       router.refresh();
     } finally {
       setIsPending(false);
@@ -100,6 +113,9 @@ export function CommentForm({ filmId, signedIn }: CommentFormProps) {
       <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
         {remaining} characters remaining
       </p>
+      <div className="mt-4">
+        <TurnstileWidget action="comment" onTokenChange={setTurnstileToken} resetKey={turnstileResetKey} />
+      </div>
       {error ? (
         <div className="mt-4 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}

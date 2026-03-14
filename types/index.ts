@@ -1,5 +1,7 @@
 import type { FilmCategory } from "@/lib/films/categories";
 
+export type ModerationStatus = "active" | "pending_review" | "flagged" | "removed";
+
 export type Film = {
   id: string;
   title: string;
@@ -26,6 +28,9 @@ export type CreatorFilmListItem = {
   muxPlaybackId: string | null;
   visibility: "public" | "unlisted" | "private";
   publishStatus: "draft" | "published" | "archived";
+  moderationStatus: ModerationStatus;
+  moderationReason: string | null;
+  reviewedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -85,53 +90,60 @@ export type FilmEditorValues = {
   promptVisibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publishStatus: "draft" | "published" | "archived";
+  moderationStatus: ModerationStatus;
+  moderationReason: string;
+  reviewedAt: string | null;
 };
 
-export type PublicFilmPageData =
-  {
+export type PublicFilmPageData = {
+  id: string;
+  title: string;
+  slug: string;
+  synopsis: string | null;
+  description: string | null;
+  category: FilmCategory;
+  posterUrl: string | null;
+  muxPlaybackId: string | null;
+  creation: {
+    promptText: string | null;
+    workflowNotes: string | null;
+    promptVisibility: "public" | "followers" | "private";
+    tools: Array<{
+      id: string;
+      name: string;
+      slug: string;
+    }>;
+  };
+  engagement: {
+    likeCount: number;
+    viewerHasLiked: boolean;
+    commentCount: number;
+  };
+  series: null | {
     id: string;
     title: string;
     slug: string;
-    synopsis: string | null;
-    description: string | null;
-    category: FilmCategory;
-    posterUrl: string | null;
-    muxPlaybackId: string | null;
-    creation: {
-      promptText: string | null;
-      workflowNotes: string | null;
-      promptVisibility: "public" | "followers" | "private";
-      tools: Array<{
-        id: string;
-        name: string;
-        slug: string;
-      }>;
-    };
-    engagement: {
-      likeCount: number;
-      viewerHasLiked: boolean;
-      commentCount: number;
-    };
-    series: null | {
-      id: string;
+    seasonNumber: number | null;
+    episodeNumber: number | null;
+    nextEpisode: null | {
       title: string;
       slug: string;
       seasonNumber: number | null;
       episodeNumber: number | null;
-      nextEpisode: null | {
-        title: string;
-        slug: string;
-        seasonNumber: number | null;
-        episodeNumber: number | null;
-      };
-    };
-    publishedAt: string | null;
-    creator: {
-      handle: string;
-      displayName: string;
-      avatarUrl: string | null;
     };
   };
+  publishedAt: string | null;
+  creator: {
+    id: string;
+    handle: string;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+  isOwner: boolean;
+  moderationStatus: ModerationStatus;
+  moderationReason: string | null;
+  reviewedAt: string | null;
+};
 
 export type PublicSeriesPageData = {
   series: {
@@ -206,5 +218,3 @@ export type FilmComment = {
   isDeleted: boolean;
   createdAt: string;
 };
-
-
