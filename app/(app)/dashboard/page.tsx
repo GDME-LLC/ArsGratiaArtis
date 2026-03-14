@@ -5,6 +5,7 @@ import { FilmArtwork } from "@/components/films/film-artwork";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
+import { getFilmCategoryLabel } from "@/lib/films/categories";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
@@ -157,6 +158,9 @@ export default async function DashboardPage() {
                         <div className="max-w-3xl">
                         <p className="display-kicker">
                           {film.publishStatus} / {film.visibility}
+                        </p>
+                        <p className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/88">
+                          {getFilmCategoryLabel(film.category)}
                         </p>
                         <h3 className="title-md mt-3 text-foreground">{film.title}</h3>
                         <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">

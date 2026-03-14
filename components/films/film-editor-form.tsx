@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { FilmVideoUpload } from "@/components/films/film-video-upload";
 import { Button } from "@/components/ui/button";
+import { FILM_CATEGORY_LABELS, FILM_CATEGORY_VALUES, type FilmCategory } from "@/lib/films/categories";
 import { normalizeSlug } from "@/lib/films/slug";
 import { cn } from "@/lib/utils";
 import type { FilmEditorValues } from "@/types";
@@ -18,6 +19,7 @@ type FormState = {
   slug: string;
   synopsis: string;
   description: string;
+  category: FilmCategory;
   poster_url: string;
   prompt_text: string;
   workflow_notes: string;
@@ -33,6 +35,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
     slug: initialFilm?.slug ?? "",
     synopsis: initialFilm?.synopsis ?? "",
     description: initialFilm?.description ?? "",
+    category: initialFilm?.category ?? "film",
     poster_url: initialFilm?.posterUrl ?? "",
     prompt_text: initialFilm?.promptText ?? "",
     workflow_notes: initialFilm?.workflowNotes ?? "",
@@ -79,6 +82,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
           slug,
           synopsis: form.synopsis.trim() || null,
           description: form.description.trim() || null,
+          category: form.category,
           poster_url: form.poster_url.trim() || null,
           prompt_text: form.prompt_text.trim() || null,
           workflow_notes: form.workflow_notes.trim() || null,
@@ -184,6 +188,25 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
             className={cn(inputClassName, "min-h-36 py-3")}
             placeholder="Longer note about the film, release, or context"
           />
+        </Field>
+
+        <Field label="Category">
+          <select
+            value={form.category}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                category: event.target.value as FilmCategory,
+              }))
+            }
+            className={inputClassName}
+          >
+            {FILM_CATEGORY_VALUES.map((category) => (
+              <option key={category} value={category}>
+                {FILM_CATEGORY_LABELS[category]}
+              </option>
+            ))}
+          </select>
         </Field>
 
         <Field label="Poster URL">

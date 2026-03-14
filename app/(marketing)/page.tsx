@@ -3,148 +3,209 @@ import Link from "next/link";
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { Hero } from "@/components/marketing/hero";
 import { SectionShell } from "@/components/marketing/section-shell";
-import { PageIntro } from "@/components/shared/page-intro";
 import { Button } from "@/components/ui/button";
-import { listCuratedFilms, listPublishedFilms } from "@/lib/services/films";
+import { BEYOND_CINEMA_CATEGORIES } from "@/lib/films/categories";
+import { listCreatorsToWatch } from "@/lib/profiles";
+import { listPublishedFilms, listStaffPickFilms } from "@/lib/services/films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
+import type { PublicFilmCard } from "@/types";
+
+function filterDistinct(films: PublicFilmCard[], excludedIds: Set<string>, limit: number) {
+  return films.filter((film) => !excludedIds.has(film.id)).slice(0, limit);
+}
+
+type ReleaseSectionProps = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  films: PublicFilmCard[];
+  href?: string;
+  ctaLabel?: string;
+};
+
+function ReleaseSection({ eyebrow, title, description, films, href, ctaLabel }: ReleaseSectionProps) {
+  if (films.length === 0) {
+    return null;
+  }
+
+  return (
+    <SectionShell className="mt-7">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-2xl">
+          <p className="eyebrow">{eyebrow}</p>
+          <h2 className="headline-lg mt-3 text-foreground">{title}</h2>
+          <p className="body-lg mt-3">{description}</p>
+        </div>
+        {href && ctaLabel ? (
+          <Button asChild size="lg" variant="ghost">
+            <Link href={href}>{ctaLabel}</Link>
+          </Button>
+        ) : null}
+      </div>
+
+      <div className="mt-6">
+        <PublicFilmFeed films={films} variant="row" />
+      </div>
+    </SectionShell>
+  );
+}
 
 export default async function HomePage() {
-  const staffPicks = hasSupabaseServerEnv()
-    ? await listCuratedFilms({ pageSize: 3 })
-    : [];
-  const recentResponse = hasSupabaseServerEnv()
-    ? await listPublishedFilms({ page: 1, pageSize: 9 })
-    : { films: [], hasMore: false };
+  const canLoad = hasSupabaseServerEnv();
 
-  const staffPickIds = new Set(staffPicks.map((film) => film.id));
-  const filmsOutsideStaffPicks = recentResponse.films.filter((film) => !staffPickIds.has(film.id));
+  const [staffPickFilms, featuredFilmResponse, featuredBeyondResponse, newReleaseResponse, newExperimentsResponse, creatorsToWatch] = canLoad
+    ? await Promise.all([
+        listStaffPickFilms(8),
+        listPublishedFilms({ page: 1, pageSize: 24, categories: ["film"], sortBy: "created_at" }),
+        listPublishedFilms({
+          page: 1,
+          pageSize: 24,
+          categories: BEYOND_CINEMA_CATEGORIES,
+          sortBy: "likes",
+        }),
+        listPublishedFilms({ page: 1, pageSize: 24, sortBy: "created_at" }),
+        listPublishedFilms({
+          page: 1,
+          pageSize: 24,
+          categories: BEYOND_CINEMA_CATEGORIES,
+          sortBy: "created_at",
+        }),
+        listCreatorsToWatch(8),
+      ])
+    : [
+        [],
+        { films: [], hasMore: false },
+        { films: [], hasMore: false },
+        { films: [], hasMore: false },
+        { films: [], hasMore: false },
+        [],
+      ];
 
-  const showStaffPicks = staffPicks.length > 0;
-  const canSplitIntoFeaturedAndNew = showStaffPicks && filmsOutsideStaffPicks.length > 3;
-  const featuredReleases = canSplitIntoFeaturedAndNew ? filmsOutsideStaffPicks.slice(0, 3) : [];
-  const featuredReleaseIds = new Set(featuredReleases.map((film) => film.id));
-  const newReleases = canSplitIntoFeaturedAndNew
-    ? filmsOutsideStaffPicks.filter((film) => !featuredReleaseIds.has(film.id)).slice(0, 3)
-    : filmsOutsideStaffPicks.slice(0, 3);
-  const showFeaturedReleases = featuredReleases.length > 0 && newReleases.length > 0;
-  const releaseFeed = newReleases.length > 0 ? newReleases : recentResponse.films.slice(0, 3);
-  const spotlightFilm = staffPicks[0] ?? featuredReleases[0] ?? releaseFeed[0] ?? null;
-  const spotlightLabel = staffPicks.length > 0 ? "Staff Pick" : featuredReleases.length > 0 ? "Featured Film" : "Latest Release";
+  const usedFilmIds = new Set<string>();
+  const staffPicks = filterDistinct(staffPickFilms, usedFilmIds, 8);
+  staffPicks.forEach((film) => usedFilmIds.add(film.id));
+
+  const featuredFilms = filterDistinct(featuredFilmResponse.films, usedFilmIds, 12);
+  featuredFilms.forEach((film) => usedFilmIds.add(film.id));
+
+  const featuredBeyondCinema = filterDistinct(featuredBeyondResponse.films, usedFilmIds, 12);
+  featuredBeyondCinema.forEach((film) => usedFilmIds.add(film.id));
+
+  const newReleases = filterDistinct(newReleaseResponse.films, usedFilmIds, 12);
+  newReleases.forEach((film) => usedFilmIds.add(film.id));
+
+  const newExperiments = filterDistinct(newExperimentsResponse.films, usedFilmIds, 12);
+
+  const spotlightFilm = staffPicks[0] ?? featuredFilms[0] ?? newReleases[0] ?? featuredBeyondCinema[0] ?? newExperiments[0] ?? null;
+  const spotlightLabel = staffPicks.length > 0 ? "Staff Pick" : featuredFilms.length > 0 ? "Featured Film" : "Latest Release";
 
   return (
     <div className="pb-20">
       <Hero spotlightFilm={spotlightFilm} spotlightLabel={spotlightLabel} />
 
-      {showStaffPicks ? (
-        <SectionShell className="mt-3">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-2xl">
-              <p className="eyebrow">Staff Picks</p>
-              <h2 className="headline-lg mt-3 text-foreground">Staff Picks</h2>
-              <p className="body-lg mt-3">Selected for craft, voice, or originality.</p>
-            </div>
-          </div>
+      <ReleaseSection
+        eyebrow="Staff Picks"
+        title="Staff Picks"
+        description="Selected by the ArsGratia team for authorship, craft, or originality."
+        films={staffPicks}
+      />
 
-          <div className="mt-6">
-            <PublicFilmFeed films={staffPicks} />
-          </div>
-        </SectionShell>
-      ) : null}
+      <ReleaseSection
+        eyebrow="Featured Films"
+        title="Featured Films"
+        description="A current selection of film releases worth settling into."
+        films={featuredFilms}
+        href="/feed"
+        ctaLabel="Browse all releases"
+      />
 
-      {showFeaturedReleases ? (
+      <ReleaseSection
+        eyebrow="Featured Beyond Cinema"
+        title="Featured Beyond Cinema"
+        description="Animation, experimental work, commentary, and commissioned pieces drawing attention now."
+        films={featuredBeyondCinema}
+        href="/beyond-cinema"
+        ctaLabel="Enter Beyond Cinema"
+      />
+
+      <ReleaseSection
+        eyebrow="New Releases"
+        title="New Releases"
+        description="The latest uploads arriving on ArsGratia, newest first."
+        films={newReleases}
+        href="/feed"
+        ctaLabel="See the full feed"
+      />
+
+      <ReleaseSection
+        eyebrow="New Experiments"
+        title="New Experiments"
+        description="The newest AI-generated work beyond traditional cinema."
+        films={newExperiments}
+        href="/beyond-cinema"
+        ctaLabel="Browse Beyond Cinema"
+      />
+
+      {creatorsToWatch.length > 0 ? (
         <SectionShell className="mt-7">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-2xl">
-              <p className="eyebrow">Featured Releases</p>
-              <h2 className="headline-lg mt-3 text-foreground">Featured Releases</h2>
-              <p className="body-lg mt-3">A rotating selection of standout work.</p>
+              <p className="eyebrow">Creators to Watch</p>
+              <h2 className="headline-lg mt-3 text-foreground">Creators to Watch</h2>
+              <p className="body-lg mt-3">Filmmakers building momentum through releases, followership, and a visible body of work.</p>
             </div>
+            <Button asChild size="lg" variant="ghost">
+              <Link href="/filmmakers">Meet the Filmmakers</Link>
+            </Button>
           </div>
 
-          <div className="mt-6">
-            <PublicFilmFeed films={featuredReleases} />
+          <div className="mt-6 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {creatorsToWatch.map((creator) => {
+              const latestRelease = creator.featuredReleases[0] ?? null;
+
+              return (
+                <article
+                  key={creator.id}
+                  className="surface-panel cinema-frame w-[min(82vw,21rem)] shrink-0 overflow-hidden p-5 sm:w-[20rem]"
+                >
+                  <p className="display-kicker">Filmmaker</p>
+                  <h3 className="title-md mt-3 text-foreground">{creator.displayName}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">@{creator.handle}</p>
+                  <p className="body-sm mt-4 line-clamp-3">
+                    {creator.bio || "A public filmmaker page is live, with releases and series beginning to take shape."}
+                  </p>
+
+                  <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
+                    <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
+                      <p className="display-kicker">Followers</p>
+                      <p className="mt-2 text-foreground">{creator.followerCount}</p>
+                    </div>
+                    <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
+                      <p className="display-kicker">Films</p>
+                      <p className="mt-2 text-foreground">{creator.publicFilmCount}</p>
+                    </div>
+                    <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
+                      <p className="display-kicker">Series</p>
+                      <p className="mt-2 text-foreground">{creator.seriesCount}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-[20px] border border-white/10 bg-black/20 p-4">
+                    <p className="display-kicker">Latest Release</p>
+                    <p className="mt-3 text-sm text-foreground">
+                      {latestRelease?.title ?? "No public releases yet."}
+                    </p>
+                  </div>
+
+                  <Button asChild size="lg" variant="ghost" className="mt-5">
+                    <Link href={`/creator/${creator.handle}`}>View filmmaker</Link>
+                  </Button>
+                </article>
+              );
+            })}
           </div>
         </SectionShell>
       ) : null}
-
-      <SectionShell className="mt-7">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="eyebrow">New Releases</p>
-            <h2 className="headline-lg mt-3 text-foreground">New Releases</h2>
-            <p className="body-lg mt-3">Fresh films published on ArsGratia.</p>
-          </div>
-          <Button asChild size="lg" variant="ghost">
-            <Link href="/feed">See the full feed</Link>
-          </Button>
-        </div>
-
-        {releaseFeed.length > 0 ? (
-          <div className="mt-6">
-            <PublicFilmFeed films={releaseFeed} />
-          </div>
-        ) : (
-          <div className="surface-panel mt-6 p-6">
-            <p className="display-kicker">Coming Into View</p>
-            <p className="title-md mt-3 text-foreground">The first public releases have not landed yet</p>
-            <p className="body-sm mt-2">
-              As invited creators begin publishing, this front page will surface the newest work here first.
-            </p>
-          </div>
-        )}
-      </SectionShell>
-
-      <SectionShell className="mt-7 grid gap-5 lg:grid-cols-[1fr_0.95fr]">
-        <PageIntro
-          eyebrow="Meet the Filmmakers"
-          title="Meet the Filmmakers"
-          description="The people behind the films."
-        />
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <article className="surface-panel p-5">
-            <p className="display-kicker">Watch</p>
-            <h3 className="title-md mt-3 text-foreground">Watch New Work</h3>
-            <p className="body-sm mt-2">Start with recent releases and move directly into individual film pages.</p>
-            <Button asChild size="lg" className="mt-4">
-              <Link href="/feed">Watch New Work</Link>
-            </Button>
-          </article>
-          <article className="surface-panel p-5">
-            <p className="display-kicker">Filmmakers</p>
-            <h3 className="title-md mt-3 text-foreground">Meet the Filmmakers</h3>
-            <p className="body-sm mt-2">The filmmakers behind the work stay close to the releases, so discovery begins with the film rather than profile-chasing.</p>
-            <Button asChild size="lg" variant="ghost" className="mt-4">
-              <Link href="/filmmakers">Meet the Filmmakers</Link>
-            </Button>
-          </article>
-          <article className="surface-panel p-5">
-            <p className="display-kicker">Process</p>
-            <h3 className="title-md mt-3 text-foreground">Tools Behind the Work</h3>
-            <p className="body-sm mt-2">Prompts, workflows, and tool choices connected to the films.</p>
-            <Button asChild size="lg" variant="ghost" className="mt-4">
-              <Link href="/resources">Open Resources</Link>
-            </Button>
-          </article>
-          <article className="surface-panel p-5">
-            <p className="display-kicker">Publish</p>
-            <h3 className="title-md mt-3 text-foreground">Start your release page</h3>
-            <p className="body-sm mt-2">Claim a creator page, shape your public presence, and begin preparing your first film entry.</p>
-            <Button asChild size="lg" variant="ghost" className="mt-4">
-              <Link href="/signup">Become a Creator</Link>
-            </Button>
-          </article>
-          <article className="surface-panel p-5">
-            <p className="display-kicker">Manifesto</p>
-            <h3 className="title-md mt-3 text-foreground">Read the Manifesto</h3>
-            <p className="body-sm mt-2">Read the editorial stance behind ArsGratia before you step further into the work.</p>
-            <Button asChild size="lg" variant="ghost" className="mt-4">
-              <Link href="/manifesto">Read the Manifesto</Link>
-            </Button>
-          </article>
-        </div>
-      </SectionShell>
-
     </div>
   );
 }

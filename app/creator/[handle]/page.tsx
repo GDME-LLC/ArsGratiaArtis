@@ -5,6 +5,7 @@ import { FilmArtwork } from "@/components/films/film-artwork";
 import { FollowButton } from "@/components/engagement/follow-button";
 import { StatePanel } from "@/components/shared/state-panel";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
+import { getFilmCategoryLabel } from "@/lib/films/categories";
 import { getPublicProfileByHandle } from "@/lib/profiles";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
@@ -133,6 +134,9 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                       />
                     </Link>
                     <p className="display-kicker mt-4">{film.publishedAt ? "Published" : "Film"}</p>
+                    <p className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/88">
+                      {getFilmCategoryLabel(film.category)}
+                    </p>
                     <h3 className="title-md mt-2 text-foreground">{film.title}</h3>
                     {film.publishedAt ? (
                       <p className="mt-2 text-sm text-muted-foreground">

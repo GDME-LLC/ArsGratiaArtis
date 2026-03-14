@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { getMuxPlaybackUrl } from "@/lib/films/playback";
+import { MAX_VIDEO_UPLOAD_BYTES, VIDEO_UPLOAD_LIMIT_MESSAGE } from "@/lib/films/upload";
 
 type FilmVideoUploadProps = {
   filmId?: string;
@@ -40,9 +41,21 @@ export function FilmVideoUpload({
       return;
     }
 
+    if (file.size > MAX_VIDEO_UPLOAD_BYTES) {
+      setPhase("error");
+      setError(VIDEO_UPLOAD_LIMIT_MESSAGE);
+      return;
+    }
+
     try {
       const uploadInit = await fetch(`/api/films/${filmId}/video-upload`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileSize: file.size,
+        }),
       });
 
       const uploadPayload = (await uploadInit.json()) as {
@@ -131,7 +144,7 @@ export function FilmVideoUpload({
       ) : null}
 
       {error ? (
-        <div className="mt-5 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="mt-5 whitespace-pre-line rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}

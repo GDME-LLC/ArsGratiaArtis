@@ -1,8 +1,11 @@
+import type { FilmCategory } from "@/lib/films/categories";
+
 export type Film = {
   id: string;
   title: string;
   slug: string;
   synopsis: string | null;
+  category: FilmCategory;
   creatorId: string;
   posterUrl: string | null;
   muxPlaybackId: string | null;
@@ -18,6 +21,7 @@ export type CreatorFilmListItem = {
   title: string;
   slug: string;
   synopsis: string | null;
+  category: FilmCategory;
   posterUrl: string | null;
   muxPlaybackId: string | null;
   visibility: "public" | "unlisted" | "private";
@@ -50,11 +54,14 @@ export type PublicFilmCard = {
   title: string;
   slug: string;
   synopsis: string | null;
+  category: FilmCategory;
   posterUrl: string | null;
   muxPlaybackId: string | null;
   likeCount: number;
   commentCount: number;
   viewerHasLiked: boolean;
+  staffPick: boolean;
+  createdAt: string;
   creator: {
     handle: string;
     displayName: string;
@@ -69,6 +76,7 @@ export type FilmEditorValues = {
   slug: string;
   synopsis: string;
   description: string;
+  category: FilmCategory;
   posterUrl: string;
   muxAssetId: string | null;
   muxPlaybackId: string | null;
@@ -86,6 +94,7 @@ export type PublicFilmPageData =
     slug: string;
     synopsis: string | null;
     description: string | null;
+    category: FilmCategory;
     posterUrl: string | null;
     muxPlaybackId: string | null;
     creation: {
@@ -142,6 +151,7 @@ export type PublicSeriesPageData = {
     title: string;
     slug: string;
     synopsis: string | null;
+    category: FilmCategory;
     posterUrl: string | null;
     seasonNumber: number | null;
     episodeNumber: number | null;
@@ -176,6 +186,7 @@ export type PublicCreatorListItem = {
   followerCount: number;
   publicFilmCount: number;
   seriesCount: number;
+  latestPublishedAt?: string;
   featuredReleases: Array<{
     id: string;
     title: string;
@@ -195,3 +206,5 @@ export type FilmComment = {
   isDeleted: boolean;
   createdAt: string;
 };
+
+

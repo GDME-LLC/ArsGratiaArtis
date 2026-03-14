@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { isFilmCategory } from "@/lib/films/categories";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { isValidFilmSlug, normalizeSlug } from "@/lib/films/slug";
 import {
@@ -16,6 +17,7 @@ type FilmPayload = {
   slug?: string;
   synopsis?: string | null;
   description?: string | null;
+  category?: string;
   poster_url?: string | null;
   prompt_text?: string | null;
   workflow_notes?: string | null;
@@ -65,6 +67,7 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
   const visibility = payload.visibility ?? "private";
   const publishStatus = payload.publish_status ?? "draft";
   const promptVisibility = payload.prompt_visibility ?? "private";
+  const category = payload.category ?? "film";
 
   if (!title) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
@@ -72,6 +75,10 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
 
   if (!slug || !isValidFilmSlug(slug)) {
     return NextResponse.json({ error: "Slug format is invalid." }, { status: 400 });
+  }
+
+  if (!isFilmCategory(category)) {
+    return NextResponse.json({ error: "Category is invalid." }, { status: 400 });
   }
 
   if (method === "PUT" && !payload.id) {
@@ -86,6 +93,7 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
       slug,
       synopsis: payload.synopsis?.trim() || null,
       description: payload.description?.trim() || null,
+      category,
       posterUrl: payload.poster_url?.trim() || null,
       promptText: payload.prompt_text?.trim() || null,
       workflowNotes: payload.workflow_notes?.trim() || null,

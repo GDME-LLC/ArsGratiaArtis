@@ -83,6 +83,9 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         </div>
         <div className="mb-6 rounded-[24px] border border-white/10 bg-white/5 p-6">
           <p className="display-kicker">Uploading Your Film</p>
+          <p className="body-sm mt-3 max-w-2xl text-muted-foreground">
+            Recommended export: MP4 (H.264), 1080p, under 1GB when possible.
+          </p>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
               <p className="title-md text-foreground">Video Upload</p>

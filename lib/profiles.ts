@@ -159,7 +159,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
 
   const { data: films, error: filmsError } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, poster_url, mux_playback_id, published_at")
+    .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, staff_pick")
     .eq("creator_id", profile.id)
     .eq("publish_status", "published")
     .eq("visibility", "public")
@@ -189,11 +189,14 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
       title: film.title,
       slug: film.slug,
       synopsis: film.synopsis,
+      category: film.category,
       posterUrl: film.poster_url ?? null,
       muxPlaybackId: film.mux_playback_id ?? null,
       likeCount: likeCounts.get(film.id) ?? 0,
       commentCount: commentCounts.get(film.id) ?? 0,
       viewerHasLiked: likedIds.has(film.id),
+      staffPick: Boolean(film.staff_pick ?? false),
+      createdAt: film.created_at,
       creator: {
         handle: String(profile.handle),
         displayName: String(profile.display_name ?? ""),
@@ -318,8 +321,7 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
 
       return b.publicFilmCount - a.publicFilmCount;
     })
-    .slice(0, limit)
-    .map(({ latestPublishedAt, ...profile }) => profile);
+    .slice(0, limit);
 }
 
 export function mapProfile(row: Record<string, unknown>): Profile {
@@ -334,3 +336,25 @@ export function mapProfile(row: Record<string, unknown>): Profile {
     isCreator: Boolean(row.is_creator),
   };
 }
+
+export async function listCreatorsToWatch(limit = 8): Promise<PublicCreatorListItem[]> {
+  const creators = await listPublicCreators(Math.max(limit * 3, 24));
+
+  return creators
+    .filter((creator) => creator.followerCount > 5 || creator.publicFilmCount > 3)
+    .sort((a, b) => {
+      if (b.followerCount !== a.followerCount) {
+        return b.followerCount - a.followerCount;
+      }
+
+      if (b.publicFilmCount !== a.publicFilmCount) {
+        return b.publicFilmCount - a.publicFilmCount;
+      }
+
+      return (b.latestPublishedAt ?? "").localeCompare(a.latestPublishedAt ?? "");
+    })
+    .slice(0, limit);
+}
+
+
+

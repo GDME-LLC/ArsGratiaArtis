@@ -9,6 +9,7 @@ import {
   createServerSupabaseClient,
   hasSupabaseServerEnv,
 } from "@/lib/supabase/server";
+import { MAX_VIDEO_UPLOAD_BYTES, VIDEO_UPLOAD_LIMIT_MESSAGE } from "@/lib/films/upload";
 import {
   createMuxDirectUpload,
   getMuxAsset,
@@ -83,6 +84,17 @@ export async function POST(request: Request, { params }: VideoUploadRouteProps) 
   }
 
   try {
+    const body = (await request.json().catch(() => null)) as { fileSize?: number } | null;
+    const fileSize = typeof body?.fileSize === "number" ? body.fileSize : null;
+
+    if (!fileSize || !Number.isFinite(fileSize) || fileSize <= 0) {
+      return NextResponse.json({ error: "A valid file size is required before upload begins." }, { status: 400 });
+    }
+
+    if (fileSize > MAX_VIDEO_UPLOAD_BYTES) {
+      return NextResponse.json({ error: VIDEO_UPLOAD_LIMIT_MESSAGE }, { status: 400 });
+    }
+
     const upload = await createMuxDirectUpload({
       corsOrigin: request.headers.get("origin"),
       passthrough: id,

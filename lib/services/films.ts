@@ -7,6 +7,7 @@ import type {
   PublicSeriesPageData,
 } from "@/types";
 
+import { type FilmCategory } from "@/lib/films/categories";
 import {
   getFilmLikeCounts,
   getViewerLikedFilmIds,
@@ -23,10 +24,14 @@ type PublicFilmRow = {
   title: string;
   slug: string;
   synopsis: string | null;
+  category: FilmCategory;
   poster_url: string | null;
   mux_playback_id: string | null;
   published_at: string | null;
+  created_at: string;
   creator_id: string;
+  staff_pick?: boolean | null;
+  is_featured?: boolean | null;
 };
 
 export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmListItem[]> {
@@ -38,7 +43,7 @@ export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmLi
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, poster_url, mux_playback_id, visibility, publish_status, created_at, updated_at")
+    .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, visibility, publish_status, created_at, updated_at")
     .eq("creator_id", creatorId)
     .order("updated_at", { ascending: false })
     .order("created_at", { ascending: false });
@@ -52,6 +57,7 @@ export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmLi
     title: film.title,
     slug: film.slug,
     synopsis: film.synopsis,
+    category: film.category,
     posterUrl: film.poster_url ?? null,
     muxPlaybackId: film.mux_playback_id ?? null,
     visibility: film.visibility,
@@ -73,7 +79,7 @@ export async function getCreatorFilmById(
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, description, poster_url, mux_asset_id, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, visibility, publish_status")
+    .select("id, title, slug, synopsis, description, category, poster_url, mux_asset_id, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, visibility, publish_status")
     .eq("id", filmId)
     .eq("creator_id", creatorId)
     .eq("publish_status", "draft")
@@ -93,6 +99,7 @@ export async function getCreatorFilmById(
     slug: data.slug,
     synopsis: data.synopsis ?? "",
     description: data.description ?? "",
+    category: data.category,
     posterUrl: data.poster_url ?? "",
     muxAssetId: data.mux_asset_id ?? null,
     muxPlaybackId: data.mux_playback_id ?? null,
@@ -141,6 +148,7 @@ export async function createOrUpdateFilm(input: {
   slug: string;
   synopsis: string | null;
   description: string | null;
+  category: FilmCategory;
   posterUrl: string | null;
   promptText: string | null;
   workflowNotes: string | null;
@@ -180,6 +188,7 @@ export async function createOrUpdateFilm(input: {
         slug: input.slug,
         synopsis: input.synopsis,
         description: input.description,
+        category: input.category,
         poster_url: input.posterUrl,
         prompt_text: input.promptText,
         workflow_notes: input.workflowNotes,
@@ -212,6 +221,7 @@ export async function createOrUpdateFilm(input: {
       slug: input.slug,
       synopsis: input.synopsis,
       description: input.description,
+      category: input.category,
       poster_url: input.posterUrl,
       prompt_text: input.promptText,
       workflow_notes: input.workflowNotes,
@@ -311,7 +321,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, description, poster_url, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, published_at, creator_id, series_id, season_number, episode_number")
+    .select("id, title, slug, synopsis, description, category, poster_url, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, published_at, creator_id, series_id, season_number, episode_number")
     .eq("slug", slug.toLowerCase())
     .eq("publish_status", "published")
     .eq("visibility", "public")
@@ -450,6 +460,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     slug: data.slug,
     synopsis: data.synopsis,
     description: data.description,
+    category: data.category,
     posterUrl: data.poster_url,
     muxPlaybackId: data.mux_playback_id ?? null,
     creation: {
@@ -517,11 +528,14 @@ async function hydratePublicFilmCards(
     title: film.title,
     slug: film.slug,
     synopsis: film.synopsis,
+    category: film.category,
     posterUrl: film.poster_url,
     muxPlaybackId: film.mux_playback_id ?? null,
     likeCount: likeCounts.get(film.id) ?? 0,
     commentCount: commentCounts.get(film.id) ?? 0,
     viewerHasLiked: likedIds.has(film.id),
+    staffPick: Boolean(film.staff_pick ?? false),
+    createdAt: film.created_at,
     publishedAt: film.published_at,
     creator: profileMap.get(film.creator_id) ?? {
       handle: "",
@@ -534,52 +548,67 @@ async function hydratePublicFilmCards(
 export async function listCuratedFilms(input?: {
   pageSize?: number;
 }): Promise<PublicFilmCard[]> {
+  const films = await listStaffPickFilms(input?.pageSize ?? 3);
+
+  if (films.length > 0) {
+    return films;
+  }
+
+  const fallback = await listPublishedFilms({ page: 1, pageSize: input?.pageSize ?? 3 });
+  return fallback.films;
+}
+
+export async function listStaffPickFilms(limit = 8): Promise<PublicFilmCard[]> {
   const supabase = await createServerSupabaseClient();
 
   if (!supabase) {
     return [];
   }
 
-  const pageSize = Math.min(12, Math.max(1, input?.pageSize ?? 3));
+  const pageSize = Math.min(12, Math.max(1, limit));
 
   try {
     const { data, error } = await supabase
       .from("films")
-      .select("id, title, slug, synopsis, poster_url, mux_playback_id, published_at, creator_id, is_featured")
+      .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, staff_pick, is_featured")
       .eq("publish_status", "published")
       .eq("visibility", "public")
-      .order("is_featured", { ascending: false })
-      .order("published_at", { ascending: false })
-      .limit(pageSize * 3);
+      .eq("staff_pick", true)
+      .order("created_at", { ascending: false })
+      .limit(pageSize);
 
     if (error) {
       throw error;
     }
 
-    const featuredRows = (data ?? []).filter((film) => Boolean(film.is_featured));
-    const selectedRows = (featuredRows.length > 0 ? featuredRows : data ?? []).slice(0, pageSize);
-
-    return hydratePublicFilmCards(supabase, selectedRows);
+    return hydratePublicFilmCards(supabase, (data ?? []) as PublicFilmRow[]);
   } catch {
     const { data, error } = await supabase
       .from("films")
-      .select("id, title, slug, synopsis, poster_url, mux_playback_id, published_at, creator_id")
+      .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, is_featured")
       .eq("publish_status", "published")
       .eq("visibility", "public")
-      .order("published_at", { ascending: false })
+      .eq("is_featured", true)
+      .order("created_at", { ascending: false })
       .limit(pageSize);
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return hydratePublicFilmCards(supabase, (data ?? []) as PublicFilmRow[]);
+    return hydratePublicFilmCards(
+      supabase,
+      ((data ?? []) as PublicFilmRow[]).map((film) => ({ ...film, staff_pick: true })),
+    );
   }
 }
 
 export async function listPublishedFilms(input?: {
   page?: number;
   pageSize?: number;
+  categories?: FilmCategory[];
+  excludeIds?: string[];
+  sortBy?: "published_at" | "created_at" | "likes";
 }): Promise<{ films: PublicFilmCard[]; hasMore: boolean }> {
   const supabase = await createServerSupabaseClient();
 
@@ -592,33 +621,55 @@ export async function listPublishedFilms(input?: {
 
   const page = Math.max(1, input?.page ?? 1);
   const pageSize = Math.min(24, Math.max(1, input?.pageSize ?? 9));
+  const sortBy = input?.sortBy ?? "published_at";
   const from = (page - 1) * pageSize;
-  const to = from + pageSize;
+  const fetchSize = sortBy === "likes" ? Math.min(72, pageSize * 6) : pageSize + 1;
+  const to = from + fetchSize - 1;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("films")
-    .select("id, title, slug, synopsis, poster_url, mux_playback_id, published_at, creator_id")
+    .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, staff_pick")
     .eq("publish_status", "published")
-    .eq("visibility", "public")
-    .order("published_at", { ascending: false })
+    .eq("visibility", "public");
+
+  if (input?.categories && input.categories.length > 0) {
+    query = query.in("category", input.categories);
+  }
+
+  const orderKey = sortBy === "likes" ? "created_at" : sortBy;
+  const { data, error } = await query
+    .order(orderKey, { ascending: false })
     .range(from, to);
 
   if (error) {
     throw new Error(error.message);
   }
 
-  const films = data ?? [];
+  const excludedIds = new Set(input?.excludeIds ?? []);
+  const filteredRows = ((data ?? []) as PublicFilmRow[]).filter((film) => !excludedIds.has(film.id));
 
-  if (films.length === 0) {
+  if (filteredRows.length === 0) {
     return {
       films: [],
       hasMore: false,
     };
   }
 
+  const hydrated = await hydratePublicFilmCards(supabase, filteredRows);
+  const sorted =
+    sortBy === "likes"
+      ? [...hydrated].sort((a, b) => {
+          if (b.likeCount !== a.likeCount) {
+            return b.likeCount - a.likeCount;
+          }
+
+          return b.createdAt.localeCompare(a.createdAt);
+        })
+      : hydrated;
+
   return {
-    films: await hydratePublicFilmCards(supabase, films.slice(0, pageSize) as PublicFilmRow[]),
-    hasMore: films.length > pageSize,
+    films: sorted.slice(0, pageSize),
+    hasMore: sorted.length > pageSize,
   };
 }
 
@@ -657,7 +708,7 @@ export async function getPublicSeriesBySlug(
 
   const { data: episodes, error: episodesError } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, poster_url, season_number, episode_number, published_at")
+    .select("id, title, slug, synopsis, category, poster_url, season_number, episode_number, published_at")
     .eq("series_id", seriesRow.id)
     .eq("publish_status", "published")
     .eq("visibility", "public")
@@ -687,6 +738,7 @@ export async function getPublicSeriesBySlug(
       title: episode.title,
       slug: episode.slug,
       synopsis: episode.synopsis,
+      category: episode.category,
       posterUrl: episode.poster_url,
       seasonNumber: episode.season_number ?? null,
       episodeNumber: episode.episode_number ?? null,
@@ -694,3 +746,7 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
+
+
+
+

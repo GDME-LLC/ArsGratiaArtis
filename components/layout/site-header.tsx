@@ -1,8 +1,13 @@
 import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/constants/site";
+import {
+  getUnreadNotificationCount,
+  listNotificationsForUser,
+} from "@/lib/services/notifications";
 import { getUser } from "@/lib/supabase/auth";
 
 const navItems = [
@@ -13,6 +18,12 @@ const navItems = [
 
 export async function SiteHeader() {
   const user = await getUser();
+  const [notifications, unreadCount] = user
+    ? await Promise.all([
+        listNotificationsForUser(user.id, 10),
+        getUnreadNotificationCount(user.id),
+      ])
+    : [[], 0];
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-xl">
@@ -46,6 +57,7 @@ export async function SiteHeader() {
               <Button asChild variant="ghost" className="hidden sm:inline-flex">
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
+              <NotificationBell notifications={notifications} initialUnreadCount={unreadCount} />
               <LogoutButton />
             </>
           ) : (
