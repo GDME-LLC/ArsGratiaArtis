@@ -157,17 +157,51 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: films, error: filmsError } = await supabase
-    .from("films")
-    .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, staff_pick")
-    .eq("creator_id", profile.id)
-    .eq("publish_status", "published")
-    .eq("visibility", "public")
-    .order("published_at", { ascending: false })
-    .order("created_at", { ascending: false });
+  let films:
+    | Array<{
+        id: string;
+        title: string;
+        slug: string;
+        synopsis: string | null;
+        category: PublicFilmCard["category"];
+        poster_url: string | null;
+        mux_playback_id: string | null;
+        published_at: string | null;
+        created_at: string;
+        staff_pick?: boolean | null;
+      }>
+    | null = null;
 
-  if (filmsError) {
-    throw new Error(filmsError.message);
+  try {
+    const { data, error } = await supabase
+      .from("films")
+      .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, staff_pick")
+      .eq("creator_id", profile.id)
+      .eq("publish_status", "published")
+      .eq("visibility", "public")
+      .order("published_at", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    films = (data ?? []).map((film) => ({ ...film, staff_pick: film.staff_pick ?? false }));
+  } catch {
+    const { data, error } = await supabase
+      .from("films")
+      .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at")
+      .eq("creator_id", profile.id)
+      .eq("publish_status", "published")
+      .eq("visibility", "public")
+      .order("published_at", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    films = (data ?? []).map((film) => ({ ...film, staff_pick: false }));
   }
 
   const filmIds = (films ?? []).map((film) => film.id);
@@ -355,6 +389,3 @@ export async function listCreatorsToWatch(limit = 8): Promise<PublicCreatorListI
     })
     .slice(0, limit);
 }
-
-
-

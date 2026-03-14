@@ -19,6 +19,11 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 const GLOBAL_FILM_SLUG_MESSAGE =
   "That slug is already in use. For this v1 route, public film slugs must stay globally unique.";
 
+const FILM_CARD_SELECT_WITH_STAFF_PICK =
+  "id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, staff_pick";
+const FILM_CARD_SELECT_BASE =
+  "id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id";
+
 type PublicFilmRow = {
   id: string;
   title: string;
@@ -33,6 +38,70 @@ type PublicFilmRow = {
   staff_pick?: boolean | null;
   is_featured?: boolean | null;
 };
+
+function normalizePublicFilmRows(rows: PublicFilmRow[]) {
+  return rows.map((film) => ({
+    ...film,
+    staff_pick: film.staff_pick ?? false,
+  }));
+}
+
+async function selectPublicFilmRows(
+  options: {
+    categories?: FilmCategory[];
+    from?: number;
+    to?: number;
+    limit?: number;
+    orderBy?: "published_at" | "created_at";
+  } = {},
+): Promise<{
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>;
+  rows: PublicFilmRow[];
+}> {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return { supabase, rows: [] };
+  }
+
+  const runQuery = async (selectClause: string) => {
+    let query = supabase
+      .from("films")
+      .select(selectClause)
+      .eq("publish_status", "published")
+      .eq("visibility", "public");
+
+    if (options.categories && options.categories.length > 0) {
+      query = query.in("category", options.categories);
+    }
+
+    query = query.order(options.orderBy ?? "published_at", { ascending: false });
+
+    if (typeof options.limit === "number") {
+      query = query.limit(options.limit);
+    }
+
+    if (typeof options.from === "number" && typeof options.to === "number") {
+      query = query.range(options.from, options.to);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []) as unknown as PublicFilmRow[];
+  };
+
+  try {
+    const rows = await runQuery(FILM_CARD_SELECT_WITH_STAFF_PICK);
+    return { supabase, rows: normalizePublicFilmRows(rows) };
+  } catch {
+    const rows = await runQuery(FILM_CARD_SELECT_BASE);
+    return { supabase, rows: normalizePublicFilmRows(rows) };
+  }
+}
 
 export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmListItem[]> {
   const supabase = await createServerSupabaseClient();
@@ -570,7 +639,7 @@ export async function listStaffPickFilms(limit = 8): Promise<PublicFilmCard[]> {
   try {
     const { data, error } = await supabase
       .from("films")
-      .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, staff_pick, is_featured")
+      .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, staff_pick")
       .eq("publish_status", "published")
       .eq("visibility", "public")
       .eq("staff_pick", true)
@@ -581,25 +650,35 @@ export async function listStaffPickFilms(limit = 8): Promise<PublicFilmCard[]> {
       throw error;
     }
 
-    return hydratePublicFilmCards(supabase, (data ?? []) as PublicFilmRow[]);
+    return hydratePublicFilmCards(supabase, normalizePublicFilmRows((data ?? []) as PublicFilmRow[]));
   } catch {
-    const { data, error } = await supabase
-      .from("films")
-      .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, is_featured")
-      .eq("publish_status", "published")
-      .eq("visibility", "public")
-      .eq("is_featured", true)
-      .order("created_at", { ascending: false })
-      .limit(pageSize);
+    try {
+      const { data, error } = await supabase
+        .from("films")
+        .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, is_featured")
+        .eq("publish_status", "published")
+        .eq("visibility", "public")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false })
+        .limit(pageSize);
 
-    if (error) {
-      throw new Error(error.message);
+      if (error) {
+        throw error;
+      }
+
+      return hydratePublicFilmCards(
+        supabase,
+        normalizePublicFilmRows(((data ?? []) as PublicFilmRow[]).map((film) => ({ ...film, staff_pick: true }))),
+      );
+    } catch {
+      const { supabase: fallbackSupabase, rows } = await selectPublicFilmRows({ limit: pageSize, orderBy: "created_at" });
+
+      if (!fallbackSupabase) {
+        return [];
+      }
+
+      return hydratePublicFilmCards(fallbackSupabase, rows.slice(0, pageSize));
     }
-
-    return hydratePublicFilmCards(
-      supabase,
-      ((data ?? []) as PublicFilmRow[]).map((film) => ({ ...film, staff_pick: true })),
-    );
   }
 }
 
@@ -610,7 +689,20 @@ export async function listPublishedFilms(input?: {
   excludeIds?: string[];
   sortBy?: "published_at" | "created_at" | "likes";
 }): Promise<{ films: PublicFilmCard[]; hasMore: boolean }> {
-  const supabase = await createServerSupabaseClient();
+  const page = Math.max(1, input?.page ?? 1);
+  const pageSize = Math.min(24, Math.max(1, input?.pageSize ?? 9));
+  const sortBy = input?.sortBy ?? "published_at";
+  const from = (page - 1) * pageSize;
+  const fetchSize = sortBy === "likes" ? Math.min(72, pageSize * 6) : pageSize + 1;
+  const to = from + fetchSize - 1;
+  const orderBy = sortBy === "likes" ? "created_at" : sortBy;
+
+  const { supabase, rows } = await selectPublicFilmRows({
+    categories: input?.categories,
+    from,
+    to,
+    orderBy,
+  });
 
   if (!supabase) {
     return {
@@ -619,34 +711,8 @@ export async function listPublishedFilms(input?: {
     };
   }
 
-  const page = Math.max(1, input?.page ?? 1);
-  const pageSize = Math.min(24, Math.max(1, input?.pageSize ?? 9));
-  const sortBy = input?.sortBy ?? "published_at";
-  const from = (page - 1) * pageSize;
-  const fetchSize = sortBy === "likes" ? Math.min(72, pageSize * 6) : pageSize + 1;
-  const to = from + fetchSize - 1;
-
-  let query = supabase
-    .from("films")
-    .select("id, title, slug, synopsis, category, poster_url, mux_playback_id, published_at, created_at, creator_id, staff_pick")
-    .eq("publish_status", "published")
-    .eq("visibility", "public");
-
-  if (input?.categories && input.categories.length > 0) {
-    query = query.in("category", input.categories);
-  }
-
-  const orderKey = sortBy === "likes" ? "created_at" : sortBy;
-  const { data, error } = await query
-    .order(orderKey, { ascending: false })
-    .range(from, to);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
   const excludedIds = new Set(input?.excludeIds ?? []);
-  const filteredRows = ((data ?? []) as PublicFilmRow[]).filter((film) => !excludedIds.has(film.id));
+  const filteredRows = rows.filter((film) => !excludedIds.has(film.id));
 
   if (filteredRows.length === 0) {
     return {
@@ -746,7 +812,4 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
-
-
-
 
