@@ -115,6 +115,9 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
               </ol>
             </article>
           </div>
+          <div className="mt-4 rounded-[20px] border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-100">
+            ArsGratia does not manually pre-approve every upload. Creators are responsible for publishing only work they have the legal right to release. Reports and takedown requests are reviewed if concerns are raised.
+          </div>
         </div>
         <FilmEditorForm initialFilm={film} />
       </section>

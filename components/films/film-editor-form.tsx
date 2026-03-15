@@ -45,11 +45,13 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [creatorAcknowledged, setCreatorAcknowledged] = useState(initialFilm?.publishStatus === "published");
   const submitLabel = isSaving
     ? "Saving..."
     : initialFilm?.id
       ? "Save Release"
       : "Create Draft Release";
+  const isPublishing = form.publish_status === "published";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,6 +67,11 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
 
     if (!slug) {
       setError("Slug is required.");
+      return;
+    }
+
+    if (isPublishing && !creatorAcknowledged) {
+      setError("Confirm creator responsibility before publishing this release.");
       return;
     }
 
@@ -309,6 +316,33 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
               <option value="archived">Archived</option>
             </select>
           </Field>
+        </div>
+
+        <div className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+          <p className="display-kicker">Creator Responsibility</p>
+          <p className="body-sm mt-3 text-muted-foreground">
+            ArsGratia does not pre-approve every upload. Creators are responsible for publishing only work they have the legal right to release and for avoiding unlawful or abusive material.
+          </p>
+          <label className="mt-4 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-foreground">
+            <input
+              type="checkbox"
+              checked={creatorAcknowledged}
+              onChange={(event) => setCreatorAcknowledged(event.target.checked)}
+              className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]"
+            />
+            <span>
+              I confirm that I have the rights to publish this release on ArsGratia and that, to the best of my knowledge, it does not violate applicable law or the rights of others.
+            </span>
+          </label>
+          {isPublishing ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              This acknowledgment is required before a release can be published.
+            </p>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">
+              You can keep drafting without publishing yet. This acknowledgment becomes relevant when the release is moved to published.
+            </p>
+          )}
         </div>
 
         {error ? (

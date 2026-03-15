@@ -38,17 +38,27 @@ const sections: PolicySection[] = [
   {
     title: "3. Content Responsibility",
     paragraphs: [
-      "Creators are responsible for the content they publish.",
+      "Creators are responsible for the content they publish and for making sure they have the rights, permissions, and authority needed to release that work on ArsGratia.",
+      "By publishing a release, you represent that, to the best of your knowledge, the work does not violate applicable law or the rights of others.",
+      "ArsGratia does not manually pre-approve every upload before it is submitted or processed.",
       "You agree not to upload material that:",
     ],
     bullets: [
       "infringes copyright or intellectual property rights",
       "contains unlawful, abusive, or harmful material",
-      "violates the rights of others",
+      "violates the rights, privacy, or safety of others",
     ],
   },
   {
-    title: "4. Accounts",
+    title: "4. Reports, Takedowns, and Removal",
+    paragraphs: [
+      "ArsGratia may review, flag, hide, limit, or remove content when reports, legal concerns, or policy issues arise.",
+      "Copyright complaints, abuse reports, and takedown requests should be sent to the contact addresses listed below. ArsGratia may request supporting information before acting on a claim.",
+      "Invite-stage moderation remains lean and partly manual. ArsGratia may place a release under review while a report or legal concern is being assessed.",
+    ],
+  },
+  {
+    title: "5. Accounts",
     paragraphs: [
       "You are responsible for maintaining the security of your account.",
       "ArsGratia may suspend or terminate accounts that abuse the platform or violate these Terms.",
@@ -56,28 +66,28 @@ const sections: PolicySection[] = [
     ],
   },
   {
-    title: "5. Platform Availability",
+    title: "6. Platform Availability",
     paragraphs: [
       "ArsGratia is an evolving platform. Features and services may change over time.",
       "We may modify or discontinue parts of the service as the platform develops.",
     ],
   },
   {
-    title: "6. Limitation of Liability",
+    title: "7. Limitation of Liability",
     paragraphs: [
       "ArsGratia is provided \"as is\" without warranties of any kind.",
       "To the extent permitted by law, ArsGratia is not liable for indirect or consequential damages arising from use of the platform.",
     ],
   },
   {
-    title: "7. Changes to These Terms",
+    title: "8. Changes to These Terms",
     paragraphs: [
       "These Terms may be updated as ArsGratia grows.",
       "If material changes are made, the Last updated date on this page should be revised so creators can track the current baseline.",
     ],
   },
   {
-    title: "8. Contact",
+    title: "9. Contact",
     paragraphs: [
       "Questions about these Terms may be directed to:",
       siteConfig.contactEmail,
