@@ -1,4 +1,4 @@
-import type { Profile } from "@/types";
+﻿import type { Profile } from "@/types";
 import type {
   CreatorFilmListItem,
   FilmEditorValues,
@@ -426,7 +426,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("handle, display_name, avatar_url")
+    .select("handle, display_name, avatar_url, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
     .eq("id", data.creator_id)
     .maybeSingle();
 
@@ -564,6 +564,15 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
       handle: String(profile?.handle ?? ""),
       displayName: String(profile?.display_name ?? ""),
       avatarUrl: typeof profile?.avatar_url === "string" ? profile.avatar_url : null,
+      foundingCreator: {
+        isFoundingCreator: Boolean(profile?.is_founding_creator),
+        founderNumber: typeof profile?.founding_creator_number === "number" ? profile.founding_creator_number : null,
+        awardedAt: typeof profile?.founding_creator_awarded_at === "string" ? profile.founding_creator_awarded_at : null,
+        featured: profile?.founding_creator_featured !== false,
+        notes: typeof profile?.founding_creator_notes === "string" ? profile.founding_creator_notes : null,
+        invitedAt: typeof profile?.founding_creator_invited_at === "string" ? profile.founding_creator_invited_at : null,
+        acceptedAt: typeof profile?.founding_creator_accepted_at === "string" ? profile.founding_creator_accepted_at : null,
+      },
     },
     isOwner,
     moderationStatus: data.moderation_status ?? "active",
@@ -585,7 +594,7 @@ async function hydratePublicFilmCards(
   } = await supabase.auth.getUser();
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, avatar_url")
+    .select("id, handle, display_name, avatar_url, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
     .in("id", creatorIds);
 
   if (profilesError) {
@@ -606,6 +615,15 @@ async function hydratePublicFilmCards(
         handle: String(profile.handle ?? ""),
         displayName: String(profile.display_name ?? ""),
         avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
+        foundingCreator: {
+          isFoundingCreator: Boolean(profile.is_founding_creator),
+          founderNumber: typeof profile.founding_creator_number === "number" ? profile.founding_creator_number : null,
+          awardedAt: typeof profile.founding_creator_awarded_at === "string" ? profile.founding_creator_awarded_at : null,
+          featured: profile.founding_creator_featured !== false,
+          notes: typeof profile.founding_creator_notes === "string" ? profile.founding_creator_notes : null,
+          invitedAt: typeof profile.founding_creator_invited_at === "string" ? profile.founding_creator_invited_at : null,
+          acceptedAt: typeof profile.founding_creator_accepted_at === "string" ? profile.founding_creator_accepted_at : null,
+        },
       },
     ]),
   );
@@ -628,6 +646,15 @@ async function hydratePublicFilmCards(
       handle: "",
       displayName: "",
       avatarUrl: null,
+      foundingCreator: {
+        isFoundingCreator: false,
+        founderNumber: null,
+        awardedAt: null,
+        featured: true,
+        notes: null,
+        invitedAt: null,
+        acceptedAt: null,
+      },
     },
   }));
 }
@@ -784,7 +811,7 @@ export async function getPublicSeriesBySlug(
 
   const { data: creatorRow, error: creatorError } = await supabase
     .from("profiles")
-    .select("handle, display_name, avatar_url")
+    .select("handle, display_name, avatar_url, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
     .eq("id", seriesRow.creator_id)
     .maybeSingle();
 
@@ -833,6 +860,10 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
+
+
+
+
 
 
 

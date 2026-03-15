@@ -1,7 +1,8 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CommentForm } from "@/components/comments/comment-form";
+import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { CommentList } from "@/components/comments/comment-list";
 import { LikeButton } from "@/components/engagement/like-button";
 import { FilmArtwork } from "@/components/films/film-artwork";
@@ -121,12 +122,15 @@ export default async function FilmPage({ params }: FilmPageProps) {
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Creator</p>
-                  <Link
-                    href={`/creator/${data.creator.handle}`}
-                    className="mt-2 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
-                  >
-                    {data.creator.displayName || `@${data.creator.handle}`}
-                  </Link>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Link
+                      href={`/creator/${data.creator.handle}`}
+                      className="inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                    >
+                      {data.creator.displayName || `@${data.creator.handle}`}
+                    </Link>
+                    <FoundingCreatorBadge founder={data.creator.foundingCreator} showNumber />
+                  </div>
                 </div>
                 {data.series ? (
                   <div>
@@ -246,3 +250,5 @@ export default async function FilmPage({ params }: FilmPageProps) {
     </section>
   );
 }
+
+

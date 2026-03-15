@@ -1,4 +1,4 @@
-import type { User } from "@supabase/supabase-js";
+﻿import type { User } from "@supabase/supabase-js";
 
 import {
   getFollowerCount,
@@ -9,6 +9,7 @@ import {
 import { getFilmCommentCounts } from "@/lib/services/comments";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type {
+  FoundingCreatorInfo,
   Profile,
   PublicCreatorListItem,
   PublicCreatorProfileData,
@@ -28,6 +29,22 @@ function buildHandleFromUser(user: Pick<User, "id" | "email" | "user_metadata">)
   const base = normalizeHandleCandidate(metadataName || emailBase) || "creator";
 
   return base.slice(0, 24);
+}
+
+function mapFoundingCreator(row: Record<string, unknown>): FoundingCreatorInfo {
+  return {
+    isFoundingCreator: Boolean(row.is_founding_creator),
+    founderNumber:
+      typeof row.founding_creator_number === "number" ? row.founding_creator_number : null,
+    awardedAt:
+      typeof row.founding_creator_awarded_at === "string" ? row.founding_creator_awarded_at : null,
+    featured: row.founding_creator_featured !== false,
+    notes: typeof row.founding_creator_notes === "string" ? row.founding_creator_notes : null,
+    invitedAt:
+      typeof row.founding_creator_invited_at === "string" ? row.founding_creator_invited_at : null,
+    acceptedAt:
+      typeof row.founding_creator_accepted_at === "string" ? row.founding_creator_accepted_at : null,
+  };
 }
 
 async function makeUniqueHandle(
@@ -212,6 +229,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
   const likedIds = await getViewerLikedFilmIds(filmIds, user?.id);
   const followerCount = await getFollowerCount(String(profile.id));
   const viewerIsFollowing = await getViewerFollowingCreator(String(profile.id), user?.id);
+  const foundingCreator = mapFoundingCreator(profile);
 
   return {
     profile: {
@@ -219,6 +237,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
       followerCount,
       viewerIsFollowing,
       isCurrentUser: user?.id === profile.id,
+      foundingCreator,
     },
     films: (films ?? []).map((film) => ({
       id: film.id,
@@ -237,6 +256,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
         handle: String(profile.handle),
         displayName: String(profile.display_name ?? ""),
         avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
+        foundingCreator,
       },
       publishedAt: film.published_at,
     })) satisfies PublicFilmCard[],
@@ -252,7 +272,7 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
 
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, bio, avatar_url, is_creator")
+    .select("id, handle, display_name, bio, avatar_url, is_creator, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
     .eq("is_public", true)
     .eq("is_creator", true)
     .limit(limit);
@@ -273,8 +293,8 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
     .in("creator_id", profileIds)
     .eq("publish_status", "published")
     .eq("visibility", "public")
-      .eq("moderation_status", "active")
-      .order("published_at", { ascending: false });
+    .eq("moderation_status", "active")
+    .order("published_at", { ascending: false });
 
   if (filmsError) {
     throw new Error(filmsError.message);
@@ -342,8 +362,17 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
       seriesCount: seriesCountMap.get(String(profile.id))?.size ?? 0,
       featuredReleases: releasePreviewMap.get(String(profile.id)) ?? [],
       latestPublishedAt: latestPublishedAtMap.get(String(profile.id)) ?? "",
+      foundingCreator: mapFoundingCreator(profile),
     }))
     .sort((a, b) => {
+      if (a.foundingCreator.isFoundingCreator !== b.foundingCreator.isFoundingCreator) {
+        return a.foundingCreator.isFoundingCreator ? -1 : 1;
+      }
+
+      if (a.foundingCreator.founderNumber && b.foundingCreator.founderNumber) {
+        return a.foundingCreator.founderNumber - b.foundingCreator.founderNumber;
+      }
+
       if (a.latestPublishedAt && b.latestPublishedAt) {
         return b.latestPublishedAt.localeCompare(a.latestPublishedAt);
       }
@@ -371,6 +400,7 @@ export function mapProfile(row: Record<string, unknown>): Profile {
     bannerUrl: typeof row.banner_url === "string" ? row.banner_url : null,
     websiteUrl: typeof row.website_url === "string" ? row.website_url : null,
     isCreator: Boolean(row.is_creator),
+    foundingCreator: mapFoundingCreator(row),
   };
 }
 
@@ -378,8 +408,12 @@ export async function listCreatorsToWatch(limit = 8): Promise<PublicCreatorListI
   const creators = await listPublicCreators(Math.max(limit * 3, 24));
 
   return creators
-    .filter((creator) => creator.followerCount > 5 || creator.publicFilmCount > 3)
+    .filter((creator) => creator.followerCount > 5 || creator.publicFilmCount > 3 || creator.foundingCreator.isFoundingCreator)
     .sort((a, b) => {
+      if (a.foundingCreator.isFoundingCreator !== b.foundingCreator.isFoundingCreator) {
+        return a.foundingCreator.isFoundingCreator ? -1 : 1;
+      }
+
       if (b.followerCount !== a.followerCount) {
         return b.followerCount - a.followerCount;
       }
@@ -392,4 +426,3 @@ export async function listCreatorsToWatch(limit = 8): Promise<PublicCreatorListI
     })
     .slice(0, limit);
 }
-

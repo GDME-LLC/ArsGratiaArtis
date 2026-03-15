@@ -10,7 +10,8 @@
     "start": "set NEXT_DIST_DIR=.next-build && next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "verify:safe": "npm run lint && npm run typecheck"
+    "verify:safe": "npm run lint && npm run typecheck",
+    "generate:hero-loop": "powershell -ExecutionPolicy Bypass -File scripts/generate-hero-loop.ps1"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",

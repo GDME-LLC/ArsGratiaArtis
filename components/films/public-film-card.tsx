@@ -1,6 +1,7 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { FilmArtwork } from "@/components/films/film-artwork";
+import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { LikeButton } from "@/components/engagement/like-button";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { getFilmCategoryLabel } from "@/lib/films/categories";
@@ -47,12 +48,15 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
           </div>
           <h3 className="title-md mt-3 text-foreground">{film.title}</h3>
         </Link>
-        <Link
-          href={`/creator/${film.creator.handle}`}
-          className="mt-2 inline-block text-sm text-foreground/88 underline decoration-white/15 underline-offset-4 transition hover:text-foreground"
-        >
-          {film.creator.displayName || `@${film.creator.handle}`}
-        </Link>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <Link
+            href={`/creator/${film.creator.handle}`}
+            className="inline-block text-sm text-foreground/88 underline decoration-white/15 underline-offset-4 transition hover:text-foreground"
+          >
+            {film.creator.displayName || `@${film.creator.handle}`}
+          </Link>
+          <FoundingCreatorBadge founder={film.creator.foundingCreator} className="px-2.5 py-1 text-[10px]" />
+        </div>
         <Link href={`/film/${film.slug}`} className="block flex-1">
           <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
             {film.synopsis || "Release note to follow."}

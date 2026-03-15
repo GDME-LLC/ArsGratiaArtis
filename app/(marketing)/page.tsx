@@ -1,11 +1,14 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
+import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
+import { FoundingCreatorBenefits } from "@/components/founding/founding-creator-benefits";
 import { Hero } from "@/components/marketing/hero";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { Button } from "@/components/ui/button";
 import { BEYOND_CINEMA_CATEGORIES } from "@/lib/films/categories";
+import { listFeaturedFoundingCreators } from "@/lib/founding-creators";
 import { listCreatorsToWatch } from "@/lib/profiles";
 import { listPublishedFilms, listStaffPickFilms } from "@/lib/services/films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
@@ -55,8 +58,9 @@ function ReleaseSection({ eyebrow, title, description, films, href, ctaLabel }: 
 export default async function HomePage() {
   const canLoad = hasSupabaseServerEnv();
 
-  const [staffPickFilms, featuredFilmResponse, featuredBeyondResponse, newReleaseResponse, newExperimentsResponse, creatorsToWatch] = canLoad
+  const [foundingCreators, staffPickFilms, featuredFilmResponse, featuredBeyondResponse, newReleaseResponse, newExperimentsResponse, creatorsToWatch] = canLoad
     ? await Promise.all([
+        listFeaturedFoundingCreators(20),
         listStaffPickFilms(8),
         listPublishedFilms({ page: 1, pageSize: 24, categories: ["film"], sortBy: "created_at" }),
         listPublishedFilms({
@@ -75,6 +79,7 @@ export default async function HomePage() {
         listCreatorsToWatch(8),
       ])
     : [
+        [],
         [],
         { films: [], hasMore: false },
         { films: [], hasMore: false },
@@ -104,6 +109,77 @@ export default async function HomePage() {
   return (
     <div className="pb-20">
       <Hero spotlightFilm={spotlightFilm} spotlightLabel={spotlightLabel} />
+
+      {foundingCreators.length > 0 ? (
+        <SectionShell className="mt-7">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-start">
+            <div>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="max-w-3xl">
+                  <p className="eyebrow">Founding Creators</p>
+                  <h2 className="headline-lg mt-3 text-foreground">Founding Creators</h2>
+                  <p className="body-lg mt-3">
+                    A permanent roster of the artists helping define ArsGratia's beginning. The first 20 creators will remain part of the platform's founding record.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <HorizontalRail ariaLabel="founding creators">
+                  {foundingCreators.map((creator) => (
+                    <Link
+                      key={creator.id}
+                      href={`/creator/${creator.handle}`}
+                      className="surface-panel cinema-frame flex w-[min(78vw,19rem)] shrink-0 snap-start flex-col overflow-hidden p-5 sm:w-[18rem]"
+                    >
+                      <div
+                        className="h-36 rounded-[20px] border border-white/10 bg-white/5 bg-cover bg-center"
+                        style={
+                          creator.bannerUrl
+                            ? { backgroundImage: `linear-gradient(rgba(4,4,6,0.2), rgba(4,4,6,0.78)), url(${creator.bannerUrl})` }
+                            : undefined
+                        }
+                      />
+                      <div className="mt-4 flex items-center gap-3">
+                        <div
+                          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-foreground"
+                          style={creator.avatarUrl ? { backgroundImage: `url(${creator.avatarUrl})`, backgroundSize: "cover" } : undefined}
+                        >
+                          {!creator.avatarUrl ? creator.displayName.charAt(0).toUpperCase() : null}
+                        </div>
+                        <FoundingCreatorBadge founder={creator.foundingCreator} showNumber />
+                      </div>
+                      <h3 className="title-md mt-4 text-foreground">{creator.displayName}</h3>
+                      <p className="mt-2 text-sm text-muted-foreground">@{creator.handle}</p>
+                      <p className="body-sm mt-4 line-clamp-3 flex-1">
+                        {creator.bio || "One of the first artists helping shape ArsGratia's founding era."}
+                      </p>
+                      <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-muted-foreground">
+                        <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                          <p className="display-kicker">Releases</p>
+                          <p className="mt-2 text-foreground">{formatCountLabel(creator.publicFilmCount, "release")}</p>
+                        </div>
+                        <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                          <p className="display-kicker">Followers</p>
+                          <p className="mt-2 text-foreground">{formatFollowerCount(creator.followerCount)}</p>
+                        </div>
+                      </div>
+                      <p className="mt-4 text-sm text-muted-foreground">
+                        {creator.latestReleaseTitle ? `Latest release: ${creator.latestReleaseTitle}` : "Profile building now"}
+                      </p>
+                    </Link>
+                  ))}
+                </HorizontalRail>
+              </div>
+            </div>
+
+            <FoundingCreatorBenefits
+              title="The First 20"
+              description="A prestige cohort reserved for the creators who help establish ArsGratia's standards, authorship, and early public identity."
+            />
+          </div>
+        </SectionShell>
+      ) : null}
 
       <ReleaseSection
         eyebrow="Staff Picks"
@@ -174,7 +250,10 @@ export default async function HomePage() {
                     className="surface-panel cinema-frame w-[min(82vw,21rem)] shrink-0 snap-start overflow-hidden p-5 sm:w-[20rem]"
                   >
                     <p className="display-kicker">Filmmaker</p>
-                    <h3 className="title-md mt-3 text-foreground">{creator.displayName}</h3>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <h3 className="title-md text-foreground">{creator.displayName}</h3>
+                      <FoundingCreatorBadge founder={creator.foundingCreator} showNumber />
+                    </div>
                     <p className="mt-2 text-sm text-muted-foreground">@{creator.handle}</p>
                     <p className="body-sm mt-4 line-clamp-3">
                       {creator.bio || "A public filmmaker page is live, with releases and series beginning to take shape."}
@@ -215,3 +294,4 @@ export default async function HomePage() {
     </div>
   );
 }
+

@@ -47,6 +47,14 @@ export const featuredTools = [
     href: "https://chatgpt.com",
     fit: "Best when you need fast ideation, rewriting passes, or prompt scaffolding.",
   },
+  {
+    name: "Curious Refuge",
+    category: "Education / community",
+    description:
+      "A well-known AI filmmaking school and community with courses, tutorials, events, and a film gallery that can help creators study the field more seriously.",
+    href: "https://curiousrefuge.com",
+    fit: "Best when you want structured training, community context, and a broader view of the current AI filmmaking ecosystem.",
+  },
 ] as const;
 
 export const starterWorkflow = [
@@ -218,6 +226,19 @@ export const categories = [
         name: "Notion",
         description: "A simple production home for story boards, prompt logs, shot lists, and release notes.",
         href: "https://www.notion.so",
+      },
+    ],
+  },
+  {
+    id: "education",
+    name: "Education / community",
+    summary:
+      "For courses, tutorials, events, and broader community context around AI filmmaking and creative workflows.",
+    items: [
+      {
+        name: "Curious Refuge",
+        description: "Courses, tutorials, events, and a film gallery for creators who want more structured AI filmmaking context.",
+        href: "https://curiousrefuge.com",
       },
     ],
   },

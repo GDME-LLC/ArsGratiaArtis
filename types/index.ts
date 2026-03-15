@@ -1,6 +1,16 @@
-import type { FilmCategory } from "@/lib/films/categories";
+﻿import type { FilmCategory } from "@/lib/films/categories";
 
 export type ModerationStatus = "active" | "pending_review" | "flagged" | "removed";
+
+export type FoundingCreatorInfo = {
+  isFoundingCreator: boolean;
+  founderNumber: number | null;
+  awardedAt: string | null;
+  featured: boolean;
+  notes: string | null;
+  invitedAt: string | null;
+  acceptedAt: string | null;
+};
 
 export type Film = {
   id: string;
@@ -52,6 +62,7 @@ export type Profile = {
   bannerUrl: string | null;
   websiteUrl: string | null;
   isCreator: boolean;
+  foundingCreator: FoundingCreatorInfo;
 };
 
 export type PublicFilmCard = {
@@ -71,6 +82,7 @@ export type PublicFilmCard = {
     handle: string;
     displayName: string;
     avatarUrl: string | null;
+    foundingCreator: FoundingCreatorInfo;
   };
   publishedAt: string | null;
 };
@@ -138,6 +150,7 @@ export type PublicFilmPageData = {
     handle: string;
     displayName: string;
     avatarUrl: string | null;
+    foundingCreator: FoundingCreatorInfo;
   };
   isOwner: boolean;
   moderationStatus: ModerationStatus;
@@ -184,6 +197,7 @@ export type PublicCreatorProfileData = {
     followerCount: number;
     viewerIsFollowing: boolean;
     isCurrentUser: boolean;
+    foundingCreator: FoundingCreatorInfo;
   };
   films: PublicFilmCard[];
 };
@@ -199,6 +213,7 @@ export type PublicCreatorListItem = {
   publicFilmCount: number;
   seriesCount: number;
   latestPublishedAt?: string;
+  foundingCreator: FoundingCreatorInfo;
   featuredReleases: Array<{
     id: string;
     title: string;
@@ -206,6 +221,42 @@ export type PublicCreatorListItem = {
     synopsis: string | null;
     publishedAt: string | null;
   }>;
+};
+
+export type PublicFoundingCreatorListItem = {
+  id: string;
+  handle: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  publicFilmCount: number;
+  followerCount: number;
+  latestReleaseTitle: string | null;
+  foundingCreator: FoundingCreatorInfo;
+};
+
+export type AdminFoundingCreatorRow = {
+  id: string;
+  handle: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  isPublic: boolean;
+  isCreator: boolean;
+  publicFilmCount: number;
+  followerCount: number;
+  foundingCreator: FoundingCreatorInfo;
+};
+
+export type AdminFoundingCreatorOverview = {
+  founders: AdminFoundingCreatorRow[];
+  invited: AdminFoundingCreatorRow[];
+  eligibleCreators: AdminFoundingCreatorRow[];
+  founderCount: number;
+  remainingSlots: number;
+  nextAvailableFounderNumber: number | null;
 };
 
 export type FilmComment = {

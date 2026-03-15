@@ -1,9 +1,11 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { FilmArtwork } from "@/components/films/film-artwork";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
+import { isAdminEmail } from "@/lib/admin";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { getFilmCategoryLabel } from "@/lib/films/categories";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
@@ -11,6 +13,7 @@ import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
+import { formatMonthYear } from "@/lib/utils";
 
 export default async function DashboardPage() {
   if (!hasSupabaseServerEnv()) {
@@ -33,6 +36,8 @@ export default async function DashboardPage() {
   try {
     const profile = await ensureProfileForUser(user);
     const films = profile ? await listCreatorFilms(profile.id) : [];
+    const isAdmin = isAdminEmail(user.email);
+    const founderSince = formatMonthYear(profile?.foundingCreator.awardedAt ?? null);
 
     if (!profile) {
       return (
@@ -51,12 +56,18 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="display-kicker">Dashboard</p>
-              <h1 className="headline-xl mt-4">
-                {profile.displayName || profile.handle}
-              </h1>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <h1 className="headline-xl">{profile.displayName || profile.handle}</h1>
+                <FoundingCreatorBadge founder={profile.foundingCreator} showNumber />
+              </div>
               <p className="body-lg mt-4">
                 Prepare releases, shape your creator page, and keep the next film moving without losing the thread.
               </p>
+              {profile.foundingCreator.isFoundingCreator ? (
+                <p className="mt-3 text-sm text-[#e7d1a0]">
+                  Founding Creator{founderSince ? ` since ${founderSince}` : ""}. One of the first 20 creators on ArsGratia.
+                </p>
+              ) : null}
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -75,6 +86,11 @@ export default async function DashboardPage() {
               <Button asChild variant="ghost" size="lg">
                 <Link href={`/creator/${profile.handle}`}>View Creator Page</Link>
               </Button>
+              {isAdmin ? (
+                <Button asChild variant="ghost" size="lg">
+                  <Link href="/founding-creators">Manage Founding Creators</Link>
+                </Button>
+              ) : null}
             </div>
           </div>
 
@@ -100,9 +116,16 @@ export default async function DashboardPage() {
             </article>
 
             <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">Bio</p>
+              <p className="display-kicker">Founding Status</p>
+              <p className="title-md mt-3 text-foreground">
+                {profile.foundingCreator.isFoundingCreator
+                  ? `Founding Creator${profile.foundingCreator.founderNumber ? ` #${profile.foundingCreator.founderNumber}` : ""}`
+                  : "Not on the founding roster"}
+              </p>
               <p className="body-sm mt-3">
-                {profile.bio || "No public bio yet. Add one in settings so the page carries authorship before the first visitor arrives."}
+                {profile.foundingCreator.isFoundingCreator
+                  ? "Permanent recognition as one of the first 20 creators on ArsGratia."
+                  : "The founding tier is assigned manually to a permanent roster of the first 20 creators."}
               </p>
             </article>
           </div>

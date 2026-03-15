@@ -1,4 +1,4 @@
-import { clsx, type ClassValue } from "clsx";
+﻿import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -34,6 +34,16 @@ export function formatLikeCount(count: number) {
   return formatCountLabel(count, "like");
 }
 
+export function formatMonthYear(date: string | null | undefined) {
+  if (!date) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(date));
+}
 export function formatReleaseDate(date: string | null | undefined) {
   if (!date) {
     return null;
@@ -75,3 +85,4 @@ export function formatRelativeRelease(date: string | null | undefined, prefix = 
   const diffYears = Math.round(diffDays / 365);
   return `${prefix} ${rtf.format(diffYears, "year")}`;
 }
+

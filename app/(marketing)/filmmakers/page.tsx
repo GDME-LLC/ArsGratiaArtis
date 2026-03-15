@@ -1,12 +1,13 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
+import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
 import { StatePanel } from "@/components/shared/state-panel";
 import { listPublicCreators } from "@/lib/profiles";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
-import { formatFollowerCount, formatRelativeRelease } from "@/lib/utils";
+import { formatCountLabel, formatFollowerCount, formatRelativeRelease } from "@/lib/utils";
 
 export default async function FilmmakersPage() {
   if (!hasSupabaseServerEnv()) {
@@ -47,7 +48,10 @@ export default async function FilmmakersPage() {
                 <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                   <div className="min-w-0">
                     <p className="display-kicker">Filmmaker</p>
-                    <h2 className="headline-lg mt-3 text-foreground">{creator.displayName}</h2>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <h2 className="headline-lg text-foreground">{creator.displayName}</h2>
+                      <FoundingCreatorBadge founder={creator.foundingCreator} showNumber />
+                    </div>
                     <p className="mt-2 text-sm text-muted-foreground">@{creator.handle}</p>
                     <p className="body-sm mt-4 line-clamp-3 max-w-2xl">
                       {creator.bio || "A public filmmaker page is live. More context will arrive as releases, notes, and series take shape."}
@@ -69,11 +73,11 @@ export default async function FilmmakersPage() {
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                     <p className="display-kicker">Released Films</p>
-                    <p className="title-md mt-3 text-foreground">{creator.publicFilmCount}</p>
+                    <p className="title-md mt-3 text-foreground">{formatCountLabel(creator.publicFilmCount, "release")}</p>
                   </div>
                   <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                     <p className="display-kicker">Series</p>
-                    <p className="title-md mt-3 text-foreground">{creator.seriesCount}</p>
+                    <p className="title-md mt-3 text-foreground">{formatCountLabel(creator.seriesCount, "series", "series")}</p>
                   </div>
                   <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                     <p className="display-kicker">Latest Release</p>

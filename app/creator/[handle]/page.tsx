@@ -1,12 +1,13 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
+import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { FollowButton } from "@/components/engagement/follow-button";
 import { StatePanel } from "@/components/shared/state-panel";
 import { getPublicProfileByHandle } from "@/lib/profiles";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
-import { formatCountLabel, formatFollowerCount } from "@/lib/utils";
+import { formatCountLabel, formatFollowerCount, formatMonthYear } from "@/lib/utils";
 
 type CreatorPageProps = {
   params: Promise<{
@@ -35,6 +36,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   }
 
   const { profile, films } = data;
+  const founderSince = formatMonthYear(profile.foundingCreator.awardedAt);
 
   return (
     <section className="container-shell py-14">
@@ -60,7 +62,15 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               </div>
               <div>
                 <p className="display-kicker">@{profile.handle}</p>
-                <h1 className="headline-lg mt-1">{profile.displayName}</h1>
+                <div className="mt-1 flex flex-wrap items-center gap-3">
+                  <h1 className="headline-lg">{profile.displayName}</h1>
+                  <FoundingCreatorBadge founder={profile.foundingCreator} showNumber />
+                </div>
+                {profile.foundingCreator.isFoundingCreator ? (
+                  <p className="mt-2 text-sm text-[#e7d1a0]">
+                    One of the first 20 creators on ArsGratia{founderSince ? ` since ${founderSince}` : "."}
+                  </p>
+                ) : null}
                 <p className="body-sm mt-2 max-w-2xl">
                   {profile.bio || "This filmmaker page is live. A fuller note will appear here as releases and context are added."}
                 </p>
