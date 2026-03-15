@@ -8,7 +8,6 @@ declare global {
     turnstile?: {
       render: (container: string | HTMLElement, options: Record<string, unknown>) => string;
       remove?: (widgetId: string) => void;
-      ready?: (callback: () => void) => void;
     };
   }
 }
@@ -92,19 +91,7 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
       }
     };
 
-    try {
-      if (typeof window.turnstile.ready === "function") {
-        window.turnstile.ready(renderWidget);
-      } else {
-        renderWidget();
-      }
-    } catch (error) {
-      console.error("Turnstile ready failed", {
-        action,
-        error,
-      });
-      setRenderError(formatTurnstileError());
-    }
+    renderWidget();
 
     return () => {
       removeWidget();
