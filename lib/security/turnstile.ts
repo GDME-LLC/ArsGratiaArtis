@@ -32,25 +32,60 @@ export async function verifyTurnstileToken(input: {
   }
 
   try {
+    const body = new URLSearchParams({
+      secret: process.env.TURNSTILE_SECRET_KEY,
+      response: input.token,
+    });
+
+    if (input.ip && input.ip !== "unknown") {
+      body.set("remoteip", input.ip);
+    }
+
     const response = await fetch(TURNSTILE_VERIFY_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify({
-        secret: process.env.TURNSTILE_SECRET_KEY,
-        response: input.token,
-        remoteip: input.ip ?? undefined,
-      }),
+      body: body.toString(),
       cache: "no-store",
     });
 
     const payload = (await response.json()) as {
       success?: boolean;
       action?: string;
+      ["error-codes"]?: string[];
     };
 
     if (!response.ok || !payload.success) {
+      const errorCodes = payload["error-codes"] ?? [];
+
+      console.error("Turnstile verification failed", {
+        action: input.action,
+        status: response.status,
+        errorCodes,
+      });
+
+      if (errorCodes.includes("timeout-or-duplicate")) {
+        return {
+          ok: false as const,
+          message: "The security check expired. Please try again.",
+        };
+      }
+
+      if (errorCodes.includes("missing-input-response") || errorCodes.includes("invalid-input-response")) {
+        return {
+          ok: false as const,
+          message: "Please complete the security check and try again.",
+        };
+      }
+
+      if (errorCodes.includes("invalid-input-secret") || errorCodes.includes("missing-input-secret")) {
+        return {
+          ok: false as const,
+          message: "The security check is unavailable right now. Please try again in a moment.",
+        };
+      }
+
       return {
         ok: false as const,
         message: "We could not verify the security check. Please try again.",
@@ -66,6 +101,10 @@ export async function verifyTurnstileToken(input: {
 
     return { ok: true as const };
   } catch {
+    console.error("Turnstile verification request failed", {
+      action: input.action,
+    });
+
     return {
       ok: false as const,
       message: "We could not verify the security check. Please try again.",
