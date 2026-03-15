@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -12,7 +12,7 @@ import { getUser } from "@/lib/supabase/auth";
 
 const navItems = [
   { href: "/manifesto", label: "Manifesto" },
-  { href: "/feed", label: "New Releases" },
+  { href: "/beyond-cinema", label: "Beyond Cinema" },
   { href: "/resources", label: "Resources" },
 ];
 
