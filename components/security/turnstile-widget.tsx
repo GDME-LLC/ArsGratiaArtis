@@ -7,7 +7,7 @@ declare global {
   interface Window {
     turnstile?: {
       render: (container: string | HTMLElement, options: Record<string, unknown>) => string;
-      remove: (widgetId: string) => void;
+      remove?: (widgetId: string) => void;
       ready?: (callback: () => void) => void;
     };
   }
@@ -19,6 +19,11 @@ type TurnstileWidgetProps = {
   resetKey?: number;
 };
 
+function formatTurnstileError(code?: string | null) {
+  const suffix = code ? ` (code: ${code})` : "";
+  return `Security verification could not load${suffix}. Refresh and try again.`;
+}
+
 export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: TurnstileWidgetProps) {
   const [isReady, setIsReady] = useState(false);
   const [renderError, setRenderError] = useState("");
@@ -27,6 +32,24 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
   const containerRef = useRef<HTMLDivElement | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
+  const removeWidget = () => {
+    if (!widgetIdRef.current || !window.turnstile?.remove) {
+      widgetIdRef.current = null;
+      return;
+    }
+
+    try {
+      window.turnstile.remove(widgetIdRef.current);
+    } catch (error) {
+      console.error("Turnstile remove failed", {
+        action,
+        error,
+      });
+    } finally {
+      widgetIdRef.current = null;
+    }
+  };
+
   useEffect(() => {
     if (!siteKey || !isReady || !window.turnstile || !containerRef.current) {
       return;
@@ -34,15 +57,15 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
 
     onTokenChange("");
     setRenderError("");
-
-    if (widgetIdRef.current) {
-      window.turnstile.remove(widgetIdRef.current);
-      widgetIdRef.current = null;
-    }
+    removeWidget();
 
     const renderWidget = () => {
+      if (!containerRef.current || !window.turnstile) {
+        return;
+      }
+
       try {
-        widgetIdRef.current = window.turnstile?.render(containerRef.current as HTMLElement, {
+        widgetIdRef.current = window.turnstile.render(containerRef.current, {
           sitekey: siteKey,
           theme: "dark",
           action,
@@ -51,27 +74,40 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
             onTokenChange(token);
           },
           "expired-callback": () => onTokenChange(""),
-          "error-callback": () => {
+          "error-callback": (code?: string) => {
+            console.error("Turnstile widget error", {
+              action,
+              code: code ?? null,
+            });
             onTokenChange("");
-            setRenderError("Security verification could not load. Refresh and try again.");
+            setRenderError(formatTurnstileError(code));
           },
-        }) ?? null;
-      } catch {
-        setRenderError("Security verification could not load. Refresh and try again.");
+        });
+      } catch (error) {
+        console.error("Turnstile render failed", {
+          action,
+          error,
+        });
+        setRenderError(formatTurnstileError());
       }
     };
 
-    if (typeof window.turnstile.ready === "function") {
-      window.turnstile.ready(renderWidget);
-    } else {
-      renderWidget();
+    try {
+      if (typeof window.turnstile.ready === "function") {
+        window.turnstile.ready(renderWidget);
+      } else {
+        renderWidget();
+      }
+    } catch (error) {
+      console.error("Turnstile ready failed", {
+        action,
+        error,
+      });
+      setRenderError(formatTurnstileError());
     }
 
     return () => {
-      if (widgetIdRef.current && window.turnstile) {
-        window.turnstile.remove(widgetIdRef.current);
-        widgetIdRef.current = null;
-      }
+      removeWidget();
     };
   }, [action, isReady, onTokenChange, resetKey, siteKey]);
 
@@ -86,9 +122,26 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
   return (
     <div className="space-y-3">
       <Script
+        id="cf-turnstile-script"
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
-        onLoad={() => setIsReady(true)}
+        onLoad={() => {
+          if (!window.turnstile) {
+            console.error("Turnstile script loaded without global API", {
+              action,
+            });
+            setRenderError(formatTurnstileError());
+            return;
+          }
+
+          setIsReady(true);
+        }}
+        onError={() => {
+          console.error("Turnstile script failed to load", {
+            action,
+          });
+          setRenderError(formatTurnstileError());
+        }}
       />
       <div ref={containerRef} id={elementId} key={`${elementId}-${resetKey}`} className="min-h-[66px]" />
       {renderError ? <p className="text-sm text-destructive">{renderError}</p> : null}
