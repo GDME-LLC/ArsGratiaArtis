@@ -34,7 +34,7 @@ export function SiteFooter() {
             Copyright: {securityConfig.copyrightEmail}
           </p>
           <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            © 2026 ArsGratia
+            Copyright 2026 ArsGratia
           </p>
         </div>
 
