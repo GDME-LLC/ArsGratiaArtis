@@ -31,22 +31,24 @@ const contentByMode = {
     alternateHref: "/signup",
     alternateLabel: "Need an account?",
     submittingLabel: "Logging In...",
-    note: "Accounts are open now. Creator publishing access is enabled separately.",
+    note: "Accounts are open. Creator publishing access is enabled separately so public filmmaker pages can come online with care.",
     action: "login" as const,
   },
   signup: {
     eyebrow: "Join ArsGratia",
     title: "Start your account",
     description:
-      "Create your ArsGratia account now. Creator publishing access is being enabled in small groups through review or invitation.",
+      "Create your ArsGratia account now. Creator publishing access is enabled in small groups through review or invitation.",
     cta: "Create Account",
     alternateHref: "/login",
     alternateLabel: "Already inside?",
     submittingLabel: "Creating Account...",
-    note: "After signup, your account is live but creator publishing access may remain off until review is complete.",
+    note: "After signup, your account is live. Creator publishing tools may remain off until your access is reviewed.",
     action: "signup" as const,
   },
 } as const;
+
+const googleAuthEnabled = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true";
 
 function validateEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -259,26 +261,30 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
         </Button>
       </form>
 
-      <div className="mt-6 flex items-center gap-4">
-        <div className="h-px flex-1 bg-white/10" />
-        <span className="display-kicker text-[0.62rem] text-muted-foreground">or</span>
-        <div className="h-px flex-1 bg-white/10" />
-      </div>
+      {googleAuthEnabled ? (
+        <>
+          <div className="mt-6 flex items-center gap-4">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="display-kicker text-[0.62rem] text-muted-foreground">or</span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="lg"
-        className="mt-6 w-full"
-        onClick={handleGoogleAuth}
-        disabled={isSubmitting || isGoogleLoading}
-      >
-        {isGoogleLoading ? "Redirecting to Google..." : "Continue with Google"}
-      </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="lg"
+            className="mt-6 w-full"
+            onClick={handleGoogleAuth}
+            disabled={isSubmitting || isGoogleLoading}
+          >
+            {isGoogleLoading ? "Redirecting to Google..." : "Continue with Google"}
+          </Button>
+        </>
+      ) : null}
 
       <p className="body-sm mt-6">
         {mode === "signup"
-          ? "Account creation is open now. Creator publishing access is reviewed separately so new filmmaker pages can come online with intention."
+          ? "Your account comes online immediately. Publishing access is reviewed separately so new filmmaker pages and releases arrive with intention."
           : "Once you are inside, you can manage your page, releases, and creator access from the dashboard."}
       </p>
 

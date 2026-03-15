@@ -9,6 +9,7 @@ import { BEYOND_CINEMA_CATEGORIES } from "@/lib/films/categories";
 import { listCreatorsToWatch } from "@/lib/profiles";
 import { listPublishedFilms, listStaffPickFilms } from "@/lib/services/films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
+import { formatCountLabel, formatFollowerCount } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
 
 function filterDistinct(films: PublicFilmCard[], excludedIds: Set<string>, limit: number) {
@@ -153,7 +154,9 @@ export default async function HomePage() {
             <div className="max-w-2xl">
               <p className="eyebrow">Creators to Watch</p>
               <h2 className="headline-lg mt-3 text-foreground">Creators to Watch</h2>
-              <p className="body-lg mt-3">Filmmakers building momentum through releases, followership, and a visible body of work.</p>
+              <p className="body-lg mt-3">
+                Filmmakers building momentum through releases, followership, and a visible body of work.
+              </p>
             </div>
             <Button asChild size="lg" variant="ghost">
               <Link href="/filmmakers">Meet the Filmmakers</Link>
@@ -180,15 +183,15 @@ export default async function HomePage() {
                     <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
                       <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
                         <p className="display-kicker">Followers</p>
-                        <p className="mt-2 text-foreground">{creator.followerCount}</p>
+                        <p className="mt-2 text-foreground">{formatFollowerCount(creator.followerCount)}</p>
                       </div>
                       <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
                         <p className="display-kicker">Films</p>
-                        <p className="mt-2 text-foreground">{creator.publicFilmCount}</p>
+                        <p className="mt-2 text-foreground">{formatCountLabel(creator.publicFilmCount, "release")}</p>
                       </div>
                       <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
                         <p className="display-kicker">Series</p>
-                        <p className="mt-2 text-foreground">{creator.seriesCount}</p>
+                        <p className="mt-2 text-foreground">{formatCountLabel(creator.seriesCount, "series", "series")}</p>
                       </div>
                     </div>
 

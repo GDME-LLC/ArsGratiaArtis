@@ -13,9 +13,13 @@ function normalizeCount(count: number) {
   return Math.max(0, Math.trunc(count));
 }
 
+export function formatCountValue(count: number) {
+  return normalizeCount(count).toLocaleString("en-US");
+}
+
 export function formatCountLabel(count: number, singular: string, plural?: string) {
   const value = normalizeCount(count);
-  return `${value} ${value === 1 ? singular : plural ?? `${singular}s`}`;
+  return `${formatCountValue(value)} ${value === 1 ? singular : plural ?? `${singular}s`}`;
 }
 
 export function formatCommentCount(count: number) {

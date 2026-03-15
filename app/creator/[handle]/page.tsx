@@ -6,7 +6,7 @@ import { FollowButton } from "@/components/engagement/follow-button";
 import { StatePanel } from "@/components/shared/state-panel";
 import { getPublicProfileByHandle } from "@/lib/profiles";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
-import { formatFollowerCount } from "@/lib/utils";
+import { formatCountLabel, formatFollowerCount } from "@/lib/utils";
 
 type CreatorPageProps = {
   params: Promise<{
@@ -77,7 +77,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                 />
               </div>
               <p>
-                Followers: <span className="text-foreground">{formatFollowerCount(profile.followerCount)}</span>
+                <span className="text-foreground">{formatFollowerCount(profile.followerCount)}</span>
               </p>
               <p>
                 Filmmaker status:{" "}
@@ -109,7 +109,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               <div>
                 <p className="display-kicker">The filmmaker behind the work</p>
                 <h2 className="title-md mt-2 text-foreground">
-                  {films.length === 0 ? "No public releases yet" : `${films.length} public ${films.length === 1 ? "release" : "releases"}`}
+                  {films.length === 0 ? "No public releases yet" : formatCountLabel(films.length, "public release")}
                 </h2>
               </div>
             </div>

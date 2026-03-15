@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { formatFollowerCount } from "@/lib/utils";
+import { formatCountValue, formatFollowerCount } from "@/lib/utils";
 
 type FollowButtonProps = {
   creatorId: string;
@@ -64,6 +64,8 @@ export function FollowButton({
     }
   }
 
+  const buttonLabel = following ? "Following" : "Follow";
+
   return (
     <Button
       type="button"
@@ -71,9 +73,11 @@ export function FollowButton({
       size="lg"
       onClick={handleClick}
       disabled={isPending}
+      aria-label={`${buttonLabel} this filmmaker. ${formatFollowerCount(count)}.`}
+      title={formatFollowerCount(count)}
     >
-      {following ? "Following" : "Follow"}
-      <span className="ml-2 text-muted-foreground">{formatFollowerCount(count)}</span>
+      {buttonLabel}
+      <span className="ml-2 text-muted-foreground">{formatCountValue(count)}</span>
     </Button>
   );
 }
