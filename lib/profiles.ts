@@ -1,4 +1,4 @@
-﻿import type { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 
 import {
   getFollowerCount,
@@ -7,6 +7,7 @@ import {
   getViewerLikedFilmIds,
 } from "@/lib/services/engagement";
 import { getFilmCommentCounts } from "@/lib/services/comments";
+import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type {
   FoundingCreatorInfo,
@@ -31,6 +32,23 @@ function buildHandleFromUser(user: Pick<User, "id" | "email" | "user_metadata">)
   return base.slice(0, 24);
 }
 
+function buildDisplayNameFromUser(user: Pick<User, "email" | "user_metadata">) {
+  return (
+    (typeof user.user_metadata?.display_name === "string" && user.user_metadata.display_name.trim()) ||
+    user.email?.split("@")[0] ||
+    "Creator"
+  );
+}
+
+function buildProfileInsertPayload(user: Pick<User, "id" | "email" | "user_metadata">, handle: string) {
+  return {
+    id: user.id,
+    handle,
+    display_name: buildDisplayNameFromUser(user),
+    is_creator: false,
+  };
+}
+
 function mapFoundingCreator(row: Record<string, unknown>): FoundingCreatorInfo {
   return {
     isFoundingCreator: Boolean(row.is_founding_creator),
@@ -52,7 +70,8 @@ async function makeUniqueHandle(
   userId: string,
   currentHandle?: string | null,
 ) {
-  const supabase = await createServerSupabaseClient();
+  const serviceRoleSupabase = createServiceRoleSupabaseClient();
+  const supabase = serviceRoleSupabase ?? await createServerSupabaseClient();
 
   if (!supabase) {
     return seed;
@@ -83,12 +102,14 @@ export function isValidHandle(handle: string) {
 
 export async function ensureProfileForUser(user: User): Promise<Profile | null> {
   const supabase = await createServerSupabaseClient();
+  const serviceRoleSupabase = createServiceRoleSupabaseClient();
+  const readClient = serviceRoleSupabase ?? supabase;
 
-  if (!supabase) {
+  if (!readClient) {
     return null;
   }
 
-  const { data: existing, error: existingError } = await supabase
+  const { data: existing, error: existingError } = await readClient
     .from("profiles")
     .select("*")
     .eq("id", user.id)
@@ -104,20 +125,16 @@ export async function ensureProfileForUser(user: User): Promise<Profile | null> 
 
   const seedHandle = buildHandleFromUser(user);
   const handle = await makeUniqueHandle(seedHandle, user.id);
-  const displayName =
-    (typeof user.user_metadata?.display_name === "string" &&
-      user.user_metadata.display_name.trim()) ||
-    user.email?.split("@")[0] ||
-    "Creator";
+  const insertPayload = buildProfileInsertPayload(user, handle);
+  const writeClient = serviceRoleSupabase ?? supabase;
 
-  const { data: inserted, error: insertError } = await supabase
+  if (!writeClient) {
+    return null;
+  }
+
+  const { data: inserted, error: insertError } = await writeClient
     .from("profiles")
-    .insert({
-      id: user.id,
-      handle,
-      display_name: displayName,
-      is_creator: false,
-    })
+    .upsert(insertPayload, { onConflict: "id" })
     .select("*")
     .single();
 
