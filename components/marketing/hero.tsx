@@ -50,9 +50,14 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
               )}
             </div>
             {spotlightFilm ? (
-              <Button asChild size="lg" className="self-start">
-                <Link href={`/film/${spotlightFilm.slug}`}>Watch film</Link>
-              </Button>
+              <Link
+  href={`/film/${spotlightFilm.slug}`}
+  className="block cursor-pointer hover:scale-[1.01] transition"
+>
+  <Button size="lg" className="self-start pointer-events-none">
+    Watch film
+  </Button>
+</Link>
             ) : null}
           </div>
         </div>
