@@ -163,7 +163,7 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ turnstileToken }),
+        body: JSON.stringify({ turnstileToken, action: content.action }),
       });
 
       const payload = (await response.json()) as { error?: string; url?: string };
@@ -172,6 +172,7 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
         setErrors({ form: payload.error ?? "Google sign-in could not be started." });
         setTurnstileToken("");
         setTurnstileResetKey((current) => current + 1);
+        setIsGoogleLoading(false);
         return;
       }
 

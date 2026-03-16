@@ -6,6 +6,7 @@ import { verifyTurnstileToken } from "@/lib/security/turnstile";
 
 type GoogleAuthPayload = {
   turnstileToken?: string;
+  action?: "login" | "signup";
 };
 
 export async function POST(request: Request) {
@@ -15,10 +16,11 @@ export async function POST(request: Request) {
 
   const payload = (await request.json().catch(() => null)) as GoogleAuthPayload | null;
   const ip = await getRequestIp();
+  const turnstileAction = payload?.action === "signup" ? "signup" : "login";
 
   const rateLimit = await enforceRateLimit({
     ...rateLimitPresets.auth,
-    key: `auth:google:${ip}`,
+    key: `auth:google:${turnstileAction}:${ip}`,
   });
 
   if (!rateLimit.ok) {
@@ -28,7 +30,7 @@ export async function POST(request: Request) {
   const turnstile = await verifyTurnstileToken({
     token: payload?.turnstileToken,
     ip,
-    action: "login",
+    action: turnstileAction,
   });
 
   if (!turnstile.ok) {

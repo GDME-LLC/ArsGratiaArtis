@@ -31,6 +31,12 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
   const containerRef = useRef<HTMLDivElement | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
+  useEffect(() => {
+    if (window.turnstile) {
+      setIsReady(true);
+    }
+  }, []);
+
   const removeWidget = () => {
     if (!widgetIdRef.current || !window.turnstile?.remove) {
       widgetIdRef.current = null;
@@ -58,40 +64,32 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
     setRenderError("");
     removeWidget();
 
-    const renderWidget = () => {
-      if (!containerRef.current || !window.turnstile) {
-        return;
-      }
-
-      try {
-        widgetIdRef.current = window.turnstile.render(containerRef.current, {
-          sitekey: siteKey,
-          theme: "dark",
-          action,
-          callback: (token: string) => {
-            setRenderError("");
-            onTokenChange(token);
-          },
-          "expired-callback": () => onTokenChange(""),
-          "error-callback": (code?: string) => {
-            console.error("Turnstile widget error", {
-              action,
-              code: code ?? null,
-            });
-            onTokenChange("");
-            setRenderError(formatTurnstileError(code));
-          },
-        });
-      } catch (error) {
-        console.error("Turnstile render failed", {
-          action,
-          error,
-        });
-        setRenderError(formatTurnstileError());
-      }
-    };
-
-    renderWidget();
+    try {
+      widgetIdRef.current = window.turnstile.render(containerRef.current, {
+        sitekey: siteKey,
+        theme: "dark",
+        action,
+        callback: (token: string) => {
+          setRenderError("");
+          onTokenChange(token);
+        },
+        "expired-callback": () => onTokenChange(""),
+        "error-callback": (code?: string) => {
+          console.error("Turnstile widget error", {
+            action,
+            code: code ?? null,
+          });
+          onTokenChange("");
+          setRenderError(formatTurnstileError(code));
+        },
+      });
+    } catch (error) {
+      console.error("Turnstile render failed", {
+        action,
+        error,
+      });
+      setRenderError(formatTurnstileError());
+    }
 
     return () => {
       removeWidget();
@@ -112,7 +110,7 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
         id="cf-turnstile-script"
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
-        onLoad={() => {
+        onReady={() => {
           if (!window.turnstile) {
             console.error("Turnstile script loaded without global API", {
               action,

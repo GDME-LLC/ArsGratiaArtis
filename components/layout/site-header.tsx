@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -65,7 +65,10 @@ export async function SiteHeader() {
               <Button asChild variant="ghost" className="hidden sm:inline-flex">
                 <Link href="/login">Login</Link>
               </Button>
-              <Button asChild>
+              <Button asChild className="sm:hidden">
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild className="hidden sm:inline-flex">
                 <Link href="/signup">Become a Creator</Link>
               </Button>
             </>
