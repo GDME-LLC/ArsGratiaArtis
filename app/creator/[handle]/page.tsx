@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+﻿import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
@@ -14,6 +15,66 @@ type CreatorPageProps = {
     handle: string;
   }>;
 };
+
+export async function generateMetadata({ params }: CreatorPageProps): Promise<Metadata> {
+  const { handle } = await params;
+
+  if (!hasSupabaseServerEnv()) {
+    return {
+      title: "Creator | ArsGratia",
+      description: "Creator pages on ArsGratia.",
+    };
+  }
+
+  const data = await getPublicProfileByHandle(handle);
+
+  if (!data) {
+    return {
+      title: "Creator not found | ArsGratia",
+      description: "This creator page could not be found.",
+    };
+  }
+
+  const { profile, films } = data;
+
+  const title = `${profile.displayName} (@${profile.handle}) | ArsGratia`;
+  const description =
+    profile.bio ||
+    `${profile.displayName} on ArsGratia${films.length > 0 ? ` — ${formatCountLabel(films.length, "public release")}` : "."}`;
+
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
+  const url = `${siteUrl}/creator/${profile.handle}`;
+  const image = profile.bannerUrl || profile.avatarUrl || `${siteUrl}/og-default.jpg`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "ArsGratia",
+      type: "profile",
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: `${profile.displayName} on ArsGratia`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 export default async function CreatorPage({ params }: CreatorPageProps) {
   const { handle } = await params;
