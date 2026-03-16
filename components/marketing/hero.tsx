@@ -28,39 +28,41 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
         <div className="absolute bottom-[10%] right-[18%] h-24 w-24 rounded-full bg-accent/10 blur-3xl" />
         <div className="absolute inset-x-0 top-0 h-px bg-white/10" />
         <div className="absolute right-5 top-5 hidden h-[calc(100%-2.5rem)] w-[27%] rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(14,14,18,0.64),rgba(8,8,12,0.34))] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)] backdrop-blur-[2px] lg:block">
-          <div className="flex h-full flex-col justify-between rounded-[18px] border border-white/10 bg-black/26 p-4">
-            <div>
-              <p className="display-kicker">{spotlightFilm ? spotlightLabel : "First Release"}</p>
-              {spotlightFilm ? (
-                <>
-                  <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
-                    {spotlightFilm.title}
-                  </p>
-                  <p className="mt-3 text-sm text-foreground/72">
-                    by {spotlightCreatorName}
-                  </p>
-                  <p className="mt-3 body-sm text-foreground/78">
-                    {spotlightFilm.synopsis || "A newly published film on ArsGratia."}
-                  </p>
-                </>
-              ) : (
-                <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
-                  The first public films published on ArsGratia will appear here.
-                </p>
-              )}
-            </div>
-            {spotlightFilm ? (
-              <Link
-  href={`/film/${spotlightFilm.slug}`}
-  className="block cursor-pointer hover:scale-[1.01] transition"
->
-  <Button size="lg" className="self-start pointer-events-none">
-    Watch film
-  </Button>
-</Link>
-            ) : null}
-          </div>
+  {spotlightFilm ? (
+    <Link
+      href={`/film/${spotlightFilm.slug}`}
+      className="block h-full cursor-pointer transition hover:scale-[1.01]"
+    >
+      <div className="flex h-full flex-col justify-between rounded-[18px] border border-white/10 bg-black/26 p-4">
+        <div>
+          <p className="display-kicker">{spotlightLabel}</p>
+          <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
+            {spotlightFilm.title}
+          </p>
+          <p className="mt-3 text-sm text-foreground/72">
+            by {spotlightCreatorName}
+          </p>
+          <p className="mt-3 body-sm text-foreground/78">
+            {spotlightFilm.synopsis || "A newly published film on ArsGratia."}
+          </p>
         </div>
+
+        <Button size="lg" className="self-start pointer-events-none">
+          Watch film
+        </Button>
+      </div>
+    </Link>
+  ) : (
+    <div className="flex h-full flex-col justify-between rounded-[18px] border border-white/10 bg-black/26 p-4">
+      <div>
+        <p className="display-kicker">First Release</p>
+        <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
+          The first public films published on ArsGratia will appear here.
+        </p>
+      </div>
+    </div>
+  )}
+</div>
 
         <div className="relative max-w-3xl lg:max-w-[58%]">
           <p className="display-kicker">{siteConfig.motto}</p>
