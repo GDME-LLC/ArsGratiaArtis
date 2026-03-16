@@ -78,6 +78,7 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [errors, setErrors] = useState<FormErrors>(
@@ -137,6 +138,7 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
       setPassword("");
       setTurnstileToken("");
       setTurnstileResetKey((current) => current + 1);
+      setShowPassword(false);
     } catch {
       setErrors({ form: "Network error. Please try again." });
       setTurnstileToken("");
@@ -223,19 +225,31 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
           >
             Password
           </label>
-          <input
-            id={`${mode}-password`}
-            type="password"
-            autoComplete={mode === "login" ? "current-password" : "new-password"}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className={cn(
-              "h-12 w-full rounded-2xl border bg-white/5 px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary/60 focus:bg-white/[0.07]",
-              errors.password ? "border-destructive/70" : "border-white/10",
-            )}
-            placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
-            disabled={isSubmitting || isGoogleLoading}
-          />
+          <div className="relative">
+            <input
+              id={`${mode}-password`}
+              type={showPassword ? "text" : "password"}
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className={cn(
+                "h-12 w-full rounded-2xl border bg-white/5 px-4 pr-20 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary/60 focus:bg-white/[0.07]",
+                errors.password ? "border-destructive/70" : "border-white/10",
+              )}
+              placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
+              disabled={isSubmitting || isGoogleLoading}
+            />
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-xs uppercase tracking-[0.16em] text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => setShowPassword((current) => !current)}
+              disabled={isSubmitting || isGoogleLoading}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
           {errors.password ? <p className="text-sm text-destructive">{errors.password}</p> : null}
         </div>
 
