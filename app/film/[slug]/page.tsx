@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CommentForm } from "@/components/comments/comment-form";
@@ -14,7 +14,7 @@ import { listFilmComments } from "@/lib/services/comments";
 import { getPublicFilmBySlug } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
-import { formatCommentCount, formatReleaseDate } from "@/lib/utils";
+import { formatCommentCount, formatReleaseDate, resolveCreatorName } from "@/lib/utils";
 
 type FilmPageProps = {
   params: Promise<{
@@ -50,6 +50,10 @@ export default async function FilmPage({ params }: FilmPageProps) {
     muxPlaybackId: data.muxPlaybackId,
   });
   const releaseDate = formatReleaseDate(data.publishedAt);
+  const creatorName = resolveCreatorName({
+    handle: data.creator.handle,
+    displayName: data.creator.displayName,
+  });
   const hasTools = data.creation.tools.length > 0;
   const hasWorkflowNotes = Boolean(data.creation.workflowNotes);
   const hasPromptText = Boolean(data.creation.promptText);
@@ -123,12 +127,16 @@ export default async function FilmPage({ params }: FilmPageProps) {
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Creator</p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <Link
-                      href={`/creator/${data.creator.handle}`}
-                      className="inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
-                    >
-                      {data.creator.displayName || `@${data.creator.handle}`}
-                    </Link>
+                    {data.creator.handle ? (
+                      <Link
+                        href={`/creator/${data.creator.handle}`}
+                        className="inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                      >
+                        {creatorName}
+                      </Link>
+                    ) : (
+                      <span className="inline-block text-sm text-foreground">{creatorName}</span>
+                    )}
                     <FoundingCreatorBadge founder={data.creator.foundingCreator} showNumber />
                   </div>
                 </div>
@@ -250,5 +258,3 @@ export default async function FilmPage({ params }: FilmPageProps) {
     </section>
   );
 }
-
-

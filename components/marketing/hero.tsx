@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/constants/site";
+import { resolveCreatorName } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
 
 type HeroProps = {
@@ -11,6 +12,13 @@ type HeroProps = {
 };
 
 export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroProps) {
+  const spotlightCreatorName = spotlightFilm
+    ? resolveCreatorName({
+        handle: spotlightFilm.creator.handle,
+        displayName: spotlightFilm.creator.displayName,
+      })
+    : null;
+
   return (
     <section className="container-shell pt-5 sm:pt-6 lg:pt-7">
       <div className="surface-panel cinema-frame relative overflow-hidden px-5 py-7 sm:px-8 sm:py-8 lg:px-11 lg:py-9">
@@ -28,8 +36,8 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
                   <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
                     {spotlightFilm.title}
                   </p>
-                  <p className="mt-3 text-sm text-foreground/85">
-                    {spotlightFilm.creator.displayName || `@${spotlightFilm.creator.handle}`}
+                  <p className="mt-3 text-sm text-foreground/72">
+                    by {spotlightCreatorName}
                   </p>
                   <p className="mt-3 body-sm text-foreground/78">
                     {spotlightFilm.synopsis || "A newly published film on ArsGratia."}

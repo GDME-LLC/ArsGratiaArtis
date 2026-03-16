@@ -1,4 +1,4 @@
-﻿import { clsx, type ClassValue } from "clsx";
+import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -11,6 +11,10 @@ function normalizeCount(count: number) {
   }
 
   return Math.max(0, Math.trunc(count));
+}
+
+function normalizeText(value: string | null | undefined) {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 export function formatCountValue(count: number) {
@@ -32,6 +36,20 @@ export function formatFollowerCount(count: number) {
 
 export function formatLikeCount(count: number) {
   return formatCountLabel(count, "like");
+}
+
+export function resolveCreatorName(input: {
+  handle?: string | null;
+  displayName?: string | null;
+}) {
+  return normalizeText(input.handle) || normalizeText(input.displayName) || "Creator";
+}
+
+export function hasCreatorIdentity(input: {
+  handle?: string | null;
+  displayName?: string | null;
+}) {
+  return Boolean(normalizeText(input.handle) || normalizeText(input.displayName));
 }
 
 export function formatMonthYear(date: string | null | undefined) {
@@ -58,7 +76,7 @@ export function formatReleaseDate(date: string | null | undefined) {
 
 export function formatRelativeRelease(date: string | null | undefined, prefix = "Published") {
   if (!date) {
-    return "Released on ArsGratia";
+    return prefix ? `${prefix} on ArsGratia` : "Recently released";
   }
 
   const publishedAt = new Date(date).getTime();
@@ -68,21 +86,23 @@ export function formatRelativeRelease(date: string | null | undefined, prefix = 
   const absDays = Math.abs(diffDays);
   const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
+  let relativeLabel = "";
+
   if (absDays < 1) {
     const diffHours = Math.round(diffMs / (1000 * 60 * 60));
-    return `${prefix} ${rtf.format(diffHours, "hour")}`;
+    relativeLabel = rtf.format(diffHours, "hour");
+  } else if (absDays < 30) {
+    relativeLabel = rtf.format(diffDays, "day");
+  } else {
+    const diffMonths = Math.round(diffDays / 30);
+
+    if (Math.abs(diffMonths) < 12) {
+      relativeLabel = rtf.format(diffMonths, "month");
+    } else {
+      const diffYears = Math.round(diffDays / 365);
+      relativeLabel = rtf.format(diffYears, "year");
+    }
   }
 
-  if (absDays < 30) {
-    return `${prefix} ${rtf.format(diffDays, "day")}`;
-  }
-
-  const diffMonths = Math.round(diffDays / 30);
-  if (Math.abs(diffMonths) < 12) {
-    return `${prefix} ${rtf.format(diffMonths, "month")}`;
-  }
-
-  const diffYears = Math.round(diffDays / 365);
-  return `${prefix} ${rtf.format(diffYears, "year")}`;
+  return prefix ? `${prefix} ${relativeLabel}` : relativeLabel;
 }
-

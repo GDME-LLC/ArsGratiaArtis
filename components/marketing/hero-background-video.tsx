@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-const HERO_LOOP_VIDEO = "/video/hero-loop.mp4";
+const HERO_LOOP_PRIMARY_VIDEO = "/hero-loop.mp4";
+const HERO_LOOP_FALLBACK_VIDEO = "/video/hero-loop.mp4";
 const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
 
 export function HeroBackgroundVideo() {
@@ -26,12 +27,12 @@ export function HeroBackgroundVideo() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div
-        className="absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat sm:scale-[1.1] lg:scale-[1.08]"
+        className="absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat opacity-70 sm:scale-[1.1] lg:scale-[1.08]"
         style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
       />
       {shouldAnimate ? (
         <video
-          className="absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] sm:scale-[1.1] lg:scale-[1.08]"
+          className="absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] opacity-40 sm:scale-[1.1] lg:scale-[1.08]"
           autoPlay
           muted
           loop
@@ -39,7 +40,8 @@ export function HeroBackgroundVideo() {
           preload="metadata"
           poster={HERO_LOOP_POSTER}
         >
-          <source src={HERO_LOOP_VIDEO} type="video/mp4" />
+          <source src={HERO_LOOP_PRIMARY_VIDEO} type="video/mp4" />
+          <source src={HERO_LOOP_FALLBACK_VIDEO} type="video/mp4" />
         </video>
       ) : null}
       <div className="absolute inset-0 bg-black/52" />
@@ -49,4 +51,3 @@ export function HeroBackgroundVideo() {
     </div>
   );
 }
-
