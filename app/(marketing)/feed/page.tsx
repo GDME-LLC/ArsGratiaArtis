@@ -68,6 +68,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               films={films}
               hasMore={hasMore}
               nextPageHref={`/feed?page=${currentPage + 1}`}
+              variant="row"
             />
           </div>
         )}
