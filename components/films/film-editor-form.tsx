@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { FilmVideoUpload } from "@/components/films/film-video-upload";
+import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { FILM_CATEGORY_LABELS, FILM_CATEGORY_VALUES, type FilmCategory } from "@/lib/films/categories";
 import { normalizeSlug } from "@/lib/films/slug";
@@ -25,7 +26,7 @@ type FormState = {
   workflow_notes: string;
   prompt_visibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
-  publish_status: "draft" | "published" | "archived";
+  publish_status: "draft" | "published";
 };
 
 export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
@@ -41,13 +42,16 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
     workflow_notes: initialFilm?.workflowNotes ?? "",
     prompt_visibility: initialFilm?.promptVisibility ?? "private",
     visibility: initialFilm?.visibility ?? "private",
-    publish_status: initialFilm?.publishStatus ?? "draft",
+    publish_status: initialFilm?.publishStatus === "published" ? "published" : "draft",
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isPosterUploading, setIsPosterUploading] = useState(false);
   const [error, setError] = useState("");
   const [creatorAcknowledged, setCreatorAcknowledged] = useState(initialFilm?.publishStatus === "published");
   const submitLabel = isSaving
     ? "Saving..."
+    : isPosterUploading
+      ? "Uploading Poster..."
     : initialFilm?.id
       ? "Save Release"
       : "Create Draft Release";
@@ -75,6 +79,11 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
       return;
     }
 
+    if (isPosterUploading) {
+      setError("Wait for the poster upload to finish before saving.");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -90,7 +99,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
           synopsis: form.synopsis.trim() || null,
           description: form.description.trim() || null,
           category: form.category,
-          poster_url: form.poster_url.trim() || null,
+          poster_url: form.poster_url || null,
           prompt_text: form.prompt_text.trim() || null,
           workflow_notes: form.workflow_notes.trim() || null,
           prompt_visibility: form.prompt_visibility,
@@ -206,33 +215,33 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
                 category: event.target.value as FilmCategory,
               }))
             }
-            className={inputClassName}
+            className={selectClassName}
           >
             {FILM_CATEGORY_VALUES.map((category) => (
-              <option key={category} value={category}>
+              <option className={selectOptionClassName} key={category} value={category}>
                 {FILM_CATEGORY_LABELS[category]}
               </option>
             ))}
           </select>
         </Field>
 
-        <Field label="Poster URL">
-          <div className="grid gap-2">
-            <input
-              value={form.poster_url}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  poster_url: event.target.value,
-                }))
-              }
-              className={inputClassName}
-              placeholder="https://..."
-            />
-            <p className="text-sm text-muted-foreground">
-              Add a custom poster if you want to override the automatic thumbnail Mux generates from the uploaded video.
-            </p>
-          </div>
+        <Field label="Poster image">
+          <ImageUploadField
+            entityType="film"
+            field="poster"
+            filmId={initialFilm?.id}
+            value={form.poster_url}
+            onChange={(nextValue) =>
+              setForm((current) => ({
+                ...current,
+                poster_url: nextValue,
+              }))
+            }
+            onUploadingChange={setIsPosterUploading}
+            label="Film poster"
+            aspectRatio="poster"
+            helperText="Upload a custom poster to override the automatic thumbnail generated from the video."
+          />
         </Field>
 
         <Field label="Prompt">
@@ -264,7 +273,10 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
         </Field>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <Field label="Prompt visibility">
+          <Field
+            label="Prompt visibility"
+            helperText="Control who can read the prompt or brief on the public film page."
+          >
             <select
               value={form.prompt_visibility}
               onChange={(event) =>
@@ -273,11 +285,11 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
                   prompt_visibility: event.target.value as FormState["prompt_visibility"],
                 }))
               }
-              className={inputClassName}
+              className={selectClassName}
             >
-              <option value="private">Private</option>
-              <option value="followers">Followers</option>
-              <option value="public">Public</option>
+              <option className={selectOptionClassName} value="private">Private</option>
+              <option className={selectOptionClassName} value="followers">Followers</option>
+              <option className={selectOptionClassName} value="public">Public</option>
             </select>
           </Field>
 
@@ -290,17 +302,20 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
                   visibility: event.target.value as FormState["visibility"],
                 }))
               }
-              className={inputClassName}
+              className={selectClassName}
             >
-              <option value="private">Private</option>
-              <option value="unlisted">Unlisted</option>
-              <option value="public">Public</option>
+              <option className={selectOptionClassName} value="private">Private</option>
+              <option className={selectOptionClassName} value="unlisted">Unlisted</option>
+              <option className={selectOptionClassName} value="public">Public</option>
             </select>
           </Field>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <Field label="Publish status">
+          <Field
+            label="Publish status"
+            helperText="Use Draft while you're building the page. Published makes the release eligible to go live; internal active review states stay out of the creator UI."
+          >
             <select
               value={form.publish_status}
               onChange={(event) =>
@@ -309,11 +324,10 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
                   publish_status: event.target.value as FormState["publish_status"],
                 }))
               }
-              className={inputClassName}
+              className={selectClassName}
             >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
+              <option className={selectOptionClassName} value="draft">Draft</option>
+              <option className={selectOptionClassName} value="published">Published</option>
             </select>
           </Field>
         </div>
@@ -352,7 +366,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
         ) : null}
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button type="submit" size="xl" disabled={isSaving}>
+          <Button type="submit" size="xl" disabled={isSaving || isPosterUploading}>
             {submitLabel}
           </Button>
           <p className="body-sm self-center">
@@ -369,18 +383,26 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
 
 function Field({
   label,
+  helperText,
   children,
 }: {
   label: string;
+  helperText?: string;
   children: React.ReactNode;
 }) {
   return (
     <label className="grid gap-2">
       <span className="display-kicker text-[0.68rem] text-foreground/85">{label}</span>
       {children}
+      {helperText ? <p className="text-sm text-muted-foreground">{helperText}</p> : null}
     </label>
   );
 }
 
 const inputClassName =
-  "h-12 w-full rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary/60 focus:bg-white/[0.07]";
+  "h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition placeholder:text-muted-foreground/80 focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]";
+
+const selectClassName =
+  "h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition focus:border-primary/60 focus:bg-[hsl(var(--surface-3))] focus:text-foreground [color-scheme:dark] [&>option]:bg-[#11141c] [&>option]:text-[#f4eee4]";
+
+const selectOptionClassName = "bg-[#11141c] text-[#f4eee4]";

@@ -112,19 +112,19 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
         />
         <div className="px-5 py-6 sm:px-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 items-center gap-4">
               <div
-                className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl font-semibold text-foreground"
+                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl font-semibold text-foreground"
                 style={
                   profile.avatarUrl ? { backgroundImage: `url(${profile.avatarUrl})`, backgroundSize: "cover" } : undefined
                 }
               >
                 {!profile.avatarUrl ? profile.displayName.charAt(0).toUpperCase() : null}
               </div>
-              <div>
-                <p className="display-kicker">@{profile.handle}</p>
+              <div className="min-w-0">
+                <p className="display-kicker break-all">@{profile.handle}</p>
                 <div className="mt-1 flex flex-wrap items-center gap-3">
-                  <h1 className="headline-lg">{profile.displayName}</h1>
+                  <h1 className="headline-lg min-w-0 break-words">{profile.displayName}</h1>
                   <FoundingCreatorBadge founder={profile.foundingCreator} showNumber />
                 </div>
                 {profile.foundingCreator.isFoundingCreator ? (
@@ -138,8 +138,8 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               </div>
             </div>
 
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <div className="flex justify-end">
+            <div className="min-w-0 space-y-2 text-sm text-muted-foreground md:text-right">
+              <div className="flex md:justify-end">
                 <FollowButton
                   creatorId={profile.id}
                   initialFollowerCount={profile.followerCount}
@@ -147,10 +147,10 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                   isCurrentUser={profile.isCurrentUser}
                 />
               </div>
-              <p>
+              <p className="break-words">
                 <span className="text-foreground">{formatFollowerCount(profile.followerCount)}</span>
               </p>
-              <p>
+              <p className="break-words">
                 Filmmaker status:{" "}
                 <span className="text-foreground">
                   {profile.isCreator ? "Public filmmaker" : "Viewer"}
@@ -161,14 +161,14 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                   href={profile.websiteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-foreground underline decoration-white/20 underline-offset-4"
+                  className="inline-block break-all text-foreground underline decoration-white/20 underline-offset-4"
                 >
                   Visit website
                 </a>
               ) : null}
               <Link
                 href={`/report?type=creator&handle=${profile.handle}`}
-                className="block text-foreground underline decoration-white/20 underline-offset-4"
+                className="block break-words text-foreground underline decoration-white/20 underline-offset-4"
               >
                 Report profile
               </Link>
@@ -176,7 +176,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
           </div>
 
           <div className="mt-8 border-t border-white/10 pt-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center justify-between gap-4">
               <div>
                 <p className="display-kicker">The filmmaker behind the work</p>
                 <h2 className="title-md mt-2 text-foreground">

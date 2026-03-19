@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/types";
@@ -35,6 +36,8 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
     is_creator: profile.isCreator,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+  const [isBannerUploading, setIsBannerUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -53,6 +56,11 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
       return;
     }
 
+    if (isAvatarUploading || isBannerUploading) {
+      setError("Wait for image uploads to finish before saving.");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -66,8 +74,8 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
           handle: form.handle.trim().toLowerCase(),
           display_name: form.display_name.trim(),
           bio: form.bio.trim() || null,
-          avatar_url: form.avatar_url.trim() || null,
-          banner_url: form.banner_url.trim() || null,
+          avatar_url: form.avatar_url || null,
+          banner_url: form.banner_url || null,
           website_url: form.website_url.trim() || null,
         }),
       });
@@ -143,31 +151,39 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
         </Field>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <Field label="Avatar URL">
-            <input
+          <Field label="Avatar">
+            <ImageUploadField
+              entityType="profile"
+              field="avatar"
               value={form.avatar_url}
-              onChange={(event) =>
+              onChange={(nextValue) =>
                 setForm((current) => ({
                   ...current,
-                  avatar_url: event.target.value,
+                  avatar_url: nextValue,
                 }))
               }
-              className={inputClassName}
-              placeholder="https://..."
+              onUploadingChange={setIsAvatarUploading}
+              label="Creator avatar"
+              aspectRatio="square"
+              helperText="Shown on creator pages, film credits, and profile references across ArsGratia."
             />
           </Field>
 
-          <Field label="Banner URL">
-            <input
+          <Field label="Banner">
+            <ImageUploadField
+              entityType="profile"
+              field="banner"
               value={form.banner_url}
-              onChange={(event) =>
+              onChange={(nextValue) =>
                 setForm((current) => ({
                   ...current,
-                  banner_url: event.target.value,
+                  banner_url: nextValue,
                 }))
               }
-              className={inputClassName}
-              placeholder="https://..."
+              onUploadingChange={setIsBannerUploading}
+              label="Creator banner"
+              aspectRatio="banner"
+              helperText="Used as the cinematic backdrop for the public creator page."
             />
           </Field>
         </div>
@@ -214,8 +230,8 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
         ) : null}
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button type="submit" size="xl" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Profile"}
+          <Button type="submit" size="xl" disabled={isSaving || isAvatarUploading || isBannerUploading}>
+            {isSaving ? "Saving..." : isAvatarUploading || isBannerUploading ? "Uploading..." : "Save Profile"}
           </Button>
           <p className="body-sm self-center">
             Public URL: <span className="text-foreground">/creator/{form.handle || "yourhandle"}</span>
@@ -242,4 +258,4 @@ function Field({
 }
 
 const inputClassName =
-  "h-12 w-full rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary/60 focus:bg-white/[0.07]";
+  "h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition placeholder:text-muted-foreground/80 focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]";

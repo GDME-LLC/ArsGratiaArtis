@@ -1,6 +1,7 @@
 ﻿import type { FilmCategory } from "@/lib/films/categories";
 
 export type ModerationStatus = "active" | "pending_review" | "flagged" | "removed";
+export type AdminFilmAction = "hide" | "unpublish";
 
 export type FoundingCreatorInfo = {
   isFoundingCreator: boolean;
@@ -257,6 +258,24 @@ export type AdminFoundingCreatorOverview = {
   founderCount: number;
   remainingSlots: number;
   nextAvailableFounderNumber: number | null;
+};
+
+export type AdminFilmRow = {
+  id: string;
+  title: string;
+  slug: string;
+  synopsis: string | null;
+  posterUrl: string | null;
+  publishStatus: "draft" | "published" | "archived";
+  visibility: "public" | "unlisted" | "private";
+  moderationStatus: ModerationStatus;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+  creator: {
+    handle: string;
+    displayName: string;
+  };
 };
 
 export type FilmComment = {

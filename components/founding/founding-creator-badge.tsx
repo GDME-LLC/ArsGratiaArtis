@@ -20,7 +20,7 @@ export function FoundingCreatorBadge({ founder, showNumber = false, className }:
     <span
       title="One of the first 20 creators on ArsGratia."
       className={cn(
-        "inline-flex items-center rounded-full border border-[#c7a66a]/35 bg-[linear-gradient(180deg,rgba(199,166,106,0.12),rgba(199,166,106,0.04))] px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-[#e7d1a0] shadow-[0_0_30px_rgba(199,166,106,0.08)]",
+        "inline-flex max-w-full items-center rounded-full border border-[#c7a66a]/35 bg-[linear-gradient(180deg,rgba(199,166,106,0.12),rgba(199,166,106,0.04))] px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-[#e7d1a0] shadow-[0_0_30px_rgba(199,166,106,0.08)] sm:px-3 sm:text-[11px] sm:tracking-[0.18em]",
         className,
       )}
     >

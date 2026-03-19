@@ -37,6 +37,9 @@ export default async function FoundingCreatorsAdminPage() {
           <Button asChild variant="ghost" size="lg">
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link href="/admin/films">Film Management</Link>
+          </Button>
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">

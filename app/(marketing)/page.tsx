@@ -130,7 +130,7 @@ export default async function HomePage() {
                     <Link
                       key={creator.id}
                       href={`/creator/${creator.handle}`}
-                      className="surface-panel cinema-frame flex w-[min(78vw,19rem)] shrink-0 snap-start flex-col overflow-hidden p-5 sm:w-[18rem]"
+                      className="surface-panel cinema-frame flex w-[min(84vw,19rem)] shrink-0 snap-start flex-col overflow-hidden p-5 sm:w-[18rem]"
                     >
                       <div
                         className="h-36 rounded-[20px] border border-white/10 bg-white/5 bg-cover bg-center"
@@ -149,19 +149,19 @@ export default async function HomePage() {
                         </div>
                         <FoundingCreatorBadge founder={creator.foundingCreator} showNumber />
                       </div>
-                      <h3 className="title-md mt-4 text-foreground">{creator.displayName}</h3>
-                      <p className="mt-2 text-sm text-muted-foreground">@{creator.handle}</p>
+                      <h3 className="title-md mt-4 break-words text-foreground">{creator.displayName}</h3>
+                      <p className="mt-2 break-all text-sm text-muted-foreground">@{creator.handle}</p>
                       <p className="body-sm mt-4 line-clamp-3 flex-1">
                         {creator.bio || "One of the first artists helping shape ArsGratia's founding era."}
                       </p>
-                      <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-muted-foreground">
-                        <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
-                          <p className="display-kicker">Releases</p>
-                          <p className="mt-2 text-foreground">{formatCountLabel(creator.publicFilmCount, "release")}</p>
+                      <div className="mt-5 grid grid-cols-1 gap-3 text-sm text-muted-foreground min-[420px]:grid-cols-2">
+                        <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                          <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Releases</p>
+                          <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatCountLabel(creator.publicFilmCount, "release")}</p>
                         </div>
-                        <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
-                          <p className="display-kicker">Followers</p>
-                          <p className="mt-2 text-foreground">{formatFollowerCount(creator.followerCount)}</p>
+                        <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                          <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Followers</p>
+                          <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatFollowerCount(creator.followerCount)}</p>
                         </div>
                       </div>
                       <p className="mt-4 text-sm text-muted-foreground">
@@ -247,36 +247,36 @@ export default async function HomePage() {
                 return (
                   <article
                     key={creator.id}
-                    className="surface-panel cinema-frame w-[min(82vw,21rem)] shrink-0 snap-start overflow-hidden p-5 sm:w-[20rem]"
+                    className="surface-panel cinema-frame w-[min(86vw,21rem)] shrink-0 snap-start overflow-hidden p-5 sm:w-[20rem]"
                   >
                     <p className="display-kicker">Filmmaker</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <h3 className="title-md text-foreground">{creator.displayName}</h3>
+                      <h3 className="title-md min-w-0 break-words text-foreground">{creator.displayName}</h3>
                       <FoundingCreatorBadge founder={creator.foundingCreator} showNumber />
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">@{creator.handle}</p>
+                    <p className="mt-2 break-all text-sm text-muted-foreground">@{creator.handle}</p>
                     <p className="body-sm mt-4 line-clamp-3">
                       {creator.bio || "A public filmmaker page is live, with releases and series beginning to take shape."}
                     </p>
 
-                    <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                      <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
-                        <p className="display-kicker">Followers</p>
-                        <p className="mt-2 text-foreground">{formatFollowerCount(creator.followerCount)}</p>
+                    <div className="mt-5 grid gap-3 text-sm min-[420px]:grid-cols-2 lg:grid-cols-3">
+                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-white/5 p-3">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Followers</p>
+                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatFollowerCount(creator.followerCount)}</p>
                       </div>
-                      <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
-                        <p className="display-kicker">Films</p>
-                        <p className="mt-2 text-foreground">{formatCountLabel(creator.publicFilmCount, "release")}</p>
+                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-white/5 p-3">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Films</p>
+                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatCountLabel(creator.publicFilmCount, "release")}</p>
                       </div>
-                      <div className="rounded-[18px] border border-white/10 bg-white/5 p-3">
-                        <p className="display-kicker">Series</p>
-                        <p className="mt-2 text-foreground">{formatCountLabel(creator.seriesCount, "series", "series")}</p>
+                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-white/5 p-3 min-[420px]:col-span-2 lg:col-span-1">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Series</p>
+                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatCountLabel(creator.seriesCount, "series", "series")}</p>
                       </div>
                     </div>
 
-                    <div className="mt-5 rounded-[20px] border border-white/10 bg-black/20 p-4">
-                      <p className="display-kicker">Latest Release</p>
-                      <p className="mt-3 text-sm text-foreground">
+                    <div className="mt-5 min-w-0 rounded-[20px] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Latest Release</p>
+                      <p className="mt-3 break-words text-sm text-foreground">
                         {latestRelease?.title ?? "No public releases yet."}
                       </p>
                     </div>

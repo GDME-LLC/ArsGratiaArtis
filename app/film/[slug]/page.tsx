@@ -101,7 +101,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
             </div>
           </div>
         )}
-        <div className="px-6 py-8 sm:px-10">
+        <div className="px-5 py-8 sm:px-10">
           <p className="display-kicker">Film</p>
           <h1 className="headline-xl mt-4">{data.title}</h1>
           <p className="body-lg mt-4 max-w-3xl">
@@ -115,22 +115,22 @@ export default async function FilmPage({ params }: FilmPageProps) {
               </p>
             </div>
 
-            <aside className="rounded-[24px] border border-white/10 bg-white/5 p-5">
+            <aside className="min-w-0 rounded-[24px] border border-white/10 bg-white/5 p-5">
               <p className="display-kicker">About this release</p>
               <div className="mt-4 space-y-4">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">
                     Released on ArsGratia
                   </p>
                   <p className="mt-2 text-sm text-foreground">{releaseDate || "Publication date to follow."}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Creator</p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Creator</p>
+                  <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
                     {data.creator.handle ? (
                       <Link
                         href={`/creator/${data.creator.handle}`}
-                        className="inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                        className="inline-block min-w-0 break-words text-sm text-foreground underline decoration-white/20 underline-offset-4"
                       >
                         {creatorName}
                       </Link>
@@ -142,10 +142,10 @@ export default async function FilmPage({ params }: FilmPageProps) {
                 </div>
                 {data.series ? (
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Series</p>
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Series</p>
                     <Link
                       href={`/series/${data.series.slug}`}
-                      className="mt-2 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                      className="mt-2 inline-block break-words text-sm text-foreground underline decoration-white/20 underline-offset-4"
                     >
                       {data.series.title}
                     </Link>
@@ -155,13 +155,13 @@ export default async function FilmPage({ params }: FilmPageProps) {
                   </div>
                 ) : null}
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Tools behind the work</p>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Tools behind the work</p>
                   {hasTools ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-3 flex min-w-0 flex-wrap gap-2">
                       {data.creation.tools.map((tool) => (
                         <span
                           key={tool.id}
-                          className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs uppercase tracking-[0.16em] text-foreground"
+                          className="max-w-full rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]"
                         >
                           {tool.name}
                         </span>
@@ -175,7 +175,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
             </aside>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 min-w-0">
             <LikeButton
               filmId={data.id}
               initialLikeCount={data.engagement.likeCount}
@@ -199,23 +199,23 @@ export default async function FilmPage({ params }: FilmPageProps) {
                   <p className="display-kicker">Tools behind the work</p>
                   <p className="mt-4 text-sm text-muted-foreground">{processSummary}</p>
                   <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Prompt visibility</p>
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Prompt visibility</p>
                     <p className="mt-2 text-sm text-foreground">{promptVisibilityLabel}</p>
                   </div>
                   {hasPromptText ? (
                     <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Prompt</p>
+                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Prompt</p>
                       <p className="mt-2 body-sm">{data.creation.promptText}</p>
                     </div>
                   ) : null}
                   {hasTools ? (
                     <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Listed tools</p>
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Listed tools</p>
+                      <div className="mt-3 flex min-w-0 flex-wrap gap-2">
                         {data.creation.tools.map((tool) => (
                           <span
                             key={tool.id}
-                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.16em] text-foreground"
+                            className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]"
                           >
                             {tool.name}
                           </span>
@@ -232,10 +232,10 @@ export default async function FilmPage({ params }: FilmPageProps) {
                   </p>
                   {data.series?.nextEpisode ? (
                     <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Series continuity</p>
+                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Series continuity</p>
                       <Link
                         href={`/film/${data.series.nextEpisode.slug}`}
-                        className="mt-2 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
+                        className="mt-2 inline-block break-words text-sm text-foreground underline decoration-white/20 underline-offset-4"
                       >
                         Next episode: {data.series.nextEpisode.title}
                       </Link>

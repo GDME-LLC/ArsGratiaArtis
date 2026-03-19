@@ -87,9 +87,14 @@ export default async function DashboardPage() {
                 <Link href={`/creator/${profile.handle}`}>View Creator Page</Link>
               </Button>
               {isAdmin ? (
-                <Button asChild variant="ghost" size="lg">
-                  <Link href="/founding-creators">Manage Founding Creators</Link>
-                </Button>
+                <>
+                  <Button asChild variant="ghost" size="lg">
+                    <Link href="/admin/films">Manage Films</Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="lg">
+                    <Link href="/founding-creators">Manage Founding Creators</Link>
+                  </Button>
+                </>
               ) : null}
             </div>
           </div>

@@ -225,7 +225,7 @@ export function FoundingCreatorAdminPanel({ overview }: FoundingCreatorAdminPane
 
   return (
     <div className="grid gap-6">
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <article className="surface-panel p-5">
           <p className="display-kicker">Founders</p>
           <p className="title-md mt-3 text-foreground">{overview.founderCount} / 20</p>
@@ -269,26 +269,26 @@ export function FoundingCreatorAdminPanel({ overview }: FoundingCreatorAdminPane
               {section.items.map((creator) => (
                 <article key={creator.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="max-w-3xl">
-                      <p className="display-kicker">@{creator.handle}</p>
-                      <h3 className="title-md mt-3 text-foreground">{creator.displayName}</h3>
+                    <div className="min-w-0 max-w-3xl">
+                      <p className="display-kicker break-all">@{creator.handle}</p>
+                      <h3 className="title-md mt-3 break-words text-foreground">{creator.displayName}</h3>
                       <p className="body-sm mt-3">
                         {creator.bio || "No public bio yet. This creator can still be invited or assigned manually."}
                       </p>
                     </div>
 
-                    <div className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-3 lg:min-w-[360px]">
-                      <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
-                        <p className="display-kicker">Followers</p>
-                        <p className="mt-2 text-foreground">{creator.followerCount}</p>
+                    <div className="grid gap-3 text-sm text-muted-foreground min-[420px]:grid-cols-2 lg:min-w-[360px] lg:grid-cols-3">
+                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Followers</p>
+                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{creator.followerCount}</p>
                       </div>
-                      <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
-                        <p className="display-kicker">Public Releases</p>
-                        <p className="mt-2 text-foreground">{creator.publicFilmCount}</p>
+                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Public Releases</p>
+                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{creator.publicFilmCount}</p>
                       </div>
-                      <div className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
-                        <p className="display-kicker">Public Profile</p>
-                        <p className="mt-2 text-foreground">{creator.isPublic ? "Live" : "Private"}</p>
+                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 min-[420px]:col-span-2 lg:col-span-1">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Public Profile</p>
+                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{creator.isPublic ? "Live" : "Private"}</p>
                       </div>
                     </div>
                   </div>

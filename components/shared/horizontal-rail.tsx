@@ -98,7 +98,7 @@ export function HorizontalRail({ children, ariaLabel, className }: HorizontalRai
       <div
         ref={railRef}
         aria-label={ariaLabel}
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 pr-[10vw] pt-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 pr-5 pt-1 sm:gap-4 sm:pr-[10vw] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {children}
       </div>
