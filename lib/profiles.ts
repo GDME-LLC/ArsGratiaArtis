@@ -100,6 +100,26 @@ export function isValidHandle(handle: string) {
   return /^[a-z0-9_]{3,32}$/.test(handle);
 }
 
+export async function getOwnedProfileRow(userId: string) {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 export async function ensureProfileForUser(user: User): Promise<Profile | null> {
   const supabase = await createServerSupabaseClient();
   const serviceRoleSupabase = createServiceRoleSupabaseClient();
@@ -134,11 +154,32 @@ export async function ensureProfileForUser(user: User): Promise<Profile | null> 
 
   const { data: inserted, error: insertError } = await writeClient
     .from("profiles")
-    .upsert(insertPayload, { onConflict: "id" })
+    .insert(insertPayload)
     .select("*")
     .single();
 
   if (insertError) {
+    const isDuplicateProfile =
+      insertError.code === "23505" ||
+      insertError.message.toLowerCase().includes("duplicate key") ||
+      insertError.message.toLowerCase().includes("profiles_pkey");
+
+    if (isDuplicateProfile) {
+      const { data: reloaded, error: reloadError } = await readClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (reloadError) {
+        throw new Error(reloadError.message);
+      }
+
+      if (reloaded) {
+        return mapProfile(reloaded);
+      }
+    }
+
     throw new Error(insertError.message);
   }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { ensureProfileForUser, isValidHandle, mapProfile } from "@/lib/profiles";
+import { ensureProfileForUser, getOwnedProfileRow, isValidHandle, mapProfile } from "@/lib/profiles";
 import { moderateTextFields } from "@/lib/security/moderation";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
@@ -27,7 +27,11 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  await ensureProfileForUser(user);
+  const ensuredProfile = await ensureProfileForUser(user);
+
+  if (!ensuredProfile) {
+    return NextResponse.json({ error: "Profile row is missing and could not be repaired." }, { status: 409 });
+  }
 
   const ip = await getRequestIp();
   const rateLimit = await enforceRateLimit({
@@ -85,6 +89,17 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "That handle is already taken." }, { status: 409 });
   }
 
+  const ownedProfileRow = await getOwnedProfileRow(user.id);
+
+  if (!ownedProfileRow) {
+    return NextResponse.json(
+      {
+        error: "Profile row exists outside your session scope. Verify that public.profiles.id matches auth.users.id and that owner update RLS is enabled.",
+      },
+      { status: 409 },
+    );
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .update({
@@ -101,6 +116,24 @@ export async function PUT(request: Request) {
     .single();
 
   if (error) {
+    const message = error.message.toLowerCase();
+
+    if (message.includes("row-level security")) {
+      console.error("Profile update blocked by RLS", {
+        userId: user.id,
+        profileId: ownedProfileRow.id,
+        code: error.code,
+        message: error.message,
+      });
+
+      return NextResponse.json(
+        {
+          error: "Profile update was blocked by row-level security. Confirm the owner update policy on public.profiles uses auth.uid() = id.",
+        },
+        { status: 403 },
+      );
+    }
+
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
