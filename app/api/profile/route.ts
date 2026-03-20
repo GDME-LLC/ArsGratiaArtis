@@ -120,7 +120,7 @@ export async function PUT(request: Request) {
   if (error) {
     const message = error.message.toLowerCase();
 
-    if (message.includes("row-level security")) {
+    if (message.includes("row-level security") || message.includes("row level security")) {
       console.error("Profile update blocked by RLS", {
         userId: user.id,
         profileId: ownedProfileRow.id,
@@ -130,7 +130,7 @@ export async function PUT(request: Request) {
 
       return NextResponse.json(
         {
-          error: "Profile update was blocked by row-level security. Confirm the owner update policy on public.profiles uses auth.uid() = id.",
+          error: "Profile update was blocked by row-level security. The deployed server is likely missing SUPABASE_SERVICE_ROLE_KEY or the live public.profiles owner policy does not match auth.uid() = id.",
         },
         { status: 403 },
       );
@@ -141,3 +141,4 @@ export async function PUT(request: Request) {
 
   return NextResponse.json({ profile: mapProfile(data) });
 }
+
