@@ -94,7 +94,16 @@ export async function POST(request: Request) {
     }
   }
 
-  const storageClient = createServiceRoleSupabaseClient() ?? supabase;
+  const serviceRoleSupabase = createServiceRoleSupabaseClient();
+
+  if (!serviceRoleSupabase) {
+    return NextResponse.json(
+      { error: "Server upload client unavailable. Verify SUPABASE_SERVICE_ROLE_KEY in the deployed environment." },
+      { status: 503 },
+    );
+  }
+
+  const storageClient = serviceRoleSupabase;
   const bucketName = getMediaBucketName();
   const objectPath = buildMediaObjectPath({
     userId: user.id,
@@ -112,6 +121,15 @@ export async function POST(request: Request) {
     });
 
   if (error) {
+    const message = error.message.toLowerCase();
+
+    if (message.includes("row-level security") || message.includes("row level security")) {
+      return NextResponse.json(
+        { error: "Image upload was blocked by Storage RLS. Verify the media bucket write policy or that the service role key is active in production." },
+        { status: 403 },
+      );
+    }
+
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
@@ -130,4 +148,3 @@ export async function POST(request: Request) {
     path: objectPath,
   });
 }
-
