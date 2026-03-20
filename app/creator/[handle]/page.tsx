@@ -1,11 +1,12 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { FollowButton } from "@/components/engagement/follow-button";
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
-import { FollowButton } from "@/components/engagement/follow-button";
 import { StatePanel } from "@/components/shared/state-panel";
+import { Button } from "@/components/ui/button";
 import { getPublicProfileByHandle } from "@/lib/profiles";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { formatCountLabel, formatFollowerCount, formatMonthYear } from "@/lib/utils";
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: CreatorPageProps): Promise<Me
   const title = `${profile.displayName} (@${profile.handle}) | ArsGratia`;
   const description =
     profile.bio ||
-    `${profile.displayName} on ArsGratia${films.length > 0 ? ` — ${formatCountLabel(films.length, "public release")}` : "."}`;
+    `${profile.displayName} on ArsGratia${films.length > 0 ? ` Ã¢â‚¬â€ ${formatCountLabel(films.length, "public release")}` : "."}`;
 
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
   const url = `${siteUrl}/creator/${profile.handle}`;
@@ -101,6 +102,20 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
   return (
     <section className="container-shell py-14">
+      {profile.isCurrentUser ? (
+        <div className="mb-6 flex flex-wrap gap-3">
+          <Button asChild variant="ghost" size="lg">
+            <Link href="/dashboard">Back to Dashboard</Link>
+          </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link href="/settings">Edit Profile</Link>
+          </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link href="/upload">Start Release</Link>
+          </Button>
+        </div>
+      ) : null}
+
       <div className="surface-panel cinema-frame overflow-hidden">
         <div
           className="h-36 w-full bg-cover bg-center"
@@ -139,13 +154,18 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
             </div>
 
             <div className="min-w-0 space-y-2 text-sm text-muted-foreground md:text-right">
-              <div className="flex md:justify-end">
+              <div className="flex flex-wrap gap-2 md:justify-end">
                 <FollowButton
                   creatorId={profile.id}
                   initialFollowerCount={profile.followerCount}
                   initialFollowing={profile.viewerIsFollowing}
                   isCurrentUser={profile.isCurrentUser}
                 />
+                {profile.isCurrentUser ? (
+                  <Button asChild variant="ghost">
+                    <Link href="/dashboard">Dashboard</Link>
+                  </Button>
+                ) : null}
               </div>
               <p className="break-words">
                 <span className="text-foreground">{formatFollowerCount(profile.followerCount)}</span>
@@ -200,3 +220,4 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
     </section>
   );
 }
+

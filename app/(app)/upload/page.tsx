@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { FilmEditorForm } from "@/components/films/film-editor-form";
 import { StatePanel } from "@/components/shared/state-panel";
+import { Button } from "@/components/ui/button";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { getCreatorFilmById } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
@@ -72,6 +74,14 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
 
     return (
       <section className="container-shell py-14">
+        <div className="mb-6 flex flex-wrap gap-3">
+          <Button asChild variant="ghost" size="lg">
+            <Link href="/dashboard">Back to Dashboard</Link>
+          </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link href={`/creator/${profile.handle}`}>View Creator Page</Link>
+          </Button>
+        </div>
         <div className="mb-6 max-w-2xl">
           <p className="display-kicker">Creator Workspace</p>
           <h1 className="headline-lg mt-3">
