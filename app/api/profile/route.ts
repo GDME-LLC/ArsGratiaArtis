@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { ensureProfileForUser, getOwnedProfileRow, isValidHandle, mapProfile } from "@/lib/profiles";
 import { moderateTextFields } from "@/lib/security/moderation";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
+import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 export async function PUT(request: Request) {
@@ -28,6 +29,7 @@ export async function PUT(request: Request) {
   }
 
   const ensuredProfile = await ensureProfileForUser(user);
+  const profileWriteClient = createServiceRoleSupabaseClient() ?? supabase;
 
   if (!ensuredProfile) {
     return NextResponse.json({ error: "Profile row is missing and could not be repaired." }, { status: 409 });
@@ -78,7 +80,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: moderation.message }, { status: 400 });
   }
 
-  const { data: conflictingProfile } = await supabase
+  const { data: conflictingProfile } = await profileWriteClient
     .from("profiles")
     .select("id")
     .eq("handle", handle)
@@ -100,7 +102,7 @@ export async function PUT(request: Request) {
     );
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await profileWriteClient
     .from("profiles")
     .update({
       handle,
