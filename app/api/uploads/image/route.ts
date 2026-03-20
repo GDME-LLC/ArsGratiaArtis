@@ -65,13 +65,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: uploadError }, { status: 400 });
   }
 
-  const profile = await ensureProfileForUser(user);
-
-  if (!profile) {
-    return NextResponse.json({ error: "Profile unavailable." }, { status: 400 });
-  }
-
   if (entityType === "film") {
+    const profile = await ensureProfileForUser(user);
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile unavailable." }, { status: 400 });
+    }
+
     if (!profile.isCreator) {
       return NextResponse.json({ error: "Creator mode is required for poster uploads." }, { status: 403 });
     }
@@ -130,3 +130,4 @@ export async function POST(request: Request) {
     path: objectPath,
   });
 }
+
