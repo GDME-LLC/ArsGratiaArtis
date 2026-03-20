@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { ensureProfileForUser, getOwnedProfileRow, isValidHandle, mapProfile } from "@/lib/profiles";
+import { isValidHandle, mapProfile } from "@/lib/profiles";
 import { moderateTextFields } from "@/lib/security/moderation";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
@@ -26,13 +26,6 @@ export async function PUT(request: Request) {
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  }
-
-  const ensuredProfile = await ensureProfileForUser(user);
-  const profileWriteClient = createServiceRoleSupabaseClient() ?? supabase;
-
-  if (!ensuredProfile) {
-    return NextResponse.json({ error: "Profile row is missing and could not be repaired." }, { status: 409 });
   }
 
   const ip = await getRequestIp();
@@ -80,65 +73,60 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: moderation.message }, { status: 400 });
   }
 
-  const { data: conflictingProfile } = await profileWriteClient
+  const profileQueryClient = createServiceRoleSupabaseClient() ?? supabase;
+  const { data: conflictingProfile, error: conflictError } = await profileQueryClient
     .from("profiles")
     .select("id")
     .eq("handle", handle)
     .neq("id", user.id)
     .maybeSingle();
 
+  if (conflictError) {
+    return NextResponse.json({ error: conflictError.message }, { status: 400 });
+  }
+
   if (conflictingProfile) {
     return NextResponse.json({ error: "That handle is already taken." }, { status: 409 });
   }
 
-  const ownedProfileRow = await getOwnedProfileRow(user.id);
-
-  if (!ownedProfileRow) {
-    return NextResponse.json(
-      {
-        error: "Profile row exists outside your session scope. Verify that public.profiles.id matches auth.users.id and that owner update RLS is enabled.",
-      },
-      { status: 409 },
-    );
-  }
-
-  const { data, error } = await profileWriteClient
-    .from("profiles")
-    .update({
-      handle,
-      display_name: displayName,
-      bio: payload.bio ?? null,
-      avatar_url: payload.avatar_url ?? null,
-      banner_url: payload.banner_url ?? null,
-      website_url: payload.website_url ?? null,
-      is_creator: Boolean(payload.is_creator),
+  const { data, error } = await supabase
+    .rpc("upsert_own_profile", {
+      p_handle: handle,
+      p_display_name: displayName,
+      p_bio: payload.bio ?? null,
+      p_avatar_url: payload.avatar_url ?? null,
+      p_banner_url: payload.banner_url ?? null,
+      p_website_url: payload.website_url ?? null,
+      p_is_creator: Boolean(payload.is_creator),
     })
-    .eq("id", user.id)
-    .select("*")
     .single();
 
   if (error) {
     const message = error.message.toLowerCase();
 
-    if (message.includes("row-level security") || message.includes("row level security")) {
-      console.error("Profile update blocked by RLS", {
-        userId: user.id,
-        profileId: ownedProfileRow.id,
-        code: error.code,
-        message: error.message,
-      });
+    if (
+      error.code === "23505" ||
+      message.includes("profiles_handle_key") ||
+      message.includes("duplicate key")
+    ) {
+      return NextResponse.json({ error: "That handle is already taken." }, { status: 409 });
+    }
 
+    if (message.includes("row-level security") || message.includes("row level security")) {
       return NextResponse.json(
         {
-          error: "Profile update was blocked by row-level security. The deployed server is likely missing SUPABASE_SERVICE_ROLE_KEY or the live public.profiles owner policy does not match auth.uid() = id.",
+          error: "Profile update was blocked by row-level security. Verify that the upsert_own_profile database function has been applied in Supabase.",
         },
         { status: 403 },
       );
     }
 
+    if (message.includes("unauthorized") || error.code === "42501") {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return NextResponse.json({ profile: mapProfile(data) });
+  return NextResponse.json({ profile: mapProfile(data as Record<string, unknown>) });
 }
-
