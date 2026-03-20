@@ -94,16 +94,6 @@ export async function POST(request: Request) {
     }
   }
 
-  const serviceRoleSupabase = createServiceRoleSupabaseClient();
-
-  if (!serviceRoleSupabase) {
-    return NextResponse.json(
-      { error: "Server upload client unavailable. Verify SUPABASE_SERVICE_ROLE_KEY in the deployed environment." },
-      { status: 503 },
-    );
-  }
-
-  const storageClient = serviceRoleSupabase;
   const bucketName = getMediaBucketName();
   const objectPath = buildMediaObjectPath({
     userId: user.id,
@@ -113,38 +103,70 @@ export async function POST(request: Request) {
     mimeType: file.type,
   });
 
-  const { error } = await storageClient.storage
-    .from(bucketName)
-    .upload(objectPath, file, {
-      contentType: file.type,
-      upsert: false,
-    });
+  const writeClients: Array<typeof supabase> = [];
+  const serviceRoleSupabase = createServiceRoleSupabaseClient();
 
-  if (error) {
+  if (serviceRoleSupabase) {
+    writeClients.push(serviceRoleSupabase);
+  }
+
+  writeClients.push(supabase);
+  let uploadErrorMessage = "Image upload failed.";
+  let uploadBlockedByRls = false;
+  let uploadSucceeded = false;
+  let activeStorageClient: (typeof supabase) | null = null;
+
+  for (const client of writeClients) {
+    const { error } = await client.storage
+      .from(bucketName)
+      .upload(objectPath, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (!error) {
+      uploadSucceeded = true;
+      activeStorageClient = client;
+      break;
+    }
+
+    uploadErrorMessage = error.message;
     const message = error.message.toLowerCase();
 
     if (message.includes("row-level security") || message.includes("row level security")) {
+      uploadBlockedByRls = true;
+      continue;
+    }
+
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  if (!uploadSucceeded || !activeStorageClient) {
+    if (uploadBlockedByRls) {
       return NextResponse.json(
-        { error: "Image upload was blocked by Storage RLS. Verify the media bucket write policy or that the service role key is active in production." },
+        {
+          error: "Image upload was blocked by Storage RLS. Apply the media bucket storage policies for authenticated users under users/<auth.uid()>/...",
+        },
         { status: 403 },
       );
     }
 
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: uploadErrorMessage }, { status: 400 });
   }
 
   if (typeof existingUrl === "string" && existingUrl.trim()) {
     const existingPath = extractStorageObjectPathFromUrl(existingUrl, bucketName);
 
     if (existingPath?.startsWith(`users/${user.id.toLowerCase()}/`)) {
-      await storageClient.storage.from(bucketName).remove([existingPath]);
+      await activeStorageClient.storage.from(bucketName).remove([existingPath]);
     }
   }
 
-  const { data } = storageClient.storage.from(bucketName).getPublicUrl(objectPath);
+  const { data } = activeStorageClient.storage.from(bucketName).getPublicUrl(objectPath);
 
   return NextResponse.json({
     url: data.publicUrl,
     path: objectPath,
   });
 }
+
