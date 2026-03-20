@@ -3,7 +3,6 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
-import { siteConfig } from "@/lib/constants/site";
 
 import "./globals.css";
 
@@ -18,12 +17,41 @@ const bodyFont = Inter({
   variable: "--font-body",
 });
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`,
+    default: "ArsGratia",
+    template: "%s | ArsGratia",
   },
-  description: siteConfig.description,
+  description:
+    "A creator-first home for releasing films, shaping a public presence, and sharing the craft behind the work.",
+  openGraph: {
+    title: "ArsGratia",
+    description: "Cinema belongs to creators again.",
+    url: siteUrl,
+    siteName: "ArsGratia",
+    type: "website",
+    images: [
+      {
+        url: "/brand/arsgratia-og.png",
+        width: 1200,
+        height: 630,
+        alt: "ArsGratia",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ArsGratia",
+    description: "Cinema belongs to creators again.",
+    images: ["/brand/arsgratia-og.png"],
+  },
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

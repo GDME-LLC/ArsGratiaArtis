@@ -1,9 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/lib/constants/site";
 import {
   getUnreadNotificationCount,
   listNotificationsForUser,
@@ -31,12 +31,14 @@ export async function SiteHeader() {
         <div className="flex min-h-14 items-center justify-between gap-4 sm:min-h-20 sm:gap-6">
           <div className="flex min-w-0 items-center gap-4">
             <Link href="/" className="group min-w-0">
-              <div className="truncate text-lg font-semibold uppercase tracking-[0.18em] text-foreground sm:tracking-[0.22em]">
-                {siteConfig.name}
-              </div>
-              <div className="truncate text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition group-hover:text-primary/80 sm:tracking-[0.3em]">
-                {siteConfig.motto}
-              </div>
+              <Image
+                src="/brand/arsgratia-logo-white.png"
+                alt="ArsGratia"
+                width={1400}
+                height={520}
+                className="h-7 w-auto max-w-[180px] object-contain sm:h-9 sm:max-w-[220px]"
+                priority
+              />
             </Link>
           </div>
 
@@ -102,4 +104,3 @@ export async function SiteHeader() {
     </header>
   );
 }
-
