@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { verifyTurnstileToken } from "@/lib/security/turnstile";
-import { getRequestOrigin } from "@/lib/request-origin";
+import { getAuthCallbackUrl } from "@/lib/request-origin";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 type SignupPayload = {
@@ -54,12 +54,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Authentication is not configured right now." }, { status: 503 });
   }
 
-  const origin = getRequestOrigin(request);
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: getAuthCallbackUrl(request),
     },
   });
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { verifyTurnstileToken } from "@/lib/security/turnstile";
-import { getRequestOrigin } from "@/lib/request-origin";
+import { getAuthCallbackUrl } from "@/lib/request-origin";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 type GoogleAuthPayload = {
@@ -44,11 +44,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Authentication is not configured right now." }, { status: 503 });
   }
 
-  const origin = getRequestOrigin(request);
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${origin}/auth/callback`,
+      redirectTo: getAuthCallbackUrl(request),
       skipBrowserRedirect: true,
     },
   });
