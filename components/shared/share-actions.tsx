@@ -5,6 +5,7 @@ import {
   Twitter,
   Facebook,
   Linkedin,
+  Instagram,
   Mail,
   Link2,
   Check,
@@ -28,20 +29,6 @@ type ShareItem = {
   Icon: ShareIcon;
   external?: boolean;
 };
-
-function RedditGlyph(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-      <circle cx="12" cy="13" r="6.5" />
-      <path d="M8.5 11.2c.8-.6 1.9-.9 3.5-.9 1.6 0 2.7.3 3.5.9" />
-      <path d="M9.4 15.3c.7.7 1.6 1 2.6 1 1 0 1.9-.3 2.6-1" />
-      <circle cx="9.4" cy="13.2" r=".8" fill="currentColor" stroke="none" />
-      <circle cx="14.6" cy="13.2" r=".8" fill="currentColor" stroke="none" />
-      <path d="M14.1 6.8 15 4.3l2.3.6" />
-      <path d="M16.2 9.2a2 2 0 1 1 2-3.4" />
-    </svg>
-  );
-}
 
 export function ShareActions({ url, title, className }: ShareActionsProps) {
   const [copied, setCopied] = useState(false);
@@ -71,12 +58,6 @@ export function ShareActions({ url, title, className }: ShareActionsProps) {
         external: true,
       },
       {
-        href: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
-        label: "Share on Reddit",
-        Icon: RedditGlyph,
-        external: true,
-      },
-      {
         href: `mailto:?subject=${encodedTitle}&body=${encodedMailBody}`,
         label: "Share by email",
         Icon: Mail,
@@ -84,14 +65,32 @@ export function ShareActions({ url, title, className }: ShareActionsProps) {
     ];
   }, [title, url]);
 
+  function markCopied() {
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), COPY_RESET_DELAY_MS);
+  }
+
+  async function copyLinkToClipboard() {
+    await navigator.clipboard.writeText(url);
+    markCopied();
+  }
+
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), COPY_RESET_DELAY_MS);
+      await copyLinkToClipboard();
     } catch {
       setCopied(false);
     }
+  }
+
+  async function handleInstagramShare() {
+    try {
+      await copyLinkToClipboard();
+    } catch {
+      setCopied(false);
+    }
+
+    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -111,6 +110,16 @@ export function ShareActions({ url, title, className }: ShareActionsProps) {
             </a>
           </Button>
         ))}
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-10 px-3 text-foreground/88"
+          onClick={handleInstagramShare}
+          aria-label="Share to Instagram"
+          title="Share to Instagram"
+        >
+          <Instagram className="h-4 w-4" />
+        </Button>
         <Button
           type="button"
           variant="ghost"
