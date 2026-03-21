@@ -291,7 +291,7 @@ export const resourceSections = [
     eyebrow: "Start here",
     title: "Build a workflow that fits how you actually make films.",
     description:
-      "Choose a goal, shape the constraints, surface the right tools, and save a workflow you can continue from your creator page.",
+      "Choose a goal, shape the constraints, surface the right tools, and save a workflow you can continue from your Creator Studio.",
     ctaLabel: "Start your workflow",
   },
   {

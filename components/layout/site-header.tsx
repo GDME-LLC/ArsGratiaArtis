@@ -87,7 +87,7 @@ export async function SiteHeader() {
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
               <Button asChild variant="ghost" className="min-w-0 flex-1 sm:flex-none">
-                <Link href="/settings">Edit Profile</Link>
+                <Link href="/settings">Creator Studio</Link>
               </Button>
               <Button asChild variant="ghost" className="min-w-0 flex-1 sm:flex-none">
                 <Link href="/">Home</Link>

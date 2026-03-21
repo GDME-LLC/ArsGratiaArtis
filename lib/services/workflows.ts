@@ -1,11 +1,13 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type {
+  PublicWorkflow,
   SavedWorkflow,
   WorkflowConstraintId,
   WorkflowGoalId,
   WorkflowStepDraft,
   WorkflowStepStatus,
   WorkflowToolId,
+  WorkflowVisibilityScope,
 } from "@/types";
 
 type WorkflowRow = {
@@ -20,9 +22,13 @@ type WorkflowRow = {
   progress_count: number | null;
   total_steps: number | null;
   status: "active" | "archived";
+  visibility_scope: WorkflowVisibilityScope | null;
+  attached_film_id: string | null;
   created_at: string;
   updated_at: string;
 };
+
+const workflowSelect = "id, creator_id, title, description, goal, constraints, current_tools, steps, progress_count, total_steps, status, visibility_scope, attached_film_id, created_at, updated_at";
 
 export function countCompletedWorkflowSteps(steps: WorkflowStepDraft[]) {
   return steps.filter((step) => step.status === "complete").length;
@@ -34,6 +40,14 @@ function normalizeStepStatus(status: unknown): WorkflowStepStatus {
   }
 
   return "not_started";
+}
+
+function normalizeVisibilityScope(value: unknown): WorkflowVisibilityScope {
+  if (value === "theatre" || value === "film_page" || value === "theatre_and_film") {
+    return value;
+  }
+
+  return "private";
 }
 
 function normalizeSteps(value: unknown): WorkflowStepDraft[] {
@@ -77,8 +91,26 @@ function mapWorkflow(row: WorkflowRow): SavedWorkflow {
     progressCount: typeof row.progress_count === "number" ? row.progress_count : countCompletedWorkflowSteps(steps),
     totalSteps: typeof row.total_steps === "number" ? row.total_steps : steps.length,
     status: row.status,
+    visibilityScope: normalizeVisibilityScope(row.visibility_scope),
+    attachedFilmId: typeof row.attached_film_id === "string" ? row.attached_film_id : null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function mapPublicWorkflow(row: WorkflowRow): PublicWorkflow {
+  const workflow = mapWorkflow(row);
+  return {
+    id: workflow.id,
+    title: workflow.title,
+    description: workflow.description,
+    goal: workflow.goal,
+    steps: workflow.steps,
+    progressCount: workflow.progressCount,
+    totalSteps: workflow.totalSteps,
+    visibilityScope: workflow.visibilityScope === "private" ? "theatre" : workflow.visibilityScope,
+    attachedFilmId: workflow.attachedFilmId,
+    updatedAt: workflow.updatedAt,
   };
 }
 
@@ -91,7 +123,7 @@ export async function listCreatorWorkflows(creatorId: string): Promise<SavedWork
 
   const { data, error } = await supabase
     .from("workflows")
-    .select("id, creator_id, title, description, goal, constraints, current_tools, steps, progress_count, total_steps, status, created_at, updated_at")
+    .select(workflowSelect)
     .eq("creator_id", creatorId)
     .eq("status", "active")
     .order("updated_at", { ascending: false });
@@ -103,6 +135,50 @@ export async function listCreatorWorkflows(creatorId: string): Promise<SavedWork
   return ((data ?? []) as WorkflowRow[]).map(mapWorkflow);
 }
 
+export async function listPublicTheatreWorkflows(creatorId: string): Promise<PublicWorkflow[]> {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("workflows")
+    .select(workflowSelect)
+    .eq("creator_id", creatorId)
+    .eq("status", "active")
+    .in("visibility_scope", ["theatre", "theatre_and_film"])
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return ((data ?? []) as WorkflowRow[]).map(mapPublicWorkflow);
+}
+
+export async function listPublicFilmWorkflows(filmId: string): Promise<PublicWorkflow[]> {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("workflows")
+    .select(workflowSelect)
+    .eq("attached_film_id", filmId)
+    .eq("status", "active")
+    .in("visibility_scope", ["film_page", "theatre_and_film"])
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return ((data ?? []) as WorkflowRow[]).map(mapPublicWorkflow);
+}
+
 export async function getCreatorWorkflowById(workflowId: string, creatorId: string): Promise<SavedWorkflow | null> {
   const supabase = await createServerSupabaseClient();
 
@@ -112,7 +188,7 @@ export async function getCreatorWorkflowById(workflowId: string, creatorId: stri
 
   const { data, error } = await supabase
     .from("workflows")
-    .select("id, creator_id, title, description, goal, constraints, current_tools, steps, progress_count, total_steps, status, created_at, updated_at")
+    .select(workflowSelect)
     .eq("id", workflowId)
     .eq("creator_id", creatorId)
     .maybeSingle();
@@ -133,6 +209,8 @@ export async function createWorkflow(input: {
   currentTools: WorkflowToolId[];
   steps: WorkflowStepDraft[];
   status?: "active" | "archived";
+  visibilityScope?: WorkflowVisibilityScope;
+  attachedFilmId?: string | null;
 }) {
   const supabase = await createServerSupabaseClient();
 
@@ -153,8 +231,10 @@ export async function createWorkflow(input: {
       progress_count: countCompletedWorkflowSteps(input.steps),
       total_steps: input.steps.length,
       status: input.status ?? "active",
+      visibility_scope: input.visibilityScope ?? "private",
+      attached_film_id: input.attachedFilmId ?? null,
     })
-    .select("id, creator_id, title, description, goal, constraints, current_tools, steps, progress_count, total_steps, status, created_at, updated_at")
+    .select(workflowSelect)
     .single();
 
   if (error) {
@@ -174,6 +254,8 @@ export async function updateWorkflow(input: {
   currentTools: WorkflowToolId[];
   steps: WorkflowStepDraft[];
   status: "active" | "archived";
+  visibilityScope: WorkflowVisibilityScope;
+  attachedFilmId: string | null;
 }) {
   const supabase = await createServerSupabaseClient();
 
@@ -193,10 +275,12 @@ export async function updateWorkflow(input: {
       progress_count: countCompletedWorkflowSteps(input.steps),
       total_steps: input.steps.length,
       status: input.status,
+      visibility_scope: input.visibilityScope,
+      attached_film_id: input.attachedFilmId,
     })
     .eq("id", input.workflowId)
     .eq("creator_id", input.creatorId)
-    .select("id, creator_id, title, description, goal, constraints, current_tools, steps, progress_count, total_steps, status, created_at, updated_at")
+    .select(workflowSelect)
     .single();
 
   if (error) {

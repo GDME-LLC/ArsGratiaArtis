@@ -8,10 +8,10 @@ import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
-import { SavedWorkflowCard } from "@/components/workflows/saved-workflow-card";
 import { Button } from "@/components/ui/button";
+import { PublicWorkflowPanel } from "@/components/workflows/public-workflow-panel";
 import { getPublicProfileByHandle } from "@/lib/profiles";
-import { listCreatorWorkflows } from "@/lib/services/workflows";
+import { listPublicTheatreWorkflows } from "@/lib/services/workflows";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { getOrderedVisibleTheatreSections, getTheatreStylePreset } from "@/lib/theatre";
 import { cn, formatCountLabel, formatFollowerCount, formatMonthYear } from "@/lib/utils";
@@ -112,10 +112,14 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   const featuredFilm = theatreSettings.featuredFilmId
     ? films.find((film) => film.id === theatreSettings.featuredFilmId) ?? null
     : null;
-  const workflows = profile.isCurrentUser ? await listCreatorWorkflows(profile.id) : [];
+  const publicWorkflows = await listPublicTheatreWorkflows(profile.id);
   const visibleSections = getOrderedVisibleTheatreSections(theatreSettings).filter((sectionId) => {
     if (sectionId === "featured_work") {
       return Boolean(featuredFilm);
+    }
+
+    if (sectionId === "workflows") {
+      return publicWorkflows.length > 0;
     }
 
     if (sectionId === "releases") {
@@ -139,10 +143,10 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               <Link href="/dashboard">Back to Dashboard</Link>
             </Button>
             <Button asChild variant="ghost" size="lg">
-              <Link href="/settings">Direct Your Theatre</Link>
+              <Link href="/settings">Creator Studio</Link>
             </Button>
             <Button asChild variant="ghost" size="lg">
-              <Link href="/upload">Start Release</Link>
+              <Link href="/settings#theatre-settings">Theatre Settings</Link>
             </Button>
           </div>
         ) : null}
@@ -207,7 +211,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     ) : null}
                     {profile.isCurrentUser ? (
                       <Button asChild variant="ghost" className={preset.buttonVariantClass}>
-                        <Link href="/settings">My Theatre</Link>
+                        <Link href="/settings">Edit in Studio</Link>
                       </Button>
                     ) : null}
                   </div>
@@ -232,31 +236,6 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
           <div className="px-5 py-8 sm:px-8 sm:py-10">
             <div className="grid gap-5">
-              {profile.isCurrentUser ? (
-                <article className={cn("rounded-[28px] border p-6 sm:p-7", preset.panelClass, preset.borderClass)}>
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className={cn("display-kicker", preset.eyebrowClass)}>Creative Workflows</p>
-                      <h2 className="headline-lg mt-3 text-foreground">Saved workflow drafts and active production paths</h2>
-                    </div>
-                    <Button asChild variant="ghost" size="lg" className={preset.buttonVariantClass}>
-                      <Link href="/resources/starter-workflow">Build your first workflow</Link>
-                    </Button>
-                  </div>
-                  {workflows.length === 0 ? (
-                    <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6 text-sm text-muted-foreground">
-                      Save a workflow from Resources and it will appear here for continuation and editing.
-                    </div>
-                  ) : (
-                    <div className="mt-6 grid gap-4 lg:grid-cols-2">
-                      {workflows.map((workflow) => (
-                        <SavedWorkflowCard key={workflow.id} workflow={workflow} />
-                      ))}
-                    </div>
-                  )}
-                </article>
-              ) : null}
-
               {visibleSections.map((sectionId) => {
                 if (sectionId === "about") {
                   return (
@@ -290,6 +269,17 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                         </div>
                       </div>
                     </article>
+                  );
+                }
+
+                if (sectionId === "workflows") {
+                  return (
+                    <PublicWorkflowPanel
+                      key={sectionId}
+                      workflows={publicWorkflows}
+                      title="Selected workflows from the Studio"
+                      description="These workflows are shared in read-only form to show how the creator structures the work behind the Theatre."
+                    />
                   );
                 }
 

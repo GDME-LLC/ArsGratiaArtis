@@ -83,14 +83,14 @@ export default async function DashboardPage() {
                 </Button>
               ) : (
                 <Button asChild size="lg">
-                  <Link href="/settings">Request Creator Access</Link>
+                  <Link href="/settings">Open Creator Studio</Link>
                 </Button>
               )}
               <Button asChild variant="ghost" size="lg">
-                <Link href="/settings">My Theatre</Link>
+                <Link href="/settings">Creator Studio</Link>
               </Button>
               <Button asChild variant="ghost" size="lg">
-                <Link href={`/creator/${profile.handle}`}>Visit Theatre</Link>
+                <Link href={`/creator/${profile.handle}`}>My Theatre</Link>
               </Button>
               {isAdmin ? (
                 <>
@@ -157,7 +157,7 @@ export default async function DashboardPage() {
                 <p className="display-kicker">Workflow Builder</p>
                 <p className="title-md mt-3 text-foreground">No saved workflows yet</p>
                 <p className="body-sm mt-3">
-                  Build a workflow that fits how you actually make films, then keep refining it as the work moves toward release.
+                  Build a workflow that fits how you actually make films, then keep refining it inside Creator Studio as the work moves toward release.
                 </p>
               </div>
             ) : (

@@ -25,7 +25,7 @@ export default async function StarterWorkflowPage() {
             <PageIntro
               eyebrow="Workflow builder"
               title="Build your first workflow."
-              description="Move from idea to release with a clearer path. Choose a goal, define the constraints, surface the right tools, and save the process so you can continue it from your creator page."
+              description="Move from idea to release with a clearer path. Choose a goal, define the constraints, surface the right tools, and save the process so you can continue it from Creator Studio."
             />
             <div className="rounded-[24px] border border-white/10 bg-black/20 p-5 sm:p-6">
               <p className="display-kicker">What this tool does</p>

@@ -2,12 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CommentForm } from "@/components/comments/comment-form";
-import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { CommentList } from "@/components/comments/comment-list";
 import { LikeButton } from "@/components/engagement/like-button";
 import { FilmArtwork } from "@/components/films/film-artwork";
+import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
+import { Button } from "@/components/ui/button";
+import { PublicWorkflowPanel } from "@/components/workflows/public-workflow-panel";
 import { getFilmArtworkUrl } from "@/lib/films/artwork";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
 import { getMuxPlaybackUrl } from "@/lib/films/playback";
@@ -199,6 +201,17 @@ export default async function FilmPage({ params }: FilmPageProps) {
               className="mt-6"
             />
           </div>
+
+          {data.attachedWorkflows.length > 0 ? (
+            <div className="mt-8 border-t border-white/10 pt-6">
+              <PublicWorkflowPanel
+                workflows={data.attachedWorkflows}
+                eyebrow="Attached Workflow"
+                title="Read-only process selected for this film"
+                description="The creator chose to show this workflow alongside the film as part of its public presentation."
+              />
+            </div>
+          ) : null}
 
           {hasAnyProcessMaterial ? (
             <div className="mt-8 border-t border-white/10 pt-6">

@@ -5,7 +5,13 @@ import { ensureProfileForUser } from "@/lib/profiles";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { createWorkflow, updateWorkflow } from "@/lib/services/workflows";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
-import type { WorkflowConstraintId, WorkflowGoalId, WorkflowStepDraft, WorkflowToolId } from "@/types";
+import type {
+  WorkflowConstraintId,
+  WorkflowGoalId,
+  WorkflowStepDraft,
+  WorkflowToolId,
+  WorkflowVisibilityScope,
+} from "@/types";
 
 type WorkflowPayload = {
   workflowId?: string;
@@ -15,6 +21,8 @@ type WorkflowPayload = {
   constraints?: WorkflowConstraintId[];
   currentTools?: WorkflowToolId[];
   steps?: WorkflowStepDraft[];
+  visibilityScope?: WorkflowVisibilityScope;
+  attachedFilmId?: string | null;
 };
 
 function isValidGoal(goal: unknown): goal is WorkflowGoalId {
@@ -27,6 +35,10 @@ function isValidConstraint(constraint: unknown): constraint is WorkflowConstrain
 
 function isValidTool(tool: unknown): tool is WorkflowToolId {
   return workflowToolCatalog.some((item) => item.id === tool);
+}
+
+function isValidVisibilityScope(value: unknown): value is WorkflowVisibilityScope {
+  return value === "private" || value === "theatre" || value === "film_page" || value === "theatre_and_film";
 }
 
 function normalizeSteps(steps: unknown): WorkflowStepDraft[] {
@@ -57,6 +69,29 @@ function normalizeSteps(steps: unknown): WorkflowStepDraft[] {
         notes: typeof current.notes === "string" ? current.notes.slice(0, 2000) : "",
       };
     });
+}
+
+async function resolveAttachedFilmId(supabase: NonNullable<Awaited<ReturnType<typeof createServerSupabaseClient>>>, creatorId: string, attachedFilmId: string | null) {
+  if (!attachedFilmId) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("films")
+    .select("id")
+    .eq("id", attachedFilmId)
+    .eq("creator_id", creatorId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Attached film must belong to the signed-in creator.");
+  }
+
+  return data.id;
 }
 
 async function saveWorkflow(request: Request, method: "POST" | "PUT") {
@@ -103,6 +138,7 @@ async function saveWorkflow(request: Request, method: "POST" | "PUT") {
   const constraints = Array.isArray(payload.constraints) ? payload.constraints.filter(isValidConstraint) : [];
   const currentTools = Array.isArray(payload.currentTools) ? payload.currentTools.filter(isValidTool) : [];
   const steps = normalizeSteps(payload.steps);
+  const visibilityScope = isValidVisibilityScope(payload.visibilityScope) ? payload.visibilityScope : "private";
 
   if (!title) {
     return NextResponse.json({ error: "Workflow title is required." }, { status: 400 });
@@ -121,6 +157,19 @@ async function saveWorkflow(request: Request, method: "POST" | "PUT") {
   }
 
   try {
+    const attachedFilmId = await resolveAttachedFilmId(
+      supabase,
+      profile.id,
+      typeof payload.attachedFilmId === "string" && payload.attachedFilmId ? payload.attachedFilmId : null,
+    );
+
+    if ((visibilityScope === "film_page" || visibilityScope === "theatre_and_film") && !attachedFilmId) {
+      return NextResponse.json(
+        { error: "Attach this workflow to one of your films before showing it on a film page." },
+        { status: 400 },
+      );
+    }
+
     const workflow = method === "POST"
       ? await createWorkflow({
           creatorId: profile.id,
@@ -130,6 +179,8 @@ async function saveWorkflow(request: Request, method: "POST" | "PUT") {
           constraints,
           currentTools,
           steps,
+          visibilityScope,
+          attachedFilmId,
         })
       : await updateWorkflow({
           workflowId: payload.workflowId ?? "",
@@ -141,6 +192,8 @@ async function saveWorkflow(request: Request, method: "POST" | "PUT") {
           currentTools,
           steps,
           status: "active",
+          visibilityScope,
+          attachedFilmId,
         });
 
     return NextResponse.json({ workflow });

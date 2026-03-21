@@ -16,17 +16,21 @@ import { WorkflowStepCard } from "@/components/workflows/workflow-step-card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type {
+  CreatorFilmListItem,
   SavedWorkflow,
   WorkflowConstraintId,
   WorkflowGoalId,
   WorkflowStepDraft,
   WorkflowStepStatus,
   WorkflowToolId,
+  WorkflowVisibilityScope,
 } from "@/types";
 
 type WorkflowBuilderProps = {
   signedIn: boolean;
   initialWorkflow?: SavedWorkflow | null;
+  availableFilms?: CreatorFilmListItem[];
+  mode?: "builder" | "studio";
 };
 
 type WorkflowApiResponse = {
@@ -42,10 +46,23 @@ type BuilderState = {
   currentTools: WorkflowToolId[];
   steps: WorkflowStepDraft[];
   currentStep: number;
+  visibilityScope: WorkflowVisibilityScope;
+  attachedFilmId: string | null;
 };
 
 const BUILDER_STEP_LABELS = ["Goal", "Constraints", "Tools", "Workflow"];
 const SESSION_STORAGE_KEY = "arsgratia.workflow-builder.draft";
+
+const visibilityOptions: Array<{
+  value: WorkflowVisibilityScope;
+  label: string;
+  description: string;
+}> = [
+  { value: "private", label: "Private", description: "Kept inside Creator Studio only." },
+  { value: "theatre", label: "Visible on Theatre", description: "Shown publicly in read-only form on your Theatre." },
+  { value: "film_page", label: "Visible on Film Page", description: "Shown in read-only form on one attached film page." },
+  { value: "theatre_and_film", label: "Theatre and Film Page", description: "Shown publicly on your Theatre and one attached film page." },
+];
 
 function buildDefaultState(): BuilderState {
   return {
@@ -56,6 +73,8 @@ function buildDefaultState(): BuilderState {
     currentTools: [],
     steps: [],
     currentStep: 1,
+    visibilityScope: "private",
+    attachedFilmId: null,
   };
 }
 
@@ -68,10 +87,21 @@ function buildStateFromWorkflow(workflow: SavedWorkflow): BuilderState {
     currentTools: workflow.currentTools,
     steps: workflow.steps,
     currentStep: 4,
+    visibilityScope: workflow.visibilityScope,
+    attachedFilmId: workflow.attachedFilmId,
   };
 }
 
-export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBuilderProps) {
+function requiresFilmAttachment(scope: WorkflowVisibilityScope) {
+  return scope === "film_page" || scope === "theatre_and_film";
+}
+
+export function WorkflowBuilder({
+  signedIn,
+  initialWorkflow = null,
+  availableFilms = [],
+  mode = "builder",
+}: WorkflowBuilderProps) {
   const router = useRouter();
   const [state, setState] = useState<BuilderState>(() =>
     initialWorkflow ? buildStateFromWorkflow(initialWorkflow) : buildDefaultState(),
@@ -105,6 +135,8 @@ export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBu
         currentTools: Array.isArray(parsed.currentTools) ? (parsed.currentTools as WorkflowToolId[]) : current.currentTools,
         steps: Array.isArray(parsed.steps) ? (parsed.steps as WorkflowStepDraft[]) : current.steps,
         currentStep: typeof parsed.currentStep === "number" ? parsed.currentStep : current.currentStep,
+        visibilityScope: typeof parsed.visibilityScope === "string" ? (parsed.visibilityScope as WorkflowVisibilityScope) : current.visibilityScope,
+        attachedFilmId: typeof parsed.attachedFilmId === "string" ? parsed.attachedFilmId : current.attachedFilmId,
       }));
     } catch {
       window.sessionStorage.removeItem(SESSION_STORAGE_KEY);
@@ -126,6 +158,8 @@ export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBu
         currentTools: state.currentTools,
         steps: state.steps,
         currentStep: state.currentStep,
+        visibilityScope: state.visibilityScope,
+        attachedFilmId: state.attachedFilmId,
       }),
     );
   }, [initialWorkflow, state]);
@@ -228,6 +262,11 @@ export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBu
       return;
     }
 
+    if (requiresFilmAttachment(state.visibilityScope) && !state.attachedFilmId) {
+      setError("Attach this workflow to one of your films before showing it on a film page.");
+      return;
+    }
+
     if (!signedIn) {
       setShowAuthPrompt(true);
       setError("Sign in to save this workflow to your account.");
@@ -250,6 +289,8 @@ export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBu
           constraints: state.constraints,
           currentTools: state.currentTools,
           steps: state.steps,
+          visibilityScope: state.visibilityScope,
+          attachedFilmId: state.attachedFilmId,
         }),
       });
 
@@ -292,7 +333,7 @@ export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBu
         return;
       }
 
-      router.push("/dashboard");
+      router.push("/settings#workflows");
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -405,7 +446,9 @@ export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBu
                 <p className="display-kicker">Generated workflow</p>
                 <h2 className="headline-lg mt-3 text-foreground">Move from idea to release with a clearer path.</h2>
                 <p className="body-lg mt-4">
-                  Save your process and continue it later from your creator page.
+                  {mode === "studio"
+                    ? "Keep the process private, or choose whether it appears on your Theatre or a film page in read-only form."
+                    : "Save your process and continue it later from Creator Studio."}
                 </p>
               </div>
               <div className="rounded-[24px] border border-white/10 bg-white/[0.04] px-5 py-4 text-sm text-muted-foreground">
@@ -443,14 +486,67 @@ export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBu
                     </div>
                     <div>
                       <p className="text-foreground">Constraints</p>
-                      <p className="mt-1">{state.constraints.length > 0 ? state.constraints.map((id) => workflowConstraints.find((item) => item.id === id)?.label ?? id).join(', ') : 'None selected'}</p>
+                      <p className="mt-1">{state.constraints.length > 0 ? state.constraints.map((id) => workflowConstraints.find((item) => item.id === id)?.label ?? id).join(", ") : "None selected"}</p>
                     </div>
                     <div>
                       <p className="text-foreground">Current tools</p>
-                      <p className="mt-1">{state.currentTools.length > 0 ? state.currentTools.map((id) => workflowToolCatalog.find((item) => item.id === id)?.name ?? id).join(', ') : 'No tools selected'}</p>
+                      <p className="mt-1">{state.currentTools.length > 0 ? state.currentTools.map((id) => workflowToolCatalog.find((item) => item.id === id)?.name ?? id).join(", ") : "No tools selected"}</p>
                     </div>
                   </div>
                 </div>
+
+                {mode === "studio" && signedIn ? (
+                  <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-5">
+                    <p className="display-kicker">Public presentation</p>
+                    <div className="mt-4 grid gap-4">
+                      <label className="grid gap-2">
+                        <span className="text-sm text-foreground">Workflow visibility</span>
+                        <select
+                          value={state.visibilityScope}
+                          onChange={(event) => {
+                            const nextScope = event.target.value as WorkflowVisibilityScope;
+                            setState((current) => ({
+                              ...current,
+                              visibilityScope: nextScope,
+                              attachedFilmId: requiresFilmAttachment(nextScope) ? current.attachedFilmId : null,
+                            }));
+                          }}
+                          className="h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground outline-none transition focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]"
+                        >
+                          {visibilityOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="text-sm text-muted-foreground">
+                          {visibilityOptions.find((option) => option.value === state.visibilityScope)?.description}
+                        </span>
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-sm text-foreground">Attach to film</span>
+                        <select
+                          value={state.attachedFilmId ?? ""}
+                          onChange={(event) => setState((current) => ({ ...current, attachedFilmId: event.target.value || null }))}
+                          className="h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground outline-none transition focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]"
+                        >
+                          <option value="">No film attached</option>
+                          {availableFilms.map((film) => (
+                            <option key={film.id} value={film.id}>
+                              {film.title}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="text-sm text-muted-foreground">
+                          {requiresFilmAttachment(state.visibilityScope)
+                            ? "Required when the workflow is visible on a film page."
+                            : "Optional until you decide to show the workflow on a film page."}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="grid gap-4">
@@ -484,7 +580,7 @@ export function WorkflowBuilder({ signedIn, initialWorkflow = null }: WorkflowBu
       {showAuthPrompt && !signedIn ? (
         <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
           <p className="title-md text-foreground">Save this workflow to your account</p>
-          <p className="body-sm mt-3">Sign in or create an account to keep this workflow, reopen it later, and continue editing from your creator page.</p>
+          <p className="body-sm mt-3">Sign in or create an account to keep this workflow, reopen it later, and continue editing from Creator Studio.</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Button asChild size="lg">
               <Link href="/login">Sign In</Link>

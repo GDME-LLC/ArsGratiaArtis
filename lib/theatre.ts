@@ -19,6 +19,11 @@ export const theatreSectionDefinitions: Array<{
     description: "A single spotlighted release placed near the opening of the Theatre.",
   },
   {
+    id: "workflows",
+    label: "Workflows",
+    description: "Selected public workflows shown in a read-only presentation.",
+  },
+  {
     id: "releases",
     label: "Releases",
     description: "The public body of work shown in the Theatre rail.",

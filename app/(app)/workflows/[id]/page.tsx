@@ -5,6 +5,7 @@ import { WorkflowBuilder } from "@/components/workflows/workflow-builder";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { ensureProfileForUser } from "@/lib/profiles";
+import { listCreatorFilms } from "@/lib/services/films";
 import { getCreatorWorkflowById } from "@/lib/services/workflows";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
@@ -47,7 +48,10 @@ export default async function WorkflowPage({ params }: WorkflowPageProps) {
   }
 
   const { id } = await params;
-  const workflow = await getCreatorWorkflowById(id, profile.id);
+  const [workflow, availableFilms] = await Promise.all([
+    getCreatorWorkflowById(id, profile.id),
+    listCreatorFilms(profile.id),
+  ]);
 
   if (!workflow) {
     return (
@@ -64,13 +68,13 @@ export default async function WorkflowPage({ params }: WorkflowPageProps) {
     <section className="container-shell py-14 sm:py-20">
       <div className="mb-6 flex flex-wrap gap-3">
         <Button asChild variant="ghost" size="lg">
-          <Link href="/dashboard">Back to Dashboard</Link>
+          <Link href="/settings#workflows">Back to Creator Studio</Link>
         </Button>
         <Button asChild variant="ghost" size="lg">
-          <Link href={`/creator/${profile.handle}`}>Visit Theatre</Link>
+          <Link href={`/creator/${profile.handle}`}>Open My Theatre</Link>
         </Button>
       </div>
-      <WorkflowBuilder signedIn initialWorkflow={workflow} />
+      <WorkflowBuilder signedIn initialWorkflow={workflow} availableFilms={availableFilms} mode="studio" />
     </section>
   );
 }

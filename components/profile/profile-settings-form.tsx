@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { StudioWorkflowManager } from "@/components/studio/studio-workflow-manager";
 import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { theatreStylePresetOrder, theatreStylePresets } from "@/lib/constants/theatre-style-presets";
@@ -12,11 +14,12 @@ import {
   THEATRE_OPENING_STATEMENT_LIMIT,
 } from "@/lib/theatre";
 import { cn } from "@/lib/utils";
-import type { CreatorFilmListItem, CreatorTheatreSettings, Profile, TheatreSectionId } from "@/types";
+import type { CreatorFilmListItem, CreatorTheatreSettings, Profile, SavedWorkflow, TheatreSectionId } from "@/types";
 
 type ProfileSettingsFormProps = {
   profile: Profile;
   availableFilms: CreatorFilmListItem[];
+  workflows: SavedWorkflow[];
 };
 
 type FormState = {
@@ -43,7 +46,14 @@ function formatFilmOptionLabel(film: CreatorFilmListItem) {
   return `${film.title} - ${status}`;
 }
 
-export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettingsFormProps) {
+const studioSections = [
+  { id: "profile", label: "Profile" },
+  { id: "workflows", label: "Workflows" },
+  { id: "following", label: "Following" },
+  { id: "theatre-settings", label: "Theatre Settings" },
+] as const;
+
+export function ProfileSettingsForm({ profile, availableFilms, workflows }: ProfileSettingsFormProps) {
   const [form, setForm] = useState<FormState>({
     handle: profile.handle,
     display_name: profile.displayName,
@@ -166,11 +176,11 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
       const payload = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        setError(payload.error ?? "Profile could not be saved.");
+        setError(payload.error ?? "Creator Studio changes could not be saved.");
         return;
       }
 
-      setSuccess("Profile and Theatre updated.");
+      setSuccess("Creator Studio updated.");
     } catch {
       setError("Network error. Try again.");
     } finally {
@@ -180,20 +190,38 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
 
   return (
     <form className="surface-panel cinema-frame p-8 sm:p-10" onSubmit={handleSubmit}>
-      <div className="space-y-1">
-        <p className="display-kicker">Settings</p>
-        <h1 className="headline-lg">My Theatre</h1>
-        <p className="body-sm">
-          Shape the public atmosphere of your Theatre while keeping the ArsGratia language intact.
-        </p>
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-1">
+          <p className="display-kicker">Creator Studio</p>
+          <h1 className="headline-lg">Private workspace for your profile, workflows, and Theatre settings</h1>
+          <p className="body-sm max-w-3xl">
+            Manage the creator identity behind the scenes, shape what appears publicly on your Theatre, and keep workflows private until you decide they should be shown.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild variant="ghost" size="lg">
+            <Link href={`/creator/${form.handle || profile.handle}`}>Open My Theatre</Link>
+          </Button>
+          <Button type="submit" size="xl" disabled={isSaving || uploadInFlight}>
+            {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save Studio Changes"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        {studioSections.map((section) => (
+          <Button key={section.id} asChild variant="ghost" size="lg">
+            <a href={`#${section.id}`}>{section.label}</a>
+          </Button>
+        ))}
       </div>
 
       <div className="mt-8 grid gap-8">
-        <section className="grid gap-5">
+        <section id="profile" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
           <div className="space-y-1">
             <p className="display-kicker text-foreground/80">Profile</p>
-            <h2 className="title-md text-foreground">Public identity</h2>
-            <p className="body-sm">Update the core profile elements that frame your Theatre.</p>
+            <h2 className="headline-sm text-foreground">Creator identity and public essentials</h2>
+            <p className="body-sm">These are the core details that can appear across your Theatre, releases, and creator references.</p>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
@@ -255,7 +283,7 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
                 onUploadingChange={setIsAvatarUploading}
                 label="Creator avatar"
                 aspectRatio="square"
-                helperText="Shown on Theatre pages, film credits, and profile references across ArsGratia."
+                helperText="Shown on Theatre pages, film credits, and creator references across ArsGratia."
               />
             </Field>
 
@@ -273,7 +301,7 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
                 onUploadingChange={setIsBannerUploading}
                 label="Creator banner"
                 aspectRatio="banner"
-                helperText="Used as the atmospheric backdrop for the public Theatre when no hero visual is selected."
+                helperText="Used as the fallback atmosphere for the public Theatre when no hero visual is selected."
               />
             </Field>
           </div>
@@ -308,12 +336,36 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
           </label>
         </section>
 
-        <section className="rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
-          <div className="space-y-2">
-            <p className="display-kicker text-foreground/80">Direct Your Theatre</p>
-            <h2 className="headline-sm text-foreground">Theatre Presentation</h2>
+        <section id="workflows" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
+          <div className="space-y-1">
+            <p className="display-kicker text-foreground/80">Workflows</p>
+            <h2 className="headline-sm text-foreground">Private workflow management and public visibility</h2>
             <p className="body-sm max-w-3xl">
-              Guide the mood, sequencing, and emphasis of your public Theatre with a restrained, curated system.
+              Save workflows privately by default, then decide whether any of them belong on your Theatre or on a specific film page in read-only form.
+            </p>
+          </div>
+          <StudioWorkflowManager workflows={workflows} availableFilms={availableFilms} />
+        </section>
+
+        <section id="following" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
+          <div className="space-y-1">
+            <p className="display-kicker text-foreground/80">Following</p>
+            <h2 className="headline-sm text-foreground">Followed creators will live here</h2>
+            <p className="body-sm max-w-3xl">
+              This part of Creator Studio is reserved for the creators you follow and, later, for deciding whether any of that signal should appear publicly on your Theatre.
+            </p>
+          </div>
+          <div className="rounded-[24px] border border-dashed border-white/10 bg-white/[0.04] p-5 text-sm text-muted-foreground">
+            Following management is scaffolded here for the next pass. Public following will stay opt-in and Theatre-controlled when it arrives.
+          </div>
+        </section>
+
+        <section id="theatre-settings" className="rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
+          <div className="space-y-2">
+            <p className="display-kicker text-foreground/80">Theatre Settings</p>
+            <h2 className="headline-sm text-foreground">Configure what the public Theatre shows and how it feels</h2>
+            <p className="body-sm max-w-3xl">
+              The Theatre is your public-facing stage. These controls affect presentation, section visibility, and the mood of the shareable page without turning it into a template editor.
             </p>
           </div>
 
@@ -355,10 +407,7 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
 
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
               <div className="grid gap-5">
-                <Field
-                  label="Hero Visual"
-                  helperText="Set a screening-banner image at the top of your Theatre."
-                >
+                <Field label="Hero Visual" helperText="Set a screening-banner image at the top of your Theatre.">
                   <ImageUploadField
                     entityType="profile"
                     field="hero"
@@ -376,10 +425,7 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
                   />
                 </Field>
 
-                <Field
-                  label="Opening Statement"
-                  helperText="A short line to set the tone of your Theatre."
-                >
+                <Field label="Opening Statement" helperText="A short line to set the tone of your Theatre.">
                   <div className="grid gap-2">
                     <textarea
                       value={form.theatre_settings.openingStatement ?? ""}
@@ -400,10 +446,7 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
               </div>
 
               <div className="grid gap-5">
-                <Field
-                  label="Featured Work"
-                  helperText="Choose a release to spotlight near the opening of your Theatre."
-                >
+                <Field label="Featured Work" helperText="Choose a release to spotlight near the opening of your Theatre.">
                   <select
                     value={form.theatre_settings.featuredFilmId ?? ""}
                     onChange={(event) =>
@@ -463,20 +506,20 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
                       <Button
                         type="button"
                         variant="ghost"
-                        className="h-10 w-10 px-0"
+                        className="h-10 px-4"
                         disabled={index === 0}
                         onClick={() => moveSection(section.id, -1)}
                       >
-                        ↑
+                        Move up
                       </Button>
                       <Button
                         type="button"
                         variant="ghost"
-                        className="h-10 w-10 px-0"
+                        className="h-10 px-4"
                         disabled={index === orderedSections.length - 1}
                         onClick={() => moveSection(section.id, 1)}
                       >
-                        ↓
+                        Move down
                       </Button>
                     </div>
                   </div>
@@ -500,10 +543,10 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
 
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Button type="submit" size="xl" disabled={isSaving || uploadInFlight}>
-            {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save My Theatre"}
+            {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save Studio Changes"}
           </Button>
           <p className="body-sm">
-            Public URL: <span className="text-foreground">/creator/{form.handle || "yourhandle"}</span>
+            Public Theatre URL: <span className="text-foreground">/creator/{form.handle || "yourhandle"}</span>
           </p>
         </div>
       </div>
