@@ -66,7 +66,7 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
 
         <div className="relative max-w-3xl lg:max-w-[58%]">
           <p className="display-kicker">{siteConfig.motto}</p>
-          <p className="eyebrow mt-2 text-foreground/86">Independent cinema, presented with intent</p>
+          <p className="eyebrow mt-2 text-foreground/86">Art, for art's sake</p>
           <h1 className="hero-title mt-3.5 max-w-3xl text-balance">
             {siteConfig.heroTitle}
           </h1>
