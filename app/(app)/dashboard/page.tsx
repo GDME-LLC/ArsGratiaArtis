@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
@@ -61,7 +61,7 @@ export default async function DashboardPage() {
                 <FoundingCreatorBadge founder={profile.foundingCreator} showNumber />
               </div>
               <p className="body-lg mt-4">
-                Prepare releases, shape your creator page, and keep the next film moving without losing the thread.
+                Prepare releases, direct your Theatre, and keep the next film moving without losing the thread.
               </p>
               {profile.foundingCreator.isFoundingCreator ? (
                 <p className="mt-3 text-sm text-[#e7d1a0]">
@@ -81,10 +81,10 @@ export default async function DashboardPage() {
                 </Button>
               )}
               <Button asChild variant="ghost" size="lg">
-                <Link href="/settings">Edit Profile</Link>
+                <Link href="/settings">My Theatre</Link>
               </Button>
               <Button asChild variant="ghost" size="lg">
-                <Link href={`/creator/${profile.handle}`}>View Creator Page</Link>
+                <Link href={`/creator/${profile.handle}`}>Visit Theatre</Link>
               </Button>
               {isAdmin ? (
                 <>

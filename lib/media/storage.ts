@@ -5,7 +5,7 @@ export const IMAGE_UPLOAD_ACCEPT = ".jpg,.jpeg,.png,.webp";
 export const IMAGE_UPLOAD_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
 export type MediaEntityType = "film" | "profile";
-export type MediaField = "poster" | "avatar" | "banner";
+export type MediaField = "poster" | "avatar" | "banner" | "hero";
 
 export function getMediaBucketName() {
   return process.env.SUPABASE_MEDIA_BUCKET?.trim() || DEFAULT_MEDIA_BUCKET;

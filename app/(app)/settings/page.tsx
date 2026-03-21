@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
+import { listCreatorFilms } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { ensureProfileForUser } from "@/lib/profiles";
@@ -40,6 +41,8 @@ export default async function SettingsPage() {
       );
     }
 
+    const availableFilms = await listCreatorFilms(profile.id);
+
     return (
       <section className="container-shell py-14 sm:py-20">
         <div className="mb-6 flex flex-wrap gap-3">
@@ -47,10 +50,10 @@ export default async function SettingsPage() {
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
           <Button asChild variant="ghost" size="lg">
-            <Link href={`/creator/${profile.handle}`}>View Creator Page</Link>
+            <Link href={`/creator/${profile.handle}`}>Visit Theatre</Link>
           </Button>
         </div>
-        <ProfileSettingsForm profile={profile} />
+        <ProfileSettingsForm profile={profile} availableFilms={availableFilms} />
       </section>
     );
   } catch (error) {

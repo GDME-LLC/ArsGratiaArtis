@@ -19,6 +19,7 @@ type ShareActionsProps = {
   url: string;
   title: string;
   className?: string;
+  heading?: string;
 };
 
 type ShareIcon = ComponentType<SVGProps<SVGSVGElement>>;
@@ -30,7 +31,7 @@ type ShareItem = {
   external?: boolean;
 };
 
-export function ShareActions({ url, title, className }: ShareActionsProps) {
+export function ShareActions({ url, title, className, heading = "Share" }: ShareActionsProps) {
   const [copied, setCopied] = useState(false);
 
   const shareItems = useMemo<ShareItem[]>(() => {
@@ -95,7 +96,7 @@ export function ShareActions({ url, title, className }: ShareActionsProps) {
 
   return (
     <div className={className}>
-      <p className="display-kicker">Share</p>
+      <p className="display-kicker">{heading}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {shareItems.map(({ href, label, Icon, external }) => (
           <Button key={label} asChild variant="ghost" className="h-10 px-3 text-foreground/88">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { isValidHandle, mapProfile } from "@/lib/profiles";
+import { normalizeTheatreSettings, THEATRE_OPENING_STATEMENT_LIMIT } from "@/lib/theatre";
 import { moderateTextFields } from "@/lib/security/moderation";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
@@ -46,10 +47,12 @@ export async function PUT(request: Request) {
     banner_url?: string | null;
     website_url?: string | null;
     is_creator?: boolean;
+    theatre_settings?: unknown;
   };
 
   const handle = payload.handle?.trim().toLowerCase() ?? "";
   const displayName = payload.display_name?.trim() ?? "";
+  const theatreSettings = normalizeTheatreSettings(payload.theatre_settings);
 
   if (!isValidHandle(handle)) {
     return NextResponse.json(
@@ -64,9 +67,20 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Display name is required." }, { status: 400 });
   }
 
+  if (
+    theatreSettings.openingStatement &&
+    theatreSettings.openingStatement.length > THEATRE_OPENING_STATEMENT_LIMIT
+  ) {
+    return NextResponse.json(
+      { error: `Opening Statement must be ${THEATRE_OPENING_STATEMENT_LIMIT} characters or fewer.` },
+      { status: 400 },
+    );
+  }
+
   const moderation = await moderateTextFields([
     { label: "display_name", value: displayName },
     { label: "bio", value: payload.bio ?? null },
+    { label: "opening_statement", value: theatreSettings.openingStatement },
   ]);
 
   if (!moderation.ok) {
@@ -98,6 +112,7 @@ export async function PUT(request: Request) {
       p_banner_url: payload.banner_url ?? null,
       p_website_url: payload.website_url ?? null,
       p_is_creator: Boolean(payload.is_creator),
+      p_theatre_settings: theatreSettings,
     })
     .single();
 

@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Upload target is invalid." }, { status: 400 });
   }
 
-  if (field !== "poster" && field !== "avatar" && field !== "banner") {
+  if (field !== "poster" && field !== "avatar" && field !== "banner" && field !== "hero") {
     return NextResponse.json({ error: "Upload field is invalid." }, { status: 400 });
   }
 

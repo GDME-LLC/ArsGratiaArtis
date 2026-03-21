@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 
+import { normalizeTheatreSettings } from "@/lib/theatre";
 import {
   getFollowerCount,
   getFilmLikeCounts,
@@ -65,11 +66,7 @@ function mapFoundingCreator(row: Record<string, unknown>): FoundingCreatorInfo {
   };
 }
 
-async function makeUniqueHandle(
-  seed: string,
-  userId: string,
-  currentHandle?: string | null,
-) {
+async function makeUniqueHandle(seed: string, userId: string, currentHandle?: string | null) {
   const serviceRoleSupabase = createServiceRoleSupabaseClient();
   const supabase = serviceRoleSupabase ?? await createServerSupabaseClient();
 
@@ -288,10 +285,11 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
   const followerCount = await getFollowerCount(String(profile.id));
   const viewerIsFollowing = await getViewerFollowingCreator(String(profile.id), user?.id);
   const foundingCreator = mapFoundingCreator(profile);
+  const mappedProfile = mapProfile(profile);
 
   return {
     profile: {
-      ...mapProfile(profile),
+      ...mappedProfile,
       followerCount,
       viewerIsFollowing,
       isCurrentUser: user?.id === profile.id,
@@ -458,6 +456,7 @@ export function mapProfile(row: Record<string, unknown>): Profile {
     bannerUrl: typeof row.banner_url === "string" ? row.banner_url : null,
     websiteUrl: typeof row.website_url === "string" ? row.website_url : null,
     isCreator: Boolean(row.is_creator),
+    theatreSettings: normalizeTheatreSettings(row.theatre_settings),
     foundingCreator: mapFoundingCreator(row),
   };
 }

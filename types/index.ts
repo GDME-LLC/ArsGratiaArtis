@@ -1,7 +1,33 @@
-﻿import type { FilmCategory } from "@/lib/films/categories";
+import type { FilmCategory } from "@/lib/films/categories";
 
 export type ModerationStatus = "active" | "pending_review" | "flagged" | "removed";
 export type AdminFilmAction = "hide" | "unpublish";
+
+export type TheatreStylePresetId =
+  | "noir"
+  | "festival"
+  | "afterglow"
+  | "monolith"
+  | "cathedral"
+  | "neon"
+  | "ash"
+  | "velvet"
+  | "halo"
+  | "signal"
+  | "ember"
+  | "obsidian";
+
+export type TheatreSectionId = "about" | "featured_work" | "releases" | "links";
+
+export type CreatorTheatreSettings = {
+  stylePreset: TheatreStylePresetId;
+  heroImageUrl: string | null;
+  heroVideoUrl: string | null;
+  openingStatement: string | null;
+  featuredFilmId: string | null;
+  visibleSections: TheatreSectionId[];
+  sectionOrder: TheatreSectionId[];
+};
 
 export type FoundingCreatorInfo = {
   isFoundingCreator: boolean;
@@ -63,6 +89,7 @@ export type Profile = {
   bannerUrl: string | null;
   websiteUrl: string | null;
   isCreator: boolean;
+  theatreSettings: CreatorTheatreSettings;
   foundingCreator: FoundingCreatorInfo;
 };
 
@@ -198,6 +225,7 @@ export type PublicCreatorProfileData = {
     followerCount: number;
     viewerIsFollowing: boolean;
     isCurrentUser: boolean;
+    theatreSettings: CreatorTheatreSettings;
     foundingCreator: FoundingCreatorInfo;
   };
   films: PublicFilmCard[];
