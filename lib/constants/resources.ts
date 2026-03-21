@@ -289,10 +289,10 @@ export const resourceSections = [
   {
     href: "/resources/starter-workflow",
     eyebrow: "Start here",
-    title: "Build a short without getting lost in the tool stack.",
+    title: "Build a workflow that fits how you actually make films.",
     description:
-      "A practical path from premise to finished cut, designed to keep scope under control and help new creators ship work.",
-    ctaLabel: "Follow the workflow",
+      "Choose a goal, shape the constraints, surface the right tools, and save a workflow you can continue from your creator page.",
+    ctaLabel: "Start your workflow",
   },
   {
     href: "/resources/advanced-workflows",

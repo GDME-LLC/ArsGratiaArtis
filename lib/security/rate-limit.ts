@@ -16,6 +16,7 @@ export const rateLimitPresets = {
   uploadInit: { limit: 10, windowMs: 60 * 60 * 1000, message: "Upload starts are temporarily limited. Please wait a few minutes and try again." },
   profile: { limit: 10, windowMs: 60 * 60 * 1000, message: "Profile changes are temporarily limited. Please wait a little and try again." },
   films: { limit: 20, windowMs: 60 * 60 * 1000, message: "Release edits are temporarily limited. Please wait a little and try again." },
+  workflows: { limit: 20, windowMs: 60 * 60 * 1000, message: "Workflow edits are temporarily limited. Please wait a little and try again." },
 } as const;
 
 function getUpstashEnv() {

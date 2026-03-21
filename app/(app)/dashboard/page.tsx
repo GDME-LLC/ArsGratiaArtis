@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
 import { FilmArtwork } from "@/components/films/film-artwork";
 import { StatePanel } from "@/components/shared/state-panel";
+import { SavedWorkflowCard } from "@/components/workflows/saved-workflow-card";
 import { Button } from "@/components/ui/button";
 import { isAdminEmail } from "@/lib/admin";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
@@ -11,6 +12,7 @@ import { getFilmCategoryLabel } from "@/lib/films/categories";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
+import { listCreatorWorkflows } from "@/lib/services/workflows";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { formatMonthYear } from "@/lib/utils";
@@ -35,9 +37,6 @@ export default async function DashboardPage() {
 
   try {
     const profile = await ensureProfileForUser(user);
-    const films = profile ? await listCreatorFilms(profile.id) : [];
-    const isAdmin = isAdminEmail(user.email);
-    const founderSince = formatMonthYear(profile?.foundingCreator.awardedAt ?? null);
 
     if (!profile) {
       return (
@@ -49,6 +48,13 @@ export default async function DashboardPage() {
         </section>
       );
     }
+
+    const [films, workflows] = await Promise.all([
+      listCreatorFilms(profile.id),
+      listCreatorWorkflows(profile.id),
+    ]);
+    const isAdmin = isAdminEmail(user.email);
+    const founderSince = formatMonthYear(profile.foundingCreator.awardedAt ?? null);
 
     return (
       <section className="container-shell py-14">
@@ -138,6 +144,34 @@ export default async function DashboardPage() {
           <div className="mt-8 border-t border-white/10 pt-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
+                <p className="display-kicker">Creative Workflows</p>
+                <h2 className="headline-lg mt-3">Saved workflow drafts and active production paths</h2>
+              </div>
+              <Button asChild variant="ghost" size="lg">
+                <Link href="/resources/starter-workflow">Build your first workflow</Link>
+              </Button>
+            </div>
+
+            {workflows.length === 0 ? (
+              <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
+                <p className="display-kicker">Workflow Builder</p>
+                <p className="title-md mt-3 text-foreground">No saved workflows yet</p>
+                <p className="body-sm mt-3">
+                  Build a workflow that fits how you actually make films, then keep refining it as the work moves toward release.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                {workflows.map((workflow) => (
+                  <SavedWorkflowCard key={workflow.id} workflow={workflow} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-8 border-t border-white/10 pt-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
                 <p className="display-kicker">Releases</p>
                 <h2 className="headline-lg mt-3">Drafts, poster-led pages, and published work</h2>
               </div>
@@ -171,10 +205,7 @@ export default async function DashboardPage() {
                   const moderationDescription = getModerationStatusDescription(film.moderationStatus, film.moderationReason);
 
                   return (
-                    <article
-                      key={film.id}
-                      className="rounded-[24px] border border-white/10 bg-white/5 p-5"
-                    >
+                    <article key={film.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div className="flex gap-4">
                           <div className="w-[120px] shrink-0">

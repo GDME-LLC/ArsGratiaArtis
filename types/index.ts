@@ -306,6 +306,60 @@ export type AdminFilmRow = {
   };
 };
 
+export type WorkflowGoalId =
+  | "first_short_film"
+  | "better_consistency"
+  | "cleaner_edit"
+  | "festival_ready_release"
+  | "social_teaser_campaign";
+
+export type WorkflowConstraintId =
+  | "beginner_friendly"
+  | "limited_budget"
+  | "fast_turnaround"
+  | "highest_quality"
+  | "solo_creator";
+
+export type WorkflowToolId =
+  | "midjourney"
+  | "runway"
+  | "kling"
+  | "sora"
+  | "premiere_pro"
+  | "davinci_resolve"
+  | "elevenlabs"
+  | "suno"
+  | "none_yet";
+
+export type WorkflowStepStatus = "not_started" | "in_progress" | "complete";
+
+export type WorkflowStepDraft = {
+  id: string;
+  stepNumber: number;
+  title: string;
+  description: string;
+  whyItMatters: string;
+  recommendedTools: WorkflowToolId[];
+  alternateTools: WorkflowToolId[];
+  status: WorkflowStepStatus;
+  notes: string;
+};
+
+export type SavedWorkflow = {
+  id: string;
+  creatorId: string;
+  title: string;
+  description: string | null;
+  goal: WorkflowGoalId;
+  constraints: WorkflowConstraintId[];
+  currentTools: WorkflowToolId[];
+  steps: WorkflowStepDraft[];
+  progressCount: number;
+  totalSteps: number;
+  status: "active" | "archived";
+  createdAt: string;
+  updatedAt: string;
+};
 export type FilmComment = {
   id: string;
   authorId: string;
