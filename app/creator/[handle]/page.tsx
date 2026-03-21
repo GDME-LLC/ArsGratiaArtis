@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { FollowButton } from "@/components/engagement/follow-button";
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
+import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { getPublicProfileByHandle } from "@/lib/profiles";
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: CreatorPageProps): Promise<Me
   const title = `${profile.displayName} (@${profile.handle}) | ArsGratia`;
   const description =
     profile.bio ||
-    `${profile.displayName} on ArsGratia${films.length > 0 ? ` Ã¢â‚¬â€ ${formatCountLabel(films.length, "public release")}` : "."}`;
+    `${profile.displayName} on ArsGratia${films.length > 0 ? ` ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ${formatCountLabel(films.length, "public release")}` : "."}`;
 
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
   const url = `${siteUrl}/creator/${profile.handle}`;
@@ -99,6 +100,8 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
   const { profile, films } = data;
   const founderSince = formatMonthYear(profile.foundingCreator.awardedAt);
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
+  const profileUrl = `${siteUrl}/creator/${profile.handle}`;
 
   return (
     <section className="container-shell py-14">
@@ -192,6 +195,11 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               >
                 Report profile
               </Link>
+              <ShareActions
+                url={profileUrl}
+                title={`${profile.displayName} on ArsGratia`}
+                className="pt-2 md:flex md:flex-col md:items-end"
+              />
             </div>
           </div>
 

@@ -6,6 +6,7 @@ import { FoundingCreatorBadge } from "@/components/founding/founding-creator-bad
 import { CommentList } from "@/components/comments/comment-list";
 import { LikeButton } from "@/components/engagement/like-button";
 import { FilmArtwork } from "@/components/films/film-artwork";
+import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
 import { getFilmArtworkUrl } from "@/lib/films/artwork";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
@@ -75,6 +76,8 @@ export default async function FilmPage({ params }: FilmPageProps) {
       : null;
   const moderationLabel = getModerationStatusLabel(data.moderationStatus);
   const moderationDescription = getModerationStatusDescription(data.moderationStatus, data.moderationReason);
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
+  const filmUrl = `${siteUrl}/film/${data.slug}`;
 
   return (
     <section className="container-shell py-16">
@@ -190,6 +193,11 @@ export default async function FilmPage({ params }: FilmPageProps) {
             >
               Report this film
             </Link>
+            <ShareActions
+              url={filmUrl}
+              title={`${data.title} by ${creatorName} | ArsGratia`}
+              className="mt-6"
+            />
           </div>
 
           {hasAnyProcessMaterial ? (
