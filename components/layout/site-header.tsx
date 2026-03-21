@@ -30,13 +30,14 @@ export async function SiteHeader() {
       <div className="container-shell py-3">
         <div className="flex min-h-14 items-center justify-between gap-4 sm:min-h-20 sm:gap-6">
           <div className="flex min-w-0 items-center gap-4">
-            <Link href="/" className="group min-w-0">
+            <Link href="/" className="group flex min-w-0 items-center">
               <Image
-                src="/brand/arsgratia-logo-white.png"
+                src="/brand/arsgratia-logo.png"
                 alt="ArsGratia"
-                width={1400}
-                height={520}
-                className="h-7 w-auto max-w-[180px] object-contain sm:h-9 sm:max-w-[220px]"
+                width={420}
+                height={180}
+                style={{ width: "auto" }}
+                className="h-10 w-auto object-contain sm:h-12"
                 priority
               />
             </Link>
