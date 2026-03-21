@@ -27,23 +27,23 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-xl">
-      <div className="container-shell py-3">
-        <div className="flex min-h-14 items-center justify-between gap-4 sm:min-h-20 sm:gap-6">
-          <div className="flex min-w-0 items-center gap-4">
-            <Link href="/" className="group flex min-w-0 items-center">
+      <div className="container-shell py-4 sm:py-5">
+        <div className="flex min-h-16 items-center justify-between gap-4 sm:min-h-20 sm:gap-6 lg:min-h-24">
+          <div className="flex min-w-0 flex-1 items-center">
+            <Link href="/" className="group flex min-w-0 items-center md:min-w-[280px] lg:min-w-[340px]">
               <Image
                 src="/brand/arsgratia-logo.png"
                 alt="ArsGratia"
-                width={420}
-                height={180}
+                width={320}
+                height={80}
                 style={{ width: "auto" }}
-                className="h-10 w-auto object-contain sm:h-12"
+                className="h-14 w-auto object-contain sm:h-[68px] lg:h-20"
                 priority
               />
             </Link>
           </div>
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden flex-1 items-center justify-center gap-6 lg:gap-8 md:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -55,7 +55,7 @@ export async function SiteHeader() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
             {user ? (
               <>
                 <Button asChild variant="ghost" className="hidden sm:inline-flex">
