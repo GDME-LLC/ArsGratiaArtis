@@ -95,10 +95,10 @@ export default async function DashboardPage() {
               {isAdmin ? (
                 <>
                   <Button asChild variant="ghost" size="lg">
-                    <Link href="/admin/films">Manage Films</Link>
+                    <Link href="/admin">Admin Tools</Link>
                   </Button>
                   <Button asChild variant="ghost" size="lg">
-                    <Link href="/admin/badges">Manage Badges</Link>
+                    <Link href="/admin/badges">Badge Management</Link>
                   </Button>
                 </>
               ) : null}
@@ -279,5 +279,7 @@ export default async function DashboardPage() {
     );
   }
 }
+
+
 
 

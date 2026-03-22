@@ -1,10 +1,10 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { AdminToolsNav } from "@/components/admin/admin-tools-nav";
 import { AdminFilmPanel } from "@/components/admin/admin-film-panel";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { StatePanel } from "@/components/shared/state-panel";
-import { Button } from "@/components/ui/button";
 import { getAdminUser } from "@/lib/admin";
 import { listAdminFilms } from "@/lib/admin-films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
@@ -32,20 +32,13 @@ export default async function AdminFilmsPage() {
 
     return (
       <SectionShell className="py-14 sm:py-16">
-        <div className="flex flex-wrap gap-3">
-          <Button asChild variant="ghost" size="lg">
-            <Link href="/dashboard">Back to Dashboard</Link>
-          </Button>
-          <Button asChild variant="ghost" size="lg">
-            <Link href="/admin/badges">Badges</Link>
-          </Button>
-        </div>
+        <AdminToolsNav current="films" />
 
         <div className="mt-6 max-w-3xl">
-          <p className="display-kicker">Admin</p>
-          <h1 className="headline-xl mt-4">Film management</h1>
+          <p className="display-kicker">Admin Tools</p>
+          <h1 className="headline-xl mt-4">Moderation tools</h1>
           <p className="body-lg mt-4">
-            A restrained admin surface for recent film review. This keeps status checks and emergency visibility actions close at hand without expanding into a full moderation console yet.
+            Review recent film records, check public status, and use controlled visibility actions when platform quality or safety needs a human hand.
           </p>
         </div>
 
@@ -65,4 +58,3 @@ export default async function AdminFilmsPage() {
     );
   }
 }
-

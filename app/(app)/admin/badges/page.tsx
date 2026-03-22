@@ -1,10 +1,9 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 
 import { AdminBadgePanel } from "@/components/admin/admin-badge-panel";
+import { AdminToolsNav } from "@/components/admin/admin-tools-nav";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { StatePanel } from "@/components/shared/state-panel";
-import { Button } from "@/components/ui/button";
 import { getAdminUser } from "@/lib/admin";
 import { getAdminBadgeOverview } from "@/lib/services/badges";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
@@ -31,18 +30,11 @@ export default async function AdminBadgesPage() {
 
     return (
       <SectionShell className="py-14 sm:py-16">
-        <div className="flex flex-wrap gap-3">
-          <Button asChild variant="ghost" size="lg">
-            <Link href="/dashboard">Back to Dashboard</Link>
-          </Button>
-          <Button asChild variant="ghost" size="lg">
-            <Link href="/admin/films">Film Management</Link>
-          </Button>
-        </div>
+        <AdminToolsNav current="badges" />
 
         <div className="mt-6 max-w-3xl">
-          <p className="display-kicker">Admin</p>
-          <h1 className="headline-xl mt-4">Creator Badges</h1>
+          <p className="display-kicker">Admin Tools</p>
+          <h1 className="headline-xl mt-4">Badge management</h1>
           <p className="body-lg mt-4">
             Manage curated creator distinctions, assign them cleanly, and keep public identity surfaces consistent across Theatres and releases.
           </p>
