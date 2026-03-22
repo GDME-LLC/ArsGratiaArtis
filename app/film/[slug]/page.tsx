@@ -82,7 +82,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
   const filmUrl = `${siteUrl}/film/${data.slug}`;
 
   return (
-    <section className="container-shell py-16">
+    <section className="container-shell py-12 sm:py-16">
       <div className="surface-panel cinema-frame overflow-hidden">
         {data.isOwner && data.moderationStatus !== "active" ? (
           <div className="border-b border-amber-500/25 bg-amber-500/10 px-6 py-4 text-sm text-amber-100 sm:px-10">
@@ -106,13 +106,13 @@ export default async function FilmPage({ params }: FilmPageProps) {
             </div>
           </div>
         )}
-        <div className="px-5 py-8 sm:px-10">
+        <div className="px-5 py-6 sm:px-10 sm:py-8">
           <p className="display-kicker">Film</p>
           <h1 className="headline-xl mt-4">{data.title}</h1>
           <p className="body-lg mt-4 max-w-3xl">
             {data.synopsis || "A release note will appear here when the creator publishes one."}
           </p>
-          <div className="mt-6 grid gap-6 border-t border-white/10 pt-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)]">
+          <div className="mt-5 grid gap-5 border-t border-white/10 pt-5 sm:mt-6 sm:gap-6 sm:pt-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)]">
             <div className="max-w-3xl">
               <p className="display-kicker">Description</p>
               <p className="body-sm mt-3">
@@ -120,7 +120,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
               </p>
             </div>
 
-            <aside className="min-w-0 rounded-[24px] border border-white/10 bg-white/5 p-5">
+            <aside className="min-w-0 rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
               <p className="display-kicker">About this release</p>
               <div className="mt-4 space-y-4">
                 <div>
@@ -203,7 +203,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
           </div>
 
           {data.attachedWorkflows.length > 0 ? (
-            <div className="mt-8 border-t border-white/10 pt-6">
+            <div className="mt-7 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
               <PublicWorkflowPanel
                 workflows={data.attachedWorkflows}
                 eyebrow="Attached Workflow"
@@ -214,9 +214,9 @@ export default async function FilmPage({ params }: FilmPageProps) {
           ) : null}
 
           {hasAnyProcessMaterial ? (
-            <div className="mt-8 border-t border-white/10 pt-6">
+            <div className="mt-7 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
+                <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
                   <p className="display-kicker">Tools behind the work</p>
                   <p className="mt-4 text-sm text-muted-foreground">{processSummary}</p>
                   <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
@@ -246,7 +246,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                   ) : null}
                 </article>
 
-                <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
+                <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
                   <p className="display-kicker">Workflow notes</p>
                   <p className="body-sm mt-4">
                     {data.creation.workflowNotes || "No workflow notes were shared for this release."}
@@ -267,9 +267,9 @@ export default async function FilmPage({ params }: FilmPageProps) {
             </div>
           ) : null}
 
-          <div className="mt-8 border-t border-white/10 pt-6">
+          <div className="mt-7 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
             <p className="display-kicker">Comments</p>
-            <div className="mt-4 grid gap-5">
+            <div className="mt-4 grid gap-4 sm:gap-5">
               <CommentForm filmId={data.id} signedIn={Boolean(user)} />
               <CommentList comments={comments} />
             </div>
@@ -279,3 +279,4 @@ export default async function FilmPage({ params }: FilmPageProps) {
     </section>
   );
 }
+

@@ -48,8 +48,8 @@ export default async function SettingsPage() {
     ]);
 
     return (
-      <section className="container-shell py-14 sm:py-20">
-        <div className="mb-6 flex flex-wrap gap-3">
+      <section className="container-shell py-12 sm:py-20">
+        <div className="mb-5 flex flex-wrap gap-2.5 sm:mb-6 sm:gap-3">
           <Button asChild variant="ghost" size="lg">
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
@@ -71,3 +71,4 @@ export default async function SettingsPage() {
     );
   }
 }
+

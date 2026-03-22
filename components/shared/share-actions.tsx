@@ -97,9 +97,9 @@ export function ShareActions({ url, title, className, heading = "Share" }: Share
   return (
     <div className={className}>
       <p className="display-kicker">{heading}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-1.5 sm:gap-2">
         {shareItems.map(({ href, label, Icon, external }) => (
-          <Button key={label} asChild variant="ghost" className="h-10 px-3 text-foreground/88">
+          <Button key={label} asChild variant="ghost" className="h-9 px-2.5 text-foreground/88 sm:h-10 sm:px-3">
             <a
               href={href}
               target={external ? "_blank" : undefined}
@@ -114,7 +114,7 @@ export function ShareActions({ url, title, className, heading = "Share" }: Share
         <Button
           type="button"
           variant="ghost"
-          className="h-10 px-3 text-foreground/88"
+          className="h-9 px-2.5 text-foreground/88 sm:h-10 sm:px-3"
           onClick={handleInstagramShare}
           aria-label="Share to Instagram"
           title="Share to Instagram"
@@ -124,7 +124,7 @@ export function ShareActions({ url, title, className, heading = "Share" }: Share
         <Button
           type="button"
           variant="ghost"
-          className="h-10 px-3 text-foreground/88"
+          className="h-9 px-2.5 text-foreground/88 sm:h-10 sm:px-3"
           onClick={handleCopy}
           aria-label={copied ? "Link copied" : "Copy link"}
           title={copied ? "Link copied" : "Copy link"}

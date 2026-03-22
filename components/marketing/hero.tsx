@@ -20,74 +20,74 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
     : null;
 
   return (
-    <section className="container-shell pt-5 sm:pt-6 lg:pt-7">
-      <div className="surface-panel cinema-frame relative overflow-hidden px-5 py-7 sm:px-8 sm:py-8 lg:px-11 lg:py-9">
+    <section className="container-shell pt-4 sm:pt-6 lg:pt-7">
+      <div className="surface-panel cinema-frame relative overflow-hidden px-5 py-6 sm:px-8 sm:py-8 lg:px-11 lg:py-9">
         <HeroBackgroundVideo />
         <div className="absolute inset-y-0 right-0 hidden w-[34%] bg-[radial-gradient(circle_at_center,rgba(199,166,106,0.08),transparent_60%)] lg:block" />
         <div className="absolute left-[8%] top-[14%] h-20 w-20 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute bottom-[10%] right-[18%] h-24 w-24 rounded-full bg-accent/10 blur-3xl" />
         <div className="absolute inset-x-0 top-0 h-px bg-white/10" />
         <div className="absolute right-5 top-5 hidden h-[calc(100%-2.5rem)] w-[27%] rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(14,14,18,0.64),rgba(8,8,12,0.34))] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.38)] backdrop-blur-[2px] lg:block">
-  {spotlightFilm ? (
-    <Link
-      href={`/film/${spotlightFilm.slug}`}
-      className="block h-full cursor-pointer transition hover:scale-[1.01]"
-    >
-      <div className="flex h-full flex-col justify-between rounded-[18px] border border-white/10 bg-black/26 p-4">
-        <div>
-          <p className="display-kicker">{spotlightLabel}</p>
-          <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
-            {spotlightFilm.title}
-          </p>
-          <p className="mt-3 text-sm text-foreground/72">
-            by {spotlightCreatorName}
-          </p>
-          <p className="mt-3 body-sm text-foreground/78">
-            {spotlightFilm.synopsis || "A newly published film on ArsGratia."}
-          </p>
-        </div>
+          {spotlightFilm ? (
+            <Link
+              href={`/film/${spotlightFilm.slug}`}
+              className="block h-full cursor-pointer transition hover:scale-[1.01]"
+            >
+              <div className="flex h-full flex-col justify-between rounded-[18px] border border-white/10 bg-black/26 p-4">
+                <div>
+                  <p className="display-kicker">{spotlightLabel}</p>
+                  <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
+                    {spotlightFilm.title}
+                  </p>
+                  <p className="mt-3 text-sm text-foreground/72">
+                    by {spotlightCreatorName}
+                  </p>
+                  <p className="mt-3 body-sm text-foreground/78">
+                    {spotlightFilm.synopsis || "A newly published film on ArsGratia."}
+                  </p>
+                </div>
 
-        <Button size="lg" className="self-start pointer-events-none">
-          Watch film
-        </Button>
-      </div>
-    </Link>
-  ) : (
-    <div className="flex h-full flex-col justify-between rounded-[18px] border border-white/10 bg-black/26 p-4">
-      <div>
-        <p className="display-kicker">First Release</p>
-        <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
-          The first public films published on ArsGratia will appear here.
-        </p>
-      </div>
-    </div>
-  )}
-</div>
+                <Button size="lg" className="pointer-events-none self-start">
+                  Watch film
+                </Button>
+              </div>
+            </Link>
+          ) : (
+            <div className="flex h-full flex-col justify-between rounded-[18px] border border-white/10 bg-black/26 p-4">
+              <div>
+                <p className="display-kicker">First Release</p>
+                <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
+                  The first public films published on ArsGratia will appear here.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="relative max-w-3xl lg:max-w-[58%]">
           <p className="display-kicker">{siteConfig.motto}</p>
-          <p className="eyebrow mt-2 text-foreground/86">Art, for art's sake</p>
-          <h1 className="hero-title mt-3.5 max-w-3xl text-balance">
+          <p className="eyebrow mt-1.5 text-foreground/86">Art, for art's sake</p>
+          <h1 className="hero-title mt-3 max-w-3xl text-balance">
             {siteConfig.heroTitle}
           </h1>
-          <p className="mt-3.5 max-w-2xl body-lg text-foreground/88">{siteConfig.heroDescription}</p>
+          <p className="mt-3 max-w-2xl body-lg text-foreground/88">{siteConfig.heroDescription}</p>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button asChild size="xl">
+          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
+            <Button asChild size="xl" className="w-full sm:w-auto">
               <Link href="/feed">Watch New Work</Link>
             </Button>
-            <Button asChild size="lg" variant="ghost">
+            <Button asChild size="lg" variant="ghost" className="w-full sm:w-auto">
               <Link href="/filmmakers">Browse Theatres</Link>
             </Button>
-            <Button asChild size="lg" variant="ghost">
+            <Button asChild size="lg" variant="ghost" className="w-full sm:w-auto">
               <Link href="/signup">Become a Creator</Link>
             </Button>
-            <Button asChild size="lg" variant="ghost">
+            <Button asChild size="lg" variant="ghost" className="w-full sm:w-auto">
               <Link href="/resources">Explore Resources</Link>
             </Button>
           </div>
 
-          <div className="mt-6 grid gap-3 border-t border-white/10 pt-3.5 sm:grid-cols-3">
+          <div className="mt-5 grid gap-3 border-t border-white/10 pt-3.5 sm:grid-cols-3">
             <div className="space-y-2 rounded-[18px] bg-black/16 p-3 backdrop-blur-[1px]">
               <p className="display-kicker">Films</p>
               <p className="title-md text-foreground">Present the work cinematically</p>
@@ -109,4 +109,3 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
     </section>
   );
 }
-

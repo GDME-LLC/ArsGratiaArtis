@@ -65,7 +65,7 @@
 
 @layer utilities {
   .container-shell {
-    @apply mx-auto w-full max-w-6xl px-5 md:px-8;
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8;
   }
 
   .text-balance {
@@ -73,35 +73,35 @@
   }
 
   .surface-panel {
-    @apply rounded-[28px] border border-white/10 bg-white/[0.045] backdrop-blur-xl;
+    @apply rounded-[26px] border border-white/10 bg-white/[0.045] backdrop-blur-xl sm:rounded-[28px];
   }
 
   .display-kicker {
-    @apply font-sans text-[0.7rem] font-medium uppercase tracking-[0.38em] text-primary/85;
+    @apply font-sans text-[0.68rem] font-medium uppercase tracking-[0.3em] text-primary/85 sm:text-[0.7rem] sm:tracking-[0.38em];
   }
 
   .hero-title {
-    @apply text-4xl font-semibold leading-[0.96] tracking-[-0.045em] sm:text-5xl lg:text-[3.5rem];
+    @apply text-[2.5rem] font-semibold leading-[0.98] tracking-[-0.045em] sm:text-5xl lg:text-[3.5rem];
   }
 
   .eyebrow {
-    @apply text-xs font-medium uppercase tracking-[0.32em] text-primary/80;
+    @apply text-[0.72rem] font-medium uppercase tracking-[0.26em] text-primary/80 sm:text-xs sm:tracking-[0.32em];
   }
 
   .headline-xl {
-    @apply text-3xl font-semibold leading-[1] tracking-[-0.04em] sm:text-4xl lg:text-5xl;
+    @apply text-[2.35rem] font-semibold leading-[0.98] tracking-[-0.04em] sm:text-4xl lg:text-5xl;
   }
 
   .headline-lg {
-    @apply text-2xl font-semibold leading-tight tracking-[-0.04em] sm:text-3xl lg:text-4xl;
+    @apply text-[1.85rem] font-semibold leading-tight tracking-[-0.04em] sm:text-3xl lg:text-4xl;
   }
 
   .title-md {
-    @apply text-lg font-semibold tracking-[-0.03em] sm:text-xl;
+    @apply text-[1.06rem] font-semibold tracking-[-0.03em] sm:text-xl;
   }
 
   .body-lg {
-    @apply text-base leading-7 text-muted-foreground sm:text-[1.05rem];
+    @apply text-[0.98rem] leading-7 text-muted-foreground sm:text-[1.05rem];
   }
 
   .body-sm {

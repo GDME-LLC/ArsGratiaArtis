@@ -7,23 +7,23 @@ import { exampleFilmStacks, resourceSections } from "@/lib/constants/resources";
 
 export default function ResourcesPage() {
   return (
-    <SectionShell className="py-14 sm:py-16">
-      <div className="surface-panel cinema-frame relative overflow-hidden px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
+    <SectionShell className="py-12 sm:py-16">
+      <div className="surface-panel cinema-frame relative overflow-hidden px-5 py-6 sm:px-8 sm:py-10 lg:px-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(199,166,106,0.12),transparent_30%),radial-gradient(circle_at_82%_16%,rgba(149,52,80,0.12),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_52%)]" />
 
-        <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.95fr)] lg:items-start">
-          <div>
+        <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.95fr)] lg:items-start lg:gap-8">
+          <div className="min-w-0">
             <PageIntro
               eyebrow="Resources"
               title="Practical guidance for choosing tools and finishing stronger work."
               description="Use these pages to pick tools with more intention, build a cleaner process, and move from visual tests toward finished releases. The aim is practical help, not endless software lists."
             />
 
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button asChild size="xl">
+            <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
+              <Button asChild size="xl" className="w-full sm:w-auto">
                 <Link href="/resources/starter-workflow">Build your first workflow</Link>
               </Button>
-              <Button asChild size="lg" variant="ghost">
+              <Button asChild size="lg" variant="ghost" className="w-full sm:w-auto">
                 <Link href="/resources/featured-tools">Review the tool picks</Link>
               </Button>
             </div>
@@ -31,7 +31,7 @@ export default function ResourcesPage() {
 
           <aside className="rounded-[24px] border border-white/10 bg-black/20 p-5 sm:p-6">
             <p className="display-kicker">How To Use This Page</p>
-            <div className="mt-4 space-y-5">
+            <div className="mt-4 space-y-4 sm:space-y-5">
               <div>
                 <p className="title-md text-foreground">Start with one clear need</p>
                 <p className="body-sm mt-2">
@@ -49,17 +49,17 @@ export default function ResourcesPage() {
         </div>
       </div>
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 lg:grid-cols-2 lg:gap-5">
         {resourceSections.map((section) => (
           <article
             key={section.href}
             className="surface-panel p-5 sm:p-6"
           >
             <p className="display-kicker">{section.eyebrow}</p>
-            <h2 className="headline-lg mt-3 text-foreground">{section.title}</h2>
-            <p className="body-lg mt-4">{section.description}</p>
-            <div className="mt-6">
-              <Button asChild variant="ghost" size="lg">
+            <h2 className="headline-lg mt-2.5 text-foreground">{section.title}</h2>
+            <p className="body-lg mt-3.5 max-w-2xl">{section.description}</p>
+            <div className="mt-5">
+              <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
                 <Link href={section.href}>{section.ctaLabel}</Link>
               </Button>
             </div>
@@ -67,15 +67,15 @@ export default function ResourcesPage() {
         ))}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-6">
         <div className="surface-panel p-5 sm:p-6">
           <p className="display-kicker">Example AI Film Stacks</p>
-          <h2 className="headline-lg mt-3 text-foreground">Example AI Film Stacks</h2>
-          <p className="body-lg mt-4">
+          <h2 className="headline-lg mt-2.5 text-foreground">Example AI Film Stacks</h2>
+          <p className="body-lg mt-3.5 max-w-3xl">
             A few practical tool combinations to help filmmakers move from idea to release without guessing at every stage.
           </p>
 
-          <div className="mt-6 grid gap-4 xl:grid-cols-3">
+          <div className="mt-5 grid gap-4 xl:grid-cols-3">
             {exampleFilmStacks.map((stack) => (
               <article
                 key={stack.name}
@@ -110,3 +110,4 @@ export default function ResourcesPage() {
     </SectionShell>
   );
 }
+

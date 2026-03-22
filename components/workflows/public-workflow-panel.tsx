@@ -15,14 +15,14 @@ export function PublicWorkflowPanel({ workflows, eyebrow = "Creative Workflows",
   }
 
   return (
-    <article className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 sm:p-7">
+    <article className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 sm:p-7">
       <p className="display-kicker">{eyebrow}</p>
       <h2 className="headline-lg mt-3 text-foreground">{title}</h2>
       <p className="body-sm mt-4 max-w-3xl">{description}</p>
 
-      <div className="mt-6 grid gap-5">
+      <div className="mt-5 grid gap-4 sm:mt-6 sm:gap-5">
         {workflows.map((workflow) => (
-          <div key={workflow.id} className="rounded-[24px] border border-white/10 bg-black/20 p-5 sm:p-6">
+          <div key={workflow.id} className="rounded-[24px] border border-white/10 bg-black/20 p-4 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="display-kicker">{getWorkflowGoalLabel(workflow.goal)}</p>
@@ -47,3 +47,4 @@ export function PublicWorkflowPanel({ workflows, eyebrow = "Creative Workflows",
     </article>
   );
 }
+

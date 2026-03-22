@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
@@ -34,7 +34,7 @@ function ReleaseSection({ eyebrow, title, description, films, href, ctaLabel }: 
   }
 
   return (
-    <SectionShell className="mt-7">
+    <SectionShell className="mt-6 sm:mt-7">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           <p className="eyebrow">{eyebrow}</p>
@@ -111,7 +111,7 @@ export default async function HomePage() {
       <Hero spotlightFilm={spotlightFilm} spotlightLabel={spotlightLabel} />
 
       {foundingCreators.length > 0 ? (
-        <SectionShell className="mt-7">
+        <SectionShell className="mt-6 sm:mt-7">
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] xl:items-start">
             <div>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -130,7 +130,7 @@ export default async function HomePage() {
                     <Link
                       key={creator.id}
                       href={`/creator/${creator.handle}`}
-                      className="surface-panel cinema-frame flex w-[min(84vw,19rem)] shrink-0 snap-start flex-col overflow-hidden p-5 sm:w-[18rem]"
+                      className="surface-panel cinema-frame flex w-[min(84vw,19rem)] shrink-0 snap-start flex-col overflow-hidden p-4 sm:w-[18rem] sm:p-5"
                     >
                       <div
                         className="h-36 rounded-[20px] border border-white/10 bg-white/5 bg-cover bg-center"
@@ -225,7 +225,7 @@ export default async function HomePage() {
       />
 
       {creatorsToWatch.length > 0 ? (
-        <SectionShell className="mt-7">
+        <SectionShell className="mt-6 sm:mt-7">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-2xl">
               <p className="eyebrow">Creators to Watch</p>
@@ -247,7 +247,7 @@ export default async function HomePage() {
                 return (
                   <article
                     key={creator.id}
-                    className="surface-panel cinema-frame w-[min(86vw,21rem)] shrink-0 snap-start overflow-hidden p-5 sm:w-[20rem]"
+                    className="surface-panel cinema-frame w-[min(86vw,21rem)] shrink-0 snap-start overflow-hidden p-4 sm:w-[20rem] sm:p-5"
                   >
                     <p className="display-kicker">Filmmaker</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -294,4 +294,5 @@ export default async function HomePage() {
     </div>
   );
 }
+
 

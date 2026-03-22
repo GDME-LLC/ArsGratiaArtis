@@ -189,8 +189,8 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
   }
 
   return (
-    <form className="surface-panel cinema-frame p-8 sm:p-10" onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+    <form className="surface-panel cinema-frame p-6 sm:p-10" onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-1">
           <p className="display-kicker">Creator Studio</p>
           <h1 className="headline-lg">Private workspace for your profile, workflows, and Theatre settings</h1>
@@ -208,7 +208,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-2">
         {studioSections.map((section) => (
           <Button key={section.id} asChild variant="ghost" size="lg">
             <a href={`#${section.id}`}>{section.label}</a>
@@ -216,8 +216,8 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
         ))}
       </div>
 
-      <div className="mt-8 grid gap-8">
-        <section id="profile" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
+      <div className="mt-6 grid gap-6 sm:mt-8 sm:gap-8">
+        <section id="profile" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-5 sm:p-8">
           <div className="space-y-1">
             <p className="display-kicker text-foreground/80">Profile</p>
             <h2 className="headline-sm text-foreground">Creator identity and public essentials</h2>
@@ -336,7 +336,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
           </label>
         </section>
 
-        <section id="workflows" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
+        <section id="workflows" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-5 sm:p-8">
           <div className="space-y-1">
             <p className="display-kicker text-foreground/80">Workflows</p>
             <h2 className="headline-sm text-foreground">Private workflow management and public visibility</h2>
@@ -347,7 +347,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
           <StudioWorkflowManager workflows={workflows} availableFilms={availableFilms} />
         </section>
 
-        <section id="following" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
+        <section id="following" className="grid gap-5 rounded-[28px] border border-white/10 bg-black/20 p-5 sm:p-8">
           <div className="space-y-1">
             <p className="display-kicker text-foreground/80">Following</p>
             <h2 className="headline-sm text-foreground">Followed creators will live here</h2>
@@ -360,7 +360,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
           </div>
         </section>
 
-        <section id="theatre-settings" className="rounded-[28px] border border-white/10 bg-black/20 p-6 sm:p-8">
+        <section id="theatre-settings" className="rounded-[28px] border border-white/10 bg-black/20 p-5 sm:p-8">
           <div className="space-y-2">
             <p className="display-kicker text-foreground/80">Theatre Settings</p>
             <h2 className="headline-sm text-foreground">Configure what the public Theatre shows and how it feels</h2>
@@ -369,7 +369,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
             </p>
           </div>
 
-          <div className="mt-8 grid gap-8">
+          <div className="mt-6 grid gap-6 sm:mt-8 sm:gap-8">
             <div className="grid gap-4">
               <div className="space-y-1">
                 <p className="display-kicker text-foreground/80">Theatre Style</p>
@@ -466,7 +466,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
                   </select>
                 </Field>
 
-                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
+                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 sm:p-5">
                   <p className="display-kicker text-foreground/80">Visible Sections</p>
                   <div className="mt-4 grid gap-3">
                     {theatreSectionDefinitions.map((section) => {
@@ -541,7 +541,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
           <Button type="submit" size="xl" disabled={isSaving || uploadInFlight}>
             {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save Studio Changes"}
           </Button>
@@ -576,3 +576,4 @@ const inputClassName =
   "h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition placeholder:text-muted-foreground/80 focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]";
 
 const selectClassName = "appearance-none pr-10";
+
