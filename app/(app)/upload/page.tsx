@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { FilmEditorForm } from "@/components/films/film-editor-form";
@@ -116,7 +116,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
               </p>
             </article>
             <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-              <p className="title-md text-foreground">Draft Workflow</p>
+              <p className="title-md text-foreground">Draft Release Path</p>
               <ol className="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">
                 <li>1. Create and save your film draft</li>
                 <li>2. Upload your video</li>
@@ -143,3 +143,4 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     );
   }
 }
+

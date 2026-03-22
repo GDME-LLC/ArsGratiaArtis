@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { StudioWorkflowManager } from "@/components/studio/studio-workflow-manager";
 import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { theatreStylePresetOrder, theatreStylePresets } from "@/lib/constants/theatre-style-presets";
@@ -14,12 +13,11 @@ import {
   THEATRE_OPENING_STATEMENT_LIMIT,
 } from "@/lib/theatre";
 import { cn } from "@/lib/utils";
-import type { CreatorFilmListItem, CreatorTheatreSettings, Profile, SavedWorkflow, TheatreSectionId } from "@/types";
+import type { CreatorFilmListItem, CreatorTheatreSettings, Profile, TheatreSectionId } from "@/types";
 
 type ProfileSettingsFormProps = {
   profile: Profile;
   availableFilms: CreatorFilmListItem[];
-  workflows: SavedWorkflow[];
 };
 
 type FormState = {
@@ -48,12 +46,11 @@ function formatFilmOptionLabel(film: CreatorFilmListItem) {
 
 const studioSections = [
   { id: "profile", label: "Profile" },
-  { id: "workflows", label: "Workflows" },
   { id: "following", label: "Following" },
   { id: "theatre-settings", label: "Theatre Settings" },
 ] as const;
 
-export function ProfileSettingsForm({ profile, availableFilms, workflows }: ProfileSettingsFormProps) {
+export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettingsFormProps) {
   const [form, setForm] = useState<FormState>({
     handle: profile.handle,
     display_name: profile.displayName,
@@ -193,9 +190,9 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
       <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2 sm:space-y-1">
           <p className="display-kicker">Creator Studio</p>
-          <h1 className="headline-lg text-balance">Private workspace for your profile, workflows, and Theatre settings</h1>
+          <h1 className="headline-lg text-balance">Private workspace for your profile and Theatre settings</h1>
           <p className="body-sm max-w-3xl">
-            Manage the creator identity behind the scenes, shape what appears publicly on your Theatre, and keep workflows private until you decide they should be shown.
+            Manage your creator identity behind the scenes and shape what appears publicly on your Theatre without turning ArsGratia into a creation suite.
           </p>
         </div>
         <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-start sm:gap-3">
@@ -226,125 +223,34 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
             <Field label="Handle">
-              <input
-                value={form.handle}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    handle: event.target.value.toLowerCase(),
-                  }))
-                }
-                className={inputClassName}
-                placeholder="yourhandle"
-              />
+              <input value={form.handle} onChange={(event) => setForm((current) => ({ ...current, handle: event.target.value.toLowerCase() }))} className={inputClassName} placeholder="yourhandle" />
             </Field>
-
             <Field label="Display name">
-              <input
-                value={form.display_name}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    display_name: event.target.value,
-                  }))
-                }
-                className={inputClassName}
-                placeholder="Your name"
-              />
+              <input value={form.display_name} onChange={(event) => setForm((current) => ({ ...current, display_name: event.target.value }))} className={inputClassName} placeholder="Your name" />
             </Field>
           </div>
 
           <Field label="Bio">
-            <textarea
-              value={form.bio}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  bio: event.target.value,
-                }))
-              }
-              className={cn(inputClassName, "min-h-28 py-3 sm:min-h-32")}
-              placeholder="Short profile bio"
-            />
+            <textarea value={form.bio} onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))} className={cn(inputClassName, "min-h-28 py-3 sm:min-h-32")} placeholder="Short profile bio" />
           </Field>
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
             <Field label="Avatar">
-              <ImageUploadField
-                entityType="profile"
-                field="avatar"
-                value={form.avatar_url}
-                onChange={(nextValue) =>
-                  setForm((current) => ({
-                    ...current,
-                    avatar_url: nextValue,
-                  }))
-                }
-                onUploadingChange={setIsAvatarUploading}
-                label="Creator avatar"
-                aspectRatio="square"
-                helperText="Shown on Theatre pages, film credits, and creator references across ArsGratia."
-              />
+              <ImageUploadField entityType="profile" field="avatar" value={form.avatar_url} onChange={(nextValue) => setForm((current) => ({ ...current, avatar_url: nextValue }))} onUploadingChange={setIsAvatarUploading} label="Creator avatar" aspectRatio="square" helperText="Shown on Theatre pages, film credits, and creator references across ArsGratia." />
             </Field>
-
             <Field label="Banner">
-              <ImageUploadField
-                entityType="profile"
-                field="banner"
-                value={form.banner_url}
-                onChange={(nextValue) =>
-                  setForm((current) => ({
-                    ...current,
-                    banner_url: nextValue,
-                  }))
-                }
-                onUploadingChange={setIsBannerUploading}
-                label="Creator banner"
-                aspectRatio="banner"
-                helperText="Used as the fallback atmosphere for the public Theatre when no hero visual is selected."
-              />
+              <ImageUploadField entityType="profile" field="banner" value={form.banner_url} onChange={(nextValue) => setForm((current) => ({ ...current, banner_url: nextValue }))} onUploadingChange={setIsBannerUploading} label="Creator banner" aspectRatio="banner" helperText="Used as the fallback atmosphere for the public Theatre when no hero visual is selected." />
             </Field>
           </div>
 
           <Field label="Website URL">
-            <input
-              value={form.website_url}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  website_url: event.target.value,
-                }))
-              }
-              className={inputClassName}
-              placeholder="https://..."
-            />
+            <input value={form.website_url} onChange={(event) => setForm((current) => ({ ...current, website_url: event.target.value }))} className={inputClassName} placeholder="https://..." />
           </Field>
 
           <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-6 text-foreground sm:items-center">
-            <input
-              type="checkbox"
-              checked={form.is_creator}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  is_creator: event.target.checked,
-                }))
-              }
-              className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--primary))] sm:mt-0"
-            />
+            <input type="checkbox" checked={form.is_creator} onChange={(event) => setForm((current) => ({ ...current, is_creator: event.target.checked }))} className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--primary))] sm:mt-0" />
             <span>Show me as a creator on the platform</span>
           </label>
-        </section>
-
-        <section id="workflows" className="grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
-          <div className="space-y-2 sm:space-y-1">
-            <p className="display-kicker text-foreground/80">Workflows</p>
-            <h2 className="headline-sm text-foreground">Private workflow management and public visibility</h2>
-            <p className="body-sm max-w-3xl">
-              Save workflows privately by default, then decide whether any of them belong on your Theatre or on a specific film page in read-only form.
-            </p>
-          </div>
-          <StudioWorkflowManager workflows={workflows} availableFilms={availableFilms} />
         </section>
 
         <section id="following" className="grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
@@ -365,7 +271,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
             <p className="display-kicker text-foreground/80">Theatre Settings</p>
             <h2 className="headline-sm text-foreground">Configure what the public Theatre shows and how it feels</h2>
             <p className="body-sm max-w-3xl">
-              The Theatre is your public-facing stage. These controls affect presentation, section visibility, and the mood of the shareable page without turning it into a template editor.
+              The Theatre is your public-facing stage. These controls affect presentation, section visibility, and the mood of the shareable page without turning ArsGratia into a template editor.
             </p>
           </div>
 
@@ -381,17 +287,7 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
                   const selected = form.theatre_settings.stylePreset === presetId;
 
                   return (
-                    <button
-                      key={presetId}
-                      type="button"
-                      onClick={() => updateTheatreSettings((current) => ({ ...current, stylePreset: presetId }))}
-                      className={cn(
-                        "rounded-[24px] border p-4 text-left transition",
-                        "bg-white/[0.035] hover:bg-white/[0.06]",
-                        preset.panelClass,
-                        selected ? "ring-1 ring-[hsl(var(--primary))]" : "border-white/10",
-                      )}
-                    >
+                    <button key={presetId} type="button" onClick={() => updateTheatreSettings((current) => ({ ...current, stylePreset: presetId }))} className={cn("rounded-[24px] border p-4 text-left transition", "bg-white/[0.035] hover:bg-white/[0.06]", preset.panelClass, selected ? "ring-1 ring-[hsl(var(--primary))]" : "border-white/10")}>
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className={cn("display-kicker text-[0.64rem]", preset.eyebrowClass)}>{preset.label}</p>
@@ -408,60 +304,23 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
               <div className="grid gap-5">
                 <Field label="Hero Visual" helperText="Set a screening-banner image at the top of your Theatre.">
-                  <ImageUploadField
-                    entityType="profile"
-                    field="hero"
-                    value={form.theatre_settings.heroImageUrl ?? ""}
-                    onChange={(nextValue) =>
-                      updateTheatreSettings((current) => ({
-                        ...current,
-                        heroImageUrl: nextValue || null,
-                      }))
-                    }
-                    onUploadingChange={setIsHeroUploading}
-                    label="Theatre hero visual"
-                    aspectRatio="banner"
-                    helperText="A wide hero image that sits above the Theatre title block."
-                  />
+                  <ImageUploadField entityType="profile" field="hero" value={form.theatre_settings.heroImageUrl ?? ""} onChange={(nextValue) => updateTheatreSettings((current) => ({ ...current, heroImageUrl: nextValue || null }))} onUploadingChange={setIsHeroUploading} label="Theatre hero visual" aspectRatio="banner" helperText="A wide hero image that sits above the Theatre title block." />
                 </Field>
 
                 <Field label="Opening Statement" helperText="A short line to set the tone of your Theatre.">
                   <div className="grid gap-2">
-                    <textarea
-                      value={form.theatre_settings.openingStatement ?? ""}
-                      onChange={(event) =>
-                        updateTheatreSettings((current) => ({
-                          ...current,
-                          openingStatement: event.target.value.slice(0, THEATRE_OPENING_STATEMENT_LIMIT),
-                        }))
-                      }
-                      className={cn(inputClassName, "min-h-24 py-3")}
-                      placeholder="A precise line that introduces the space."
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      {openingStatementLength}/{THEATRE_OPENING_STATEMENT_LIMIT}
-                    </p>
+                    <textarea value={form.theatre_settings.openingStatement ?? ""} onChange={(event) => updateTheatreSettings((current) => ({ ...current, openingStatement: event.target.value.slice(0, THEATRE_OPENING_STATEMENT_LIMIT) }))} className={cn(inputClassName, "min-h-24 py-3")} placeholder="A precise line that introduces the space." />
+                    <p className="text-xs text-muted-foreground">{openingStatementLength}/{THEATRE_OPENING_STATEMENT_LIMIT}</p>
                   </div>
                 </Field>
               </div>
 
               <div className="grid gap-5">
                 <Field label="Featured Work" helperText="Choose a release to spotlight near the opening of your Theatre.">
-                  <select
-                    value={form.theatre_settings.featuredFilmId ?? ""}
-                    onChange={(event) =>
-                      updateTheatreSettings((current) => ({
-                        ...current,
-                        featuredFilmId: event.target.value || null,
-                      }))
-                    }
-                    className={cn(inputClassName, selectClassName)}
-                  >
+                  <select value={form.theatre_settings.featuredFilmId ?? ""} onChange={(event) => updateTheatreSettings((current) => ({ ...current, featuredFilmId: event.target.value || null }))} className={cn(inputClassName, selectClassName)}>
                     <option value="">No featured work selected</option>
                     {availableFilms.map((film) => (
-                      <option key={film.id} value={film.id}>
-                        {formatFilmOptionLabel(film)}
-                      </option>
+                      <option key={film.id} value={film.id}>{formatFilmOptionLabel(film)}</option>
                     ))}
                   </select>
                 </Field>
@@ -471,15 +330,9 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
                   <div className="mt-4 grid gap-3">
                     {theatreSectionDefinitions.map((section) => {
                       const checked = form.theatre_settings.visibleSections.includes(section.id);
-
                       return (
                         <label key={section.id} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => toggleSection(section.id)}
-                            className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]"
-                          />
+                          <input type="checkbox" checked={checked} onChange={() => toggleSection(section.id)} className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]" />
                           <span>
                             <span className="block text-foreground">{section.label}</span>
                             <span className="mt-1 block text-muted-foreground">{section.description}</span>
@@ -503,24 +356,8 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
                       <p className="mt-1 text-sm leading-6 text-muted-foreground">{section.description}</p>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="h-10 px-4"
-                        disabled={index === 0}
-                        onClick={() => moveSection(section.id, -1)}
-                      >
-                        Move up
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="h-10 px-4"
-                        disabled={index === orderedSections.length - 1}
-                        onClick={() => moveSection(section.id, 1)}
-                      >
-                        Move down
-                      </Button>
+                      <Button type="button" variant="ghost" className="h-10 px-4" disabled={index === 0} onClick={() => moveSection(section.id, -1)}>Move up</Button>
+                      <Button type="button" variant="ghost" className="h-10 px-4" disabled={index === orderedSections.length - 1} onClick={() => moveSection(section.id, 1)}>Move down</Button>
                     </div>
                   </div>
                 ))}
@@ -529,40 +366,21 @@ export function ProfileSettingsForm({ profile, availableFilms, workflows }: Prof
           </div>
         </section>
 
-        {error ? (
-          <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error}
-          </div>
-        ) : null}
-
-        {success ? (
-          <div className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
-            {success}
-          </div>
-        ) : null}
+        {error ? <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
+        {success ? <div className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">{success}</div> : null}
 
         <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
           <Button type="submit" size="xl" className="w-full sm:w-auto" disabled={isSaving || uploadInFlight}>
             {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save Studio Changes"}
           </Button>
-          <p className="body-sm break-all sm:break-normal">
-            Public Theatre URL: <span className="text-foreground">/creator/{form.handle || "yourhandle"}</span>
-          </p>
+          <p className="body-sm break-all sm:break-normal">Public Theatre URL: <span className="text-foreground">/creator/{form.handle || "yourhandle"}</span></p>
         </div>
       </div>
     </form>
   );
 }
 
-function Field({
-  label,
-  helperText,
-  children,
-}: {
-  label: string;
-  helperText?: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, helperText, children }: { label: string; helperText?: string; children: React.ReactNode }) {
   return (
     <label className="grid gap-2">
       <span className="display-kicker text-[0.68rem] text-foreground/85">{label}</span>
@@ -572,7 +390,5 @@ function Field({
   );
 }
 
-const inputClassName =
-  "h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition placeholder:text-muted-foreground/80 focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]";
-
+const inputClassName = "h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition placeholder:text-muted-foreground/80 focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]";
 const selectClassName = "appearance-none pr-10";

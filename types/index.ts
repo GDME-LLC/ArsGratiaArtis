@@ -17,7 +17,7 @@ export type TheatreStylePresetId =
   | "ember"
   | "obsidian";
 
-export type TheatreSectionId = "about" | "featured_work" | "workflows" | "releases" | "links";
+export type TheatreSectionId = "about" | "featured_work" | "releases" | "links";
 
 export type CreatorTheatreSettings = {
   stylePreset: TheatreStylePresetId;
@@ -174,77 +174,6 @@ export type PublicFilmCard = {
   publishedAt: string | null;
 };
 
-export type WorkflowGoalId =
-  | "first_short_film"
-  | "better_consistency"
-  | "cleaner_edit"
-  | "festival_ready_release"
-  | "social_teaser_campaign";
-
-export type WorkflowConstraintId =
-  | "beginner_friendly"
-  | "limited_budget"
-  | "fast_turnaround"
-  | "highest_quality"
-  | "solo_creator";
-
-export type WorkflowToolId =
-  | "midjourney"
-  | "runway"
-  | "kling"
-  | "sora"
-  | "premiere_pro"
-  | "davinci_resolve"
-  | "elevenlabs"
-  | "suno"
-  | "none_yet";
-
-export type WorkflowStepStatus = "not_started" | "in_progress" | "complete";
-export type WorkflowVisibilityScope = "private" | "theatre" | "film_page" | "theatre_and_film";
-
-export type WorkflowStepDraft = {
-  id: string;
-  stepNumber: number;
-  title: string;
-  description: string;
-  whyItMatters: string;
-  recommendedTools: WorkflowToolId[];
-  alternateTools: WorkflowToolId[];
-  status: WorkflowStepStatus;
-  notes: string;
-};
-
-export type SavedWorkflow = {
-  id: string;
-  creatorId: string;
-  title: string;
-  description: string | null;
-  goal: WorkflowGoalId;
-  constraints: WorkflowConstraintId[];
-  currentTools: WorkflowToolId[];
-  steps: WorkflowStepDraft[];
-  progressCount: number;
-  totalSteps: number;
-  status: "active" | "archived";
-  visibilityScope: WorkflowVisibilityScope;
-  attachedFilmId: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type PublicWorkflow = {
-  id: string;
-  title: string;
-  description: string | null;
-  goal: WorkflowGoalId;
-  steps: WorkflowStepDraft[];
-  progressCount: number;
-  totalSteps: number;
-  visibilityScope: Exclude<WorkflowVisibilityScope, "private">;
-  attachedFilmId: string | null;
-  updatedAt: string;
-};
-
 export type FilmEditorValues = {
   id: string;
   title: string;
@@ -315,7 +244,6 @@ export type PublicFilmPageData = {
   moderationStatus: ModerationStatus;
   moderationReason: string | null;
   reviewedAt: string | null;
-  attachedWorkflows: PublicWorkflow[];
 };
 
 export type PublicSeriesPageData = {
@@ -454,3 +382,5 @@ export type FilmComment = {
   isDeleted: boolean;
   createdAt: string;
 };
+
+

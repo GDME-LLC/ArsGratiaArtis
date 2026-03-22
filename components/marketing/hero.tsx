@@ -101,7 +101,7 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
             <div className="space-y-2 rounded-[18px] bg-black/16 p-3 backdrop-blur-[1px]">
               <p className="display-kicker">Resources</p>
               <p className="title-md text-foreground">Tie process to finished work</p>
-              <p className="body-sm text-foreground/78">Surface tools and references that deepen how viewers engage with the film.</p>
+              <p className="body-sm text-foreground/78">Discover tools, education, and communities that support the wider AI cinema ecosystem.</p>
             </div>
           </div>
         </div>
@@ -109,3 +109,4 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
     </section>
   );
 }
+

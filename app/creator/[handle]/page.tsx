@@ -9,9 +9,7 @@ import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
-import { PublicWorkflowPanel } from "@/components/workflows/public-workflow-panel";
 import { getPublicProfileByHandle } from "@/lib/profiles";
-import { listPublicTheatreWorkflows } from "@/lib/services/workflows";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { getOrderedVisibleTheatreSections, getTheatreStylePreset } from "@/lib/theatre";
 import { cn, formatCountLabel, formatFollowerCount, formatMonthYear } from "@/lib/utils";
@@ -112,16 +110,11 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   const featuredFilm = theatreSettings.featuredFilmId
     ? films.find((film) => film.id === theatreSettings.featuredFilmId) ?? null
     : null;
-  const publicWorkflows = await listPublicTheatreWorkflows(profile.id);
   const showCreatorFollowPrompt = !profile.isCurrentUser && !profile.viewerCanFollow;
   const creatorFollowCtaHref = profile.viewerIsSignedIn ? "/settings#profile" : "/signup";
   const visibleSections = getOrderedVisibleTheatreSections(theatreSettings).filter((sectionId) => {
     if (sectionId === "featured_work") {
       return Boolean(featuredFilm);
-    }
-
-    if (sectionId === "workflows") {
-      return publicWorkflows.length > 0;
     }
 
     if (sectionId === "releases") {
@@ -230,19 +223,10 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     </p>
                   ) : null}
                   <div className="mt-4 space-y-2 text-sm leading-6 text-white/72 sm:mt-5">
-                    <p>
-                      <span className="text-white">{formatFollowerCount(profile.followerCount)}</span>
-                    </p>
-                    <p>
-                      Filmmaker status: <span className="text-white">{profile.isCreator ? "Public filmmaker" : "Viewer"}</span>
-                    </p>
+                    <p><span className="text-white">{formatFollowerCount(profile.followerCount)}</span></p>
+                    <p>Filmmaker status: <span className="text-white">{profile.isCreator ? "Public filmmaker" : "Viewer"}</span></p>
                   </div>
-                  <ShareActions
-                    url={theatreUrl}
-                    title={`${profile.displayName} on ArsGratia`}
-                    heading="Share Theatre"
-                    className="mt-5 sm:mt-6"
-                  />
+                  <ShareActions url={theatreUrl} title={`${profile.displayName} on ArsGratia`} heading="Share Theatre" className="mt-5 sm:mt-6" />
                 </div>
               </div>
             </div>
@@ -272,9 +256,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                         <div className="min-w-0 flex-1">
                           <p className={cn("display-kicker", preset.eyebrowClass)}>Featured Work</p>
                           <h2 className="headline-lg mt-3 break-words text-foreground">{featuredFilm.title}</h2>
-                          <p className="body-sm mt-3 max-w-3xl sm:mt-4">
-                            {featuredFilm.synopsis || "A spotlighted release from this Theatre."}
-                          </p>
+                          <p className="body-sm mt-3 max-w-3xl sm:mt-4">{featuredFilm.synopsis || "A spotlighted release from this Theatre."}</p>
                           <div className="mt-4 flex flex-wrap gap-3 sm:mt-5">
                             <Button asChild size="lg">
                               <Link href={`/film/${featuredFilm.slug}`}>Open Release</Link>
@@ -286,26 +268,13 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                   );
                 }
 
-                if (sectionId === "workflows") {
-                  return (
-                    <PublicWorkflowPanel
-                      key={sectionId}
-                      workflows={publicWorkflows}
-                      title="Selected workflows from the Studio"
-                      description="These workflows are shared in read-only form to show how the creator structures the work behind the Theatre."
-                    />
-                  );
-                }
-
                 if (sectionId === "releases") {
                   return (
                     <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
                       <div className="flex flex-col gap-3.5 sm:gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className={cn("display-kicker", preset.eyebrowClass)}>Theatre Presentation</p>
-                          <h2 className="headline-lg mt-3 text-foreground">
-                            {formatCountLabel(films.length, "public release")}
-                          </h2>
+                          <h2 className="headline-lg mt-3 text-foreground">{formatCountLabel(films.length, "public release")}</h2>
                         </div>
                         {profile.isCurrentUser ? (
                           <Button asChild variant="ghost" size="lg" className={preset.buttonVariantClass}>
@@ -325,18 +294,10 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
                       <p className={cn("display-kicker", preset.eyebrowClass)}>Links</p>
                       <div className="mt-4 flex flex-col gap-3 text-sm text-foreground">
-                        <a
-                          href={profile.websiteUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex w-fit items-center gap-2 break-all underline decoration-white/20 underline-offset-4"
-                        >
+                        <a href={profile.websiteUrl} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 break-all underline decoration-white/20 underline-offset-4">
                           Visit website
                         </a>
-                        <Link
-                          href={`/report?type=creator&handle=${profile.handle}`}
-                          className="inline-flex w-fit items-center gap-2 underline decoration-white/20 underline-offset-4"
-                        >
+                        <Link href={`/report?type=creator&handle=${profile.handle}`} className="inline-flex w-fit items-center gap-2 underline decoration-white/20 underline-offset-4">
                           Report profile
                         </Link>
                       </div>

@@ -6,7 +6,6 @@ import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
-import { listCreatorWorkflows } from "@/lib/services/workflows";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
@@ -42,10 +41,7 @@ export default async function SettingsPage() {
       );
     }
 
-    const [availableFilms, workflows] = await Promise.all([
-      listCreatorFilms(profile.id),
-      listCreatorWorkflows(profile.id),
-    ]);
+    const availableFilms = await listCreatorFilms(profile.id);
 
     return (
       <section className="container-shell py-8 sm:py-12 lg:py-16">
@@ -57,7 +53,7 @@ export default async function SettingsPage() {
             <Link href={`/creator/${profile.handle}`}>My Theatre</Link>
           </Button>
         </div>
-        <ProfileSettingsForm profile={profile} availableFilms={availableFilms} workflows={workflows} />
+        <ProfileSettingsForm profile={profile} availableFilms={availableFilms} />
       </section>
     );
   } catch (error) {

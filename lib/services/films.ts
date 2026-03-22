@@ -17,7 +17,6 @@ import {
   getCreatorBadgesByProfileIds,
 } from "@/lib/services/badges";
 import { getFilmCommentCounts } from "@/lib/services/comments";
-import { listPublicFilmWorkflows } from "@/lib/services/workflows";
 import { normalizeSlug } from "@/lib/films/slug";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -428,12 +427,11 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     return null;
   }
 
-  const [commentCounts, likeCounts, likedIds, attachedWorkflows] = await Promise.all([
-    getFilmCommentCounts([data.id]),
-    getFilmLikeCounts([data.id]),
-    getViewerLikedFilmIds([data.id], user?.id),
-    listPublicFilmWorkflows(data.id),
-  ]);
+  const [commentCounts, likeCounts, likedIds] = await Promise.all([
+  getFilmCommentCounts([data.id]),
+  getFilmLikeCounts([data.id]),
+  getViewerLikedFilmIds([data.id], user?.id),
+]);
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
@@ -593,8 +591,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     isOwner,
     moderationStatus: data.moderation_status ?? "active",
     moderationReason: data.moderation_reason ?? null,
-    reviewedAt: data.reviewed_at ?? null,
-    attachedWorkflows,
+    reviewedAt: data.reviewed_at ?? null
   };
 }
 async function hydratePublicFilmCards(
@@ -884,6 +881,9 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
+
+
+
 
 
 

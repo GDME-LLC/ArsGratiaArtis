@@ -1,4 +1,4 @@
-import { theatreStylePresets, type TheatreStylePresetDefinition } from "@/lib/constants/theatre-style-presets";
+﻿import { theatreStylePresets, type TheatreStylePresetDefinition } from "@/lib/constants/theatre-style-presets";
 import type { CreatorTheatreSettings, TheatreSectionId, TheatreStylePresetId } from "@/types";
 
 export const THEATRE_OPENING_STATEMENT_LIMIT = 160;
@@ -17,11 +17,6 @@ export const theatreSectionDefinitions: Array<{
     id: "featured_work",
     label: "Featured Work",
     description: "A single spotlighted release placed near the opening of the Theatre.",
-  },
-  {
-    id: "workflows",
-    label: "Workflows",
-    description: "Selected public workflows shown in a read-only presentation.",
   },
   {
     id: "releases",
@@ -91,17 +86,9 @@ export function normalizeTheatreSettings(value: unknown): CreatorTheatreSettings
   const featuredFilmId = typeof source.featuredFilmId === "string" && source.featuredFilmId.trim()
     ? source.featuredFilmId
     : null;
-  const visibleSections = normalizeSectionIds(
-    source.visibleSections,
-    defaultTheatreSettings.visibleSections,
-  );
-  const orderedSections = normalizeSectionIds(
-    source.sectionOrder,
-    defaultTheatreSettings.sectionOrder,
-  );
-  const missingSections = theatreSectionDefinitions
-    .map((section) => section.id)
-    .filter((sectionId) => !orderedSections.includes(sectionId));
+  const visibleSections = normalizeSectionIds(source.visibleSections, defaultTheatreSettings.visibleSections);
+  const orderedSections = normalizeSectionIds(source.sectionOrder, defaultTheatreSettings.sectionOrder);
+  const missingSections = theatreSectionDefinitions.map((section) => section.id).filter((sectionId) => !orderedSections.includes(sectionId));
 
   return {
     stylePreset,

@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { FilmArtwork } from "@/components/films/film-artwork";
 import { StatePanel } from "@/components/shared/state-panel";
-import { SavedWorkflowCard } from "@/components/workflows/saved-workflow-card";
 import { Button } from "@/components/ui/button";
 import { hasAdminAccess } from "@/lib/admin";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
@@ -12,7 +11,6 @@ import { getFilmCategoryLabel } from "@/lib/films/categories";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
-import { listCreatorWorkflows } from "@/lib/services/workflows";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { formatMonthYear } from "@/lib/utils";
@@ -49,10 +47,7 @@ export default async function DashboardPage() {
       );
     }
 
-    const [films, workflows] = await Promise.all([
-      listCreatorFilms(profile.id),
-      listCreatorWorkflows(profile.id),
-    ]);
+    const films = await listCreatorFilms(profile.id);
     const isAdmin = await hasAdminAccess(user);
     const founderSince = formatMonthYear(profile.foundingCreator.awardedAt ?? null);
 
@@ -92,6 +87,9 @@ export default async function DashboardPage() {
               <Button asChild variant="ghost" size="lg">
                 <Link href={`/creator/${profile.handle}`}>My Theatre</Link>
               </Button>
+              <Button asChild variant="ghost" size="lg">
+                <Link href="/resources">Explore Resources</Link>
+              </Button>
               {isAdmin ? (
                 <Button asChild variant="ghost" size="lg">
                   <Link href="/admin">Admin Tools</Link>
@@ -105,19 +103,15 @@ export default async function DashboardPage() {
               <p className="display-kicker">Creator Studio</p>
               <p className="title-md mt-3 text-foreground">@{profile.handle}</p>
               <p className="body-sm mt-3">
-                Edit your personal info, manage workflows, and control publishing access in Creator Studio. The profile you set up here is what audiences see on your Theatre page and release pages, so make it count.
+                Edit your public identity, fine-tune your Theatre presentation, and manage publishing access in Creator Studio.
               </p>
             </article>
 
             <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">My Theatre</p>
-              <p className="title-md mt-3 text-foreground">
-                {profile.isCreator ? "Publishing tools enabled" : "Account active, publishing access pending"}
-              </p>
+              <p className="display-kicker">Resources</p>
+              <p className="title-md mt-3 text-foreground">Curated ecosystem guide</p>
               <p className="body-sm mt-3">
-                {profile.isCreator
-                  ? "Set preferences for your filmmaker page, review published releases, and share your work with the world."
-                  : "New accounts can sign in immediately, while creator publishing access is enabled separately in smaller groups."}
+                Discover popular tools, educational hubs, communities, and references without turning ArsGratia into a creation suite.
               </p>
             </article>
 
@@ -139,29 +133,21 @@ export default async function DashboardPage() {
           <div className="mt-8 border-t border-white/10 pt-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="display-kicker">Creative Workflows</p>
-                <h2 className="headline-lg mt-3">Saved workflow drafts and active production paths</h2>
+                <p className="display-kicker">Resources</p>
+                <h2 className="headline-lg mt-3">A curated guide to the wider ecosystem</h2>
               </div>
               <Button asChild variant="ghost" size="lg">
-                <Link href="/resources/starter-workflow">Build your first workflow</Link>
+                <Link href="/resources">Open Resources</Link>
               </Button>
             </div>
 
-            {workflows.length === 0 ? (
-              <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
-                <p className="display-kicker">Workflow Builder</p>
-                <p className="title-md mt-3 text-foreground">No saved workflows yet</p>
-                <p className="body-sm mt-3">
-                  Build a workflow that fits how you actually make films, then keep refining it inside Creator Studio as the work moves toward release.
-                </p>
-              </div>
-            ) : (
-              <div className="mt-6 grid gap-4 lg:grid-cols-2">
-                {workflows.map((workflow) => (
-                  <SavedWorkflowCard key={workflow.id} workflow={workflow} />
-                ))}
-              </div>
-            )}
+            <div className="mt-6 rounded-[24px] border border-white/10 bg-black/20 p-6">
+              <p className="display-kicker">Outside the platform</p>
+              <p className="title-md mt-3 text-foreground">Find tools, learning, and communities without losing the focus on presentation.</p>
+              <p className="body-sm mt-3">
+                ArsGratia is where creators and films are presented. The Resources page helps you discover the surrounding ecosystem of platforms that support learning, production, and discovery across AI cinema.
+              </p>
+            </div>
           </div>
 
           <div className="mt-8 border-t border-white/10 pt-8">
@@ -274,9 +260,3 @@ export default async function DashboardPage() {
     );
   }
 }
-
-
-
-
-
-

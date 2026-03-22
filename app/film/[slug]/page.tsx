@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CommentForm } from "@/components/comments/comment-form";
@@ -8,8 +8,6 @@ import { FilmArtwork } from "@/components/films/film-artwork";
 import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
-import { Button } from "@/components/ui/button";
-import { PublicWorkflowPanel } from "@/components/workflows/public-workflow-panel";
 import { getFilmArtworkUrl } from "@/lib/films/artwork";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
 import { getMuxPlaybackUrl } from "@/lib/films/playback";
@@ -48,19 +46,13 @@ export default async function FilmPage({ params }: FilmPageProps) {
   }
 
   const playbackUrl = data.muxPlaybackId ? getMuxPlaybackUrl(data.muxPlaybackId) : null;
-  const artworkUrl = getFilmArtworkUrl({
-    posterUrl: data.posterUrl,
-    muxPlaybackId: data.muxPlaybackId,
-  });
+  const artworkUrl = getFilmArtworkUrl({ posterUrl: data.posterUrl, muxPlaybackId: data.muxPlaybackId });
   const releaseDate = formatReleaseDate(data.publishedAt);
-  const creatorName = resolveCreatorName({
-    handle: data.creator.handle,
-    displayName: data.creator.displayName,
-  });
+  const creatorName = resolveCreatorName({ handle: data.creator.handle, displayName: data.creator.displayName });
   const hasTools = data.creation.tools.length > 0;
-  const hasWorkflowNotes = Boolean(data.creation.workflowNotes);
+  const hasProcessNotes = Boolean(data.creation.workflowNotes);
   const hasPromptText = Boolean(data.creation.promptText);
-  const hasAnyProcessMaterial = hasTools || hasWorkflowNotes || hasPromptText;
+  const hasAnyProcessMaterial = hasTools || hasProcessNotes || hasPromptText;
   const promptVisibilityLabel =
     data.creation.promptVisibility === "public"
       ? "Visible on this release page"
@@ -69,7 +61,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
         : "Kept private by the creator";
   const processSummary = !hasAnyProcessMaterial
     ? "No process materials were shared for this release."
-    : data.creation.promptVisibility === "followers" && !hasPromptText && !hasWorkflowNotes && !hasTools
+    : data.creation.promptVisibility === "followers" && !hasPromptText && !hasProcessNotes && !hasTools
       ? "Process materials are available only to approved viewers."
       : "Selected process materials accompany this release.";
   const seriesMeta =
@@ -91,14 +83,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
           </div>
         ) : null}
         {playbackUrl ? (
-          <video
-            className="aspect-video w-full bg-black"
-            controls
-            playsInline
-            preload="metadata"
-            poster={artworkUrl ?? undefined}
-            src={playbackUrl}
-          />
+          <video className="aspect-video w-full bg-black" controls playsInline preload="metadata" poster={artworkUrl ?? undefined} src={playbackUrl} />
         ) : (
           <div className="p-6 sm:p-8">
             <div className="mx-auto w-full max-w-[280px]">
@@ -109,34 +94,25 @@ export default async function FilmPage({ params }: FilmPageProps) {
         <div className="px-5 py-6 sm:px-10 sm:py-8">
           <p className="display-kicker">Film</p>
           <h1 className="headline-xl mt-4">{data.title}</h1>
-          <p className="body-lg mt-4 max-w-3xl">
-            {data.synopsis || "A release note will appear here when the creator publishes one."}
-          </p>
+          <p className="body-lg mt-4 max-w-3xl">{data.synopsis || "A release note will appear here when the creator publishes one."}</p>
           <div className="mt-5 grid gap-5 border-t border-white/10 pt-5 sm:mt-6 sm:gap-6 sm:pt-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)]">
             <div className="max-w-3xl">
               <p className="display-kicker">Description</p>
-              <p className="body-sm mt-3">
-                {data.description || "No extended note has been published for this release yet."}
-              </p>
+              <p className="body-sm mt-3">{data.description || "No extended note has been published for this release yet."}</p>
             </div>
 
             <aside className="min-w-0 rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
               <p className="display-kicker">About this release</p>
               <div className="mt-4 space-y-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">
-                    Released on ArsGratia
-                  </p>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Released on ArsGratia</p>
                   <p className="mt-2 text-sm text-foreground">{releaseDate || "Publication date to follow."}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Creator</p>
                   <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
                     {data.creator.handle ? (
-                      <Link
-                        href={`/creator/${data.creator.handle}`}
-                        className="inline-block min-w-0 break-words text-sm text-foreground underline decoration-white/20 underline-offset-4"
-                      >
+                      <Link href={`/creator/${data.creator.handle}`} className="inline-block min-w-0 break-words text-sm text-foreground underline decoration-white/20 underline-offset-4">
                         {creatorName}
                       </Link>
                     ) : (
@@ -148,15 +124,10 @@ export default async function FilmPage({ params }: FilmPageProps) {
                 {data.series ? (
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Series</p>
-                    <Link
-                      href={`/series/${data.series.slug}`}
-                      className="mt-2 inline-block break-words text-sm text-foreground underline decoration-white/20 underline-offset-4"
-                    >
+                    <Link href={`/series/${data.series.slug}`} className="mt-2 inline-block break-words text-sm text-foreground underline decoration-white/20 underline-offset-4">
                       {data.series.title}
                     </Link>
-                    {seriesMeta ? (
-                      <p className="mt-2 text-sm text-muted-foreground">{seriesMeta}</p>
-                    ) : null}
+                    {seriesMeta ? <p className="mt-2 text-sm text-muted-foreground">{seriesMeta}</p> : null}
                   </div>
                 ) : null}
                 <div>
@@ -164,10 +135,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                   {hasTools ? (
                     <div className="mt-3 flex min-w-0 flex-wrap gap-2">
                       {data.creation.tools.map((tool) => (
-                        <span
-                          key={tool.id}
-                          className="max-w-full rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]"
-                        >
+                        <span key={tool.id} className="max-w-full rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
                           {tool.name}
                         </span>
                       ))}
@@ -181,37 +149,13 @@ export default async function FilmPage({ params }: FilmPageProps) {
           </div>
 
           <div className="mt-6 min-w-0">
-            <LikeButton
-              filmId={data.id}
-              initialLikeCount={data.engagement.likeCount}
-              initialLiked={data.engagement.viewerHasLiked}
-            />
-            <p className="mt-3 text-sm text-muted-foreground">
-              {formatCommentCount(data.engagement.commentCount)}
-            </p>
-            <Link
-              href={`/report?type=film&slug=${data.slug}`}
-              className="mt-3 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4"
-            >
+            <LikeButton filmId={data.id} initialLikeCount={data.engagement.likeCount} initialLiked={data.engagement.viewerHasLiked} />
+            <p className="mt-3 text-sm text-muted-foreground">{formatCommentCount(data.engagement.commentCount)}</p>
+            <Link href={`/report?type=film&slug=${data.slug}`} className="mt-3 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4">
               Report this film
             </Link>
-            <ShareActions
-              url={filmUrl}
-              title={`${data.title} by ${creatorName} | ArsGratia`}
-              className="mt-6"
-            />
+            <ShareActions url={filmUrl} title={`${data.title} by ${creatorName} | ArsGratia`} className="mt-6" />
           </div>
-
-          {data.attachedWorkflows.length > 0 ? (
-            <div className="mt-7 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
-              <PublicWorkflowPanel
-                workflows={data.attachedWorkflows}
-                eyebrow="Attached Workflow"
-                title="Read-only process selected for this film"
-                description="The creator chose to show this workflow alongside the film as part of its public presentation."
-              />
-            </div>
-          ) : null}
 
           {hasAnyProcessMaterial ? (
             <div className="mt-7 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
@@ -234,10 +178,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                       <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Listed tools</p>
                       <div className="mt-3 flex min-w-0 flex-wrap gap-2">
                         {data.creation.tools.map((tool) => (
-                          <span
-                            key={tool.id}
-                            className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]"
-                          >
+                          <span key={tool.id} className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
                             {tool.name}
                           </span>
                         ))}
@@ -247,17 +188,12 @@ export default async function FilmPage({ params }: FilmPageProps) {
                 </article>
 
                 <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
-                  <p className="display-kicker">Workflow notes</p>
-                  <p className="body-sm mt-4">
-                    {data.creation.workflowNotes || "No workflow notes were shared for this release."}
-                  </p>
+                  <p className="display-kicker">Process notes</p>
+                  <p className="body-sm mt-4">{data.creation.workflowNotes || "No process notes were shared for this release."}</p>
                   {data.series?.nextEpisode ? (
                     <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
                       <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Series continuity</p>
-                      <Link
-                        href={`/film/${data.series.nextEpisode.slug}`}
-                        className="mt-2 inline-block break-words text-sm text-foreground underline decoration-white/20 underline-offset-4"
-                      >
+                      <Link href={`/film/${data.series.nextEpisode.slug}`} className="mt-2 inline-block break-words text-sm text-foreground underline decoration-white/20 underline-offset-4">
                         Next episode: {data.series.nextEpisode.title}
                       </Link>
                     </div>
@@ -279,5 +215,3 @@ export default async function FilmPage({ params }: FilmPageProps) {
     </section>
   );
 }
-
-
