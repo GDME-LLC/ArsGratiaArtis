@@ -77,13 +77,13 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
               <Link href="/feed">Watch New Work</Link>
             </Button>
             <Button asChild size="lg" variant="ghost">
-              <Link href="/filmmakers">Meet the Filmmakers</Link>
+              <Link href="/filmmakers">Browse Theatres</Link>
             </Button>
             <Button asChild size="lg" variant="ghost">
               <Link href="/signup">Become a Creator</Link>
             </Button>
             <Button asChild size="lg" variant="ghost">
-              <Link href="/manifesto">Read the Manifesto</Link>
+              <Link href="/resources">Explore Resources</Link>
             </Button>
           </div>
 
@@ -109,3 +109,4 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
     </section>
   );
 }
+
