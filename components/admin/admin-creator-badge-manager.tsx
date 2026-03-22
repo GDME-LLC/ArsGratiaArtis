@@ -28,16 +28,18 @@ export function AdminCreatorBadgeManager({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const normalizedQuery = query.trim().toLowerCase();
+  const hasQuery = normalizedQuery.length > 0;
+
   const filteredCreators = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) {
-      return creators;
+    if (!hasQuery) {
+      return [];
     }
 
     return creators.filter((creator) =>
-      creator.displayName.toLowerCase().includes(normalized) || creator.handle.toLowerCase().includes(normalized),
+      creator.displayName.toLowerCase().includes(normalizedQuery) || creator.handle.toLowerCase().includes(normalizedQuery),
     );
-  }, [creators, query]);
+  }, [creators, hasQuery, normalizedQuery]);
 
   function getFounderState(creatorId: string) {
     const current = founderFields[creatorId];
@@ -196,7 +198,11 @@ export function AdminCreatorBadgeManager({
       {error ? <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
       {success ? <div className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">{success}</div> : null}
 
-      {filteredCreators.length === 0 ? (
+      {!hasQuery ? (
+        <div className="rounded-[24px] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-muted-foreground">
+          Search by creator name or handle to manage badge assignments.
+        </div>
+      ) : filteredCreators.length === 0 ? (
         <div className="rounded-[24px] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-muted-foreground">
           No creators matched this search.
         </div>
@@ -368,5 +374,3 @@ export function AdminCreatorBadgeManager({
     </section>
   );
 }
-
-
