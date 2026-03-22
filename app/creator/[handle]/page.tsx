@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -136,11 +136,11 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   });
 
   return (
-    <section className={cn("relative overflow-hidden py-12 sm:py-14", preset.pageBackgroundClass)}>
+    <section className={cn("relative overflow-hidden py-8 sm:py-12 sm:pb-14", preset.pageBackgroundClass)}>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_32%)] opacity-70" />
       <div className="container-shell relative z-10">
         {profile.isCurrentUser ? (
-          <div className="mb-6 flex flex-wrap gap-3">
+          <div className="mb-4 flex flex-col gap-2.5 sm:mb-6 sm:flex-row sm:flex-wrap sm:gap-3">
             <Button asChild variant="ghost" size="lg">
               <Link href="/dashboard">Back to Dashboard</Link>
             </Button>
@@ -157,19 +157,19 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
           <div className="relative overflow-hidden">
             <div
               className={cn(
-                "min-h-[300px] w-full bg-cover bg-center sm:min-h-[360px] lg:min-h-[420px]",
+                "min-h-[260px] w-full bg-cover bg-center sm:min-h-[360px] lg:min-h-[420px]",
                 heroImageUrl ? undefined : preset.surfaceClass,
               )}
               style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
             />
             <div className={cn("absolute inset-0", preset.heroOverlayClass)} />
-            <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-10">
-              <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)] lg:items-end">
+            <div className="absolute inset-x-0 bottom-0 p-4 sm:p-8 lg:p-10">
+              <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)] lg:items-end lg:gap-8">
                 <div className="min-w-0">
                   <p className={cn("display-kicker", preset.eyebrowClass)}>Theatre</p>
-                  <div className="mt-4 flex min-w-0 items-center gap-3 sm:gap-4">
+                  <div className="mt-3 flex min-w-0 items-start gap-3 sm:mt-4 sm:items-center sm:gap-4">
                     <div
-                      className="flex h-18 w-18 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-2xl font-semibold text-foreground sm:h-20 sm:w-20"
+                      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl font-semibold text-foreground sm:h-20 sm:w-20 sm:text-2xl"
                       style={
                         profile.avatarUrl
                           ? { backgroundImage: `url(${profile.avatarUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
@@ -180,26 +180,26 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     </div>
                     <div className="min-w-0">
                       <p className="display-kicker break-all text-white/70">@{profile.handle}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-3">
-                        <h1 className="headline-xl min-w-0 break-words text-white">{profile.displayName}</h1>
+                      <div className="mt-2 flex flex-wrap items-center gap-2.5 sm:gap-3">
+                        <h1 className="headline-lg min-w-0 break-words text-white sm:headline-xl">{profile.displayName}</h1>
                         <CreatorBadgeList badges={profile.badges} />
                       </div>
                     </div>
                   </div>
                   {theatreSettings.openingStatement ? (
-                    <p className={cn("mt-5 max-w-3xl text-base leading-7 sm:mt-6 sm:text-xl sm:leading-8", preset.statementClass)}>
+                    <p className={cn("mt-4 max-w-3xl text-[15px] leading-7 sm:mt-6 sm:text-xl sm:leading-8", preset.statementClass)}>
                       {theatreSettings.openingStatement}
                     </p>
                   ) : null}
                   {profile.foundingCreator.isFoundingCreator ? (
-                    <p className="mt-4 text-sm text-[#e7d1a0]">
+                    <p className="mt-3 text-sm leading-6 text-[#e7d1a0] sm:mt-4">
                       Founding Creator{founderSince ? ` since ${founderSince}` : ""}. One of the first 20 creators on ArsGratia.
                     </p>
                   ) : null}
                 </div>
 
                 <div className={cn("rounded-[24px] border p-4 sm:p-5 backdrop-blur-sm", preset.panelClass, preset.borderClass)}>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-2">
                     {profile.viewerCanFollow ? (
                       <FollowButton
                         creatorId={profile.id}
@@ -209,27 +209,27 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                       />
                     ) : null}
                     {showCreatorFollowPrompt ? (
-                      <Button asChild variant="ghost" className={preset.buttonVariantClass}>
+                      <Button asChild variant="ghost" className={cn("w-full sm:w-auto", preset.buttonVariantClass)}>
                         <Link href={creatorFollowCtaHref}>Become a creator to follow this filmmaker</Link>
                       </Button>
                     ) : null}
                     {profile.websiteUrl ? (
-                      <Button asChild variant="ghost" className={preset.buttonVariantClass}>
+                      <Button asChild variant="ghost" className={cn("w-full sm:w-auto", preset.buttonVariantClass)}>
                         <a href={profile.websiteUrl} target="_blank" rel="noreferrer">Visit website</a>
                       </Button>
                     ) : null}
                     {profile.isCurrentUser ? (
-                      <Button asChild variant="ghost" className={preset.buttonVariantClass}>
+                      <Button asChild variant="ghost" className={cn("w-full sm:w-auto", preset.buttonVariantClass)}>
                         <Link href="/settings">Edit in Studio</Link>
                       </Button>
                     ) : null}
                   </div>
                   {showCreatorFollowPrompt ? (
-                    <p className="mt-4 max-w-sm text-sm leading-6 text-white/68">
+                    <p className="mt-3 max-w-sm text-sm leading-6 text-white/68 sm:mt-4">
                       Follow is reserved for creator accounts. Become a creator to follow this filmmaker and keep up with their Theatre.
                     </p>
                   ) : null}
-                  <div className="mt-5 space-y-2 text-sm text-white/72">
+                  <div className="mt-4 space-y-2 text-sm leading-6 text-white/72 sm:mt-5">
                     <p>
                       <span className="text-white">{formatFollowerCount(profile.followerCount)}</span>
                     </p>
@@ -241,21 +241,21 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     url={theatreUrl}
                     title={`${profile.displayName} on ArsGratia`}
                     heading="Share Theatre"
-                    className="mt-6"
+                    className="mt-5 sm:mt-6"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="px-5 py-6 sm:px-8 sm:py-10">
-            <div className="grid gap-4 sm:gap-5">
+          <div className="px-4 py-5 sm:px-8 sm:py-10">
+            <div className="grid gap-3.5 sm:gap-5">
               {visibleSections.map((sectionId) => {
                 if (sectionId === "about") {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-5 sm:p-7", preset.panelClass, preset.borderClass)}>
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
                       <p className={cn("display-kicker", preset.eyebrowClass)}>About</p>
-                      <p className="body-lg mt-4 max-w-3xl text-foreground/92">
+                      <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">
                         {profile.bio || "This Theatre is open. A fuller note will appear here as releases and context accumulate around the work."}
                       </p>
                     </article>
@@ -264,18 +264,18 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "featured_work" && featuredFilm) {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-5 sm:p-7", preset.panelClass, preset.borderClass)}>
-                      <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
-                        <div className="w-full max-w-[220px] shrink-0">
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
+                      <div className="flex flex-col gap-5 sm:gap-6 lg:flex-row lg:items-center">
+                        <div className="w-full max-w-[200px] shrink-0 sm:max-w-[220px]">
                           <FilmArtwork artworkUrl={featuredFilm.posterUrl} title={featuredFilm.title} className="rounded-[24px]" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className={cn("display-kicker", preset.eyebrowClass)}>Featured Work</p>
-                          <h2 className="headline-lg mt-3 text-foreground">{featuredFilm.title}</h2>
-                          <p className="body-sm mt-4 max-w-3xl">
+                          <h2 className="headline-lg mt-3 break-words text-foreground">{featuredFilm.title}</h2>
+                          <p className="body-sm mt-3 max-w-3xl sm:mt-4">
                             {featuredFilm.synopsis || "A spotlighted release from this Theatre."}
                           </p>
-                          <div className="mt-5 flex flex-wrap gap-3">
+                          <div className="mt-4 flex flex-wrap gap-3 sm:mt-5">
                             <Button asChild size="lg">
                               <Link href={`/film/${featuredFilm.slug}`}>Open Release</Link>
                             </Button>
@@ -299,8 +299,8 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "releases") {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-5 sm:p-7", preset.panelClass, preset.borderClass)}>
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
+                      <div className="flex flex-col gap-3.5 sm:gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className={cn("display-kicker", preset.eyebrowClass)}>Theatre Presentation</p>
                           <h2 className="headline-lg mt-3 text-foreground">
@@ -313,7 +313,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                           </Button>
                         ) : null}
                       </div>
-                      <div className="mt-6">
+                      <div className="mt-5 sm:mt-6">
                         <PublicFilmFeed films={films} variant="row" />
                       </div>
                     </article>
@@ -322,14 +322,14 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "links" && profile.websiteUrl) {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-5 sm:p-7", preset.panelClass, preset.borderClass)}>
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
                       <p className={cn("display-kicker", preset.eyebrowClass)}>Links</p>
                       <div className="mt-4 flex flex-col gap-3 text-sm text-foreground">
                         <a
                           href={profile.websiteUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex w-fit items-center gap-2 underline decoration-white/20 underline-offset-4"
+                          className="inline-flex w-fit items-center gap-2 break-all underline decoration-white/20 underline-offset-4"
                         >
                           Visit website
                         </a>
@@ -348,7 +348,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               })}
 
               {visibleSections.includes("releases") && films.length === 0 ? (
-                <div className={cn("rounded-[28px] border px-5 py-6 text-sm text-muted-foreground sm:px-6 sm:py-8", preset.panelClass, preset.borderClass)}>
+                <div className={cn("rounded-[28px] border px-4 py-5 text-sm leading-6 text-muted-foreground sm:px-6 sm:py-8", preset.panelClass, preset.borderClass)}>
                   This Theatre is live, but no public releases have premiered here yet. Return later to see what enters the programme.
                 </div>
               ) : null}
@@ -359,6 +359,3 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
     </section>
   );
 }
-
-
-

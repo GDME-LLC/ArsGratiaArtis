@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
@@ -48,8 +48,8 @@ export default async function SettingsPage() {
     ]);
 
     return (
-      <section className="container-shell py-12 sm:py-20">
-        <div className="mb-5 flex flex-wrap gap-2.5 sm:mb-6 sm:gap-3">
+      <section className="container-shell py-8 sm:py-12 lg:py-16">
+        <div className="mb-4 flex flex-col gap-2.5 sm:mb-6 sm:flex-row sm:flex-wrap sm:gap-3">
           <Button asChild variant="ghost" size="lg">
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
@@ -71,4 +71,3 @@ export default async function SettingsPage() {
     );
   }
 }
-
