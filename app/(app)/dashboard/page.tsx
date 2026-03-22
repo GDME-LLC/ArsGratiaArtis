@@ -102,21 +102,21 @@ export default async function DashboardPage() {
 
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">Handle</p>
+              <p className="display-kicker">Creator Studio</p>
               <p className="title-md mt-3 text-foreground">@{profile.handle}</p>
               <p className="body-sm mt-3">
-                This is the address viewers will return to when your releases start circulating.
+                Edit your personal info, manage workflows, and control publishing access in Creator Studio. The profile you set up here is what audiences see on your Theatre page and release pages, so make it count.
               </p>
             </article>
 
             <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">Creator Access</p>
+              <p className="display-kicker">My Theatre</p>
               <p className="title-md mt-3 text-foreground">
                 {profile.isCreator ? "Publishing tools enabled" : "Account active, publishing access pending"}
               </p>
               <p className="body-sm mt-3">
                 {profile.isCreator
-                  ? "Drafts, release pages, and publishing controls are active for this account."
+                  ? "Set preferences for your filmmaker page, review published releases, and share your work with the world."
                   : "New accounts can sign in immediately, while creator publishing access is enabled separately in smaller groups."}
               </p>
             </article>
