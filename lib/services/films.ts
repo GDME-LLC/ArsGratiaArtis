@@ -156,7 +156,7 @@ export async function getCreatorFilmById(
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, description, category, poster_url, mux_asset_id, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, visibility, publish_status, moderation_status, moderation_reason, reviewed_at")
+    .select("id, title, slug, synopsis, description, category, poster_url, mux_asset_id, mux_playback_id, prompt_text, process_notes, prompt_visibility, visibility, publish_status, moderation_status, moderation_reason, reviewed_at")
     .eq("id", filmId)
     .eq("creator_id", creatorId)
     .eq("publish_status", "draft")
@@ -182,7 +182,7 @@ export async function getCreatorFilmById(
     muxAssetId: data.mux_asset_id ?? null,
     muxPlaybackId: data.mux_playback_id ?? null,
     promptText: data.prompt_text ?? "",
-    workflowNotes: data.workflow_notes ?? "",
+    processNotes: data.process_notes ?? "",
     promptVisibility: data.prompt_visibility,
     visibility: data.visibility,
     publishStatus: data.publish_status,
@@ -232,7 +232,7 @@ export async function createOrUpdateFilm(input: {
   category: FilmCategory;
   posterUrl: string | null;
   promptText: string | null;
-  workflowNotes: string | null;
+  processNotes: string | null;
   promptVisibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publishStatus: "draft" | "published" | "archived";
@@ -272,7 +272,7 @@ export async function createOrUpdateFilm(input: {
         category: input.category,
         poster_url: input.posterUrl,
         prompt_text: input.promptText,
-        workflow_notes: input.workflowNotes,
+        process_notes: input.processNotes,
         prompt_visibility: input.promptVisibility,
         visibility: input.visibility,
         publish_status: input.publishStatus,
@@ -305,7 +305,7 @@ export async function createOrUpdateFilm(input: {
       category: input.category,
       poster_url: input.posterUrl,
       prompt_text: input.promptText,
-      workflow_notes: input.workflowNotes,
+      process_notes: input.processNotes,
       prompt_visibility: input.promptVisibility,
       visibility: input.visibility,
       publish_status: input.publishStatus,
@@ -408,7 +408,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, description, category, poster_url, mux_playback_id, prompt_text, workflow_notes, prompt_visibility, published_at, creator_id, visibility, moderation_status, moderation_reason, reviewed_at, series_id, season_number, episode_number")
+    .select("id, title, slug, synopsis, description, category, poster_url, mux_playback_id, prompt_text, process_notes, prompt_visibility, published_at, creator_id, visibility, moderation_status, moderation_reason, reviewed_at, series_id, season_number, episode_number")
     .eq("slug", slug.toLowerCase())
     .eq("publish_status", "published")
     .maybeSingle();
@@ -569,7 +569,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     muxPlaybackId: data.mux_playback_id ?? null,
     creation: {
       promptText: canViewPrompt ? data.prompt_text ?? null : null,
-      workflowNotes: data.workflow_notes ?? null,
+      processNotes: data.process_notes ?? null,
       promptVisibility: data.prompt_visibility,
       tools,
     },
@@ -881,6 +881,7 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
+
 
 
 

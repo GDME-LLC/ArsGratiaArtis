@@ -185,7 +185,7 @@ export type FilmEditorValues = {
   muxAssetId: string | null;
   muxPlaybackId: string | null;
   promptText: string;
-  workflowNotes: string;
+  processNotes: string;
   promptVisibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publishStatus: "draft" | "published" | "archived";
@@ -205,7 +205,7 @@ export type PublicFilmPageData = {
   muxPlaybackId: string | null;
   creation: {
     promptText: string | null;
-    workflowNotes: string | null;
+    processNotes: string | null;
     promptVisibility: "public" | "followers" | "private";
     tools: Array<{
       id: string;
@@ -382,5 +382,6 @@ export type FilmComment = {
   isDeleted: boolean;
   createdAt: string;
 };
+
 
 

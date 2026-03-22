@@ -22,7 +22,7 @@ type FilmPayload = {
   category?: string;
   poster_url?: string | null;
   prompt_text?: string | null;
-  workflow_notes?: string | null;
+  process_notes?: string | null;
   prompt_visibility?: "public" | "followers" | "private";
   visibility?: "public" | "unlisted" | "private";
   publish_status?: "draft" | "published" | "archived";
@@ -118,7 +118,7 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
       category,
       posterUrl: payload.poster_url?.trim() || null,
       promptText: payload.prompt_text?.trim() || null,
-      workflowNotes: payload.workflow_notes?.trim() || null,
+      processNotes: payload.process_notes?.trim() || null,
       promptVisibility,
       visibility,
       publishStatus,
@@ -140,3 +140,4 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   return saveFilm(request, "PUT");
 }
+

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -23,7 +23,7 @@ type FormState = {
   category: FilmCategory;
   poster_url: string;
   prompt_text: string;
-  workflow_notes: string;
+  process_notes: string;
   prompt_visibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publish_status: "draft" | "published";
@@ -39,7 +39,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
     category: initialFilm?.category ?? "film",
     poster_url: initialFilm?.posterUrl ?? "",
     prompt_text: initialFilm?.promptText ?? "",
-    workflow_notes: initialFilm?.workflowNotes ?? "",
+    process_notes: initialFilm?.processNotes ?? "",
     prompt_visibility: initialFilm?.promptVisibility ?? "private",
     visibility: initialFilm?.visibility ?? "private",
     publish_status: initialFilm?.publishStatus === "published" ? "published" : "draft",
@@ -101,7 +101,7 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
           category: form.category,
           poster_url: form.poster_url || null,
           prompt_text: form.prompt_text.trim() || null,
-          workflow_notes: form.workflow_notes.trim() || null,
+          process_notes: form.process_notes.trim() || null,
           prompt_visibility: form.prompt_visibility,
           visibility: form.visibility,
           publish_status: form.publish_status,
@@ -260,11 +260,11 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
 
         <Field label="Process Notes">
           <textarea
-            value={form.workflow_notes}
+            value={form.process_notes}
             onChange={(event) =>
               setForm((current) => ({
                 ...current,
-                workflow_notes: event.target.value,
+                process_notes: event.target.value,
               }))
             }
             className={cn(inputClassName, "min-h-32 py-3")}
@@ -406,4 +406,5 @@ const selectClassName =
   "h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition focus:border-primary/60 focus:bg-[hsl(var(--surface-3))] focus:text-foreground [color-scheme:dark] [&>option]:bg-[#11141c] [&>option]:text-[#f4eee4]";
 
 const selectOptionClassName = "bg-[#11141c] text-[#f4eee4]";
+
 

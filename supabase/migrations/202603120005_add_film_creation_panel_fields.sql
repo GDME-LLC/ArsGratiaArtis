@@ -1,6 +1,6 @@
 alter table public.films
 add column if not exists prompt_text text,
-add column if not exists workflow_notes text,
+add column if not exists process_notes text,
 add column if not exists prompt_visibility text not null default 'private';
 
 do $$
@@ -15,3 +15,4 @@ begin
     check (prompt_visibility in ('public', 'followers', 'private'));
   end if;
 end $$;
+

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CommentForm } from "@/components/comments/comment-form";
@@ -50,7 +50,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
   const releaseDate = formatReleaseDate(data.publishedAt);
   const creatorName = resolveCreatorName({ handle: data.creator.handle, displayName: data.creator.displayName });
   const hasTools = data.creation.tools.length > 0;
-  const hasProcessNotes = Boolean(data.creation.workflowNotes);
+  const hasProcessNotes = Boolean(data.creation.processNotes);
   const hasPromptText = Boolean(data.creation.promptText);
   const hasAnyProcessMaterial = hasTools || hasProcessNotes || hasPromptText;
   const promptVisibilityLabel =
@@ -189,7 +189,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
 
                 <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
                   <p className="display-kicker">Process notes</p>
-                  <p className="body-sm mt-4">{data.creation.workflowNotes || "No process notes were shared for this release."}</p>
+                  <p className="body-sm mt-4">{data.creation.processNotes || "No process notes were shared for this release."}</p>
                   {data.series?.nextEpisode ? (
                     <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
                       <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Series continuity</p>
@@ -215,3 +215,4 @@ export default async function FilmPage({ params }: FilmPageProps) {
     </section>
   );
 }
+
