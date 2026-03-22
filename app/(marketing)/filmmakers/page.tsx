@@ -1,6 +1,6 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
-import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
+import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
@@ -50,7 +50,7 @@ export default async function FilmmakersPage() {
                     <p className="display-kicker">Filmmaker</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <h2 className="headline-lg min-w-0 break-words text-foreground">{creator.displayName}</h2>
-                      <FoundingCreatorBadge founder={creator.foundingCreator} showNumber />
+                      <CreatorBadgeList badges={creator.badges} />
                     </div>
                     <p className="mt-2 break-all text-sm text-muted-foreground">@{creator.handle}</p>
                     <p className="body-sm mt-4 line-clamp-3 max-w-2xl">
@@ -140,3 +140,4 @@ export default async function FilmmakersPage() {
     </SectionShell>
   );
 }
+

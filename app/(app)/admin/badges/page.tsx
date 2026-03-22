@@ -1,34 +1,33 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { AdminFilmPanel } from "@/components/admin/admin-film-panel";
+import { AdminBadgePanel } from "@/components/admin/admin-badge-panel";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { getAdminUser } from "@/lib/admin";
-import { listAdminFilms } from "@/lib/admin-films";
+import { getAdminBadgeOverview } from "@/lib/services/badges";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
-export default async function AdminFilmsPage() {
+export default async function AdminBadgesPage() {
   if (!hasSupabaseServerEnv()) {
     return (
       <SectionShell className="py-20">
         <StatePanel
-          title="Admin film controls need a live database connection"
-          description="The page can render locally, but recent film management requires live auth and database access."
+          title="Badge controls need a live database connection"
+          description="The admin shell can render locally, but badge management requires real auth, profiles, and assignments."
         />
       </SectionShell>
     );
   }
 
   const adminUser = await getAdminUser();
-
   if (!adminUser) {
     redirect("/dashboard");
   }
 
   try {
-    const films = await listAdminFilms(40);
+    const overview = await getAdminBadgeOverview();
 
     return (
       <SectionShell className="py-14 sm:py-16">
@@ -37,20 +36,20 @@ export default async function AdminFilmsPage() {
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
           <Button asChild variant="ghost" size="lg">
-            <Link href="/admin/badges">Badges</Link>
+            <Link href="/admin/films">Film Management</Link>
           </Button>
         </div>
 
         <div className="mt-6 max-w-3xl">
           <p className="display-kicker">Admin</p>
-          <h1 className="headline-xl mt-4">Film management</h1>
+          <h1 className="headline-xl mt-4">Creator Badges</h1>
           <p className="body-lg mt-4">
-            A restrained admin surface for recent film review. This keeps status checks and emergency visibility actions close at hand without expanding into a full moderation console yet.
+            Manage curated creator distinctions, assign them cleanly, and keep public identity surfaces consistent across Theatres and releases.
           </p>
         </div>
 
         <div className="mt-8">
-          <AdminFilmPanel films={films} />
+          <AdminBadgePanel overview={overview} />
         </div>
       </SectionShell>
     );
@@ -58,11 +57,10 @@ export default async function AdminFilmsPage() {
     return (
       <SectionShell className="py-20">
         <StatePanel
-          title="Film controls could not be loaded"
+          title="Badge controls could not be loaded"
           description={error instanceof Error ? error.message : "An unexpected error occurred."}
         />
       </SectionShell>
     );
   }
 }
-

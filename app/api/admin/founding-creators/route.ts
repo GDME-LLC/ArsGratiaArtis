@@ -1,11 +1,11 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import { requireAdminUser } from "@/lib/admin";
 import { updateFoundingCreatorStatus } from "@/lib/founding-creators";
 
 export async function PUT(request: Request) {
   try {
-    await requireAdminUser();
+    const adminUser = await requireAdminUser();
 
     const payload = (await request.json()) as {
       profileId?: string;
@@ -32,6 +32,7 @@ export async function PUT(request: Request) {
       notes: typeof payload.notes === "string" ? payload.notes.trim() || null : null,
       markInvited: Boolean(payload.markInvited),
       markAccepted: Boolean(payload.markAccepted),
+      assignedBy: adminUser.id,
     });
 
     return NextResponse.json({ ok: true });
@@ -42,3 +43,4 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+

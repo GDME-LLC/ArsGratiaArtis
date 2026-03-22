@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
-import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
+import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { FoundingCreatorBenefits } from "@/components/founding/founding-creator-benefits";
 import { Hero } from "@/components/marketing/hero";
 import { SectionShell } from "@/components/marketing/section-shell";
@@ -147,7 +147,7 @@ export default async function HomePage() {
                         >
                           {!creator.avatarUrl ? creator.displayName.charAt(0).toUpperCase() : null}
                         </div>
-                        <FoundingCreatorBadge founder={creator.foundingCreator} showNumber />
+                        <CreatorBadgeList badges={creator.badges} />
                       </div>
                       <h3 className="title-md mt-4 break-words text-foreground">{creator.displayName}</h3>
                       <p className="mt-2 break-all text-sm text-muted-foreground">@{creator.handle}</p>
@@ -252,7 +252,7 @@ export default async function HomePage() {
                     <p className="display-kicker">Filmmaker</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <h3 className="title-md min-w-0 break-words text-foreground">{creator.displayName}</h3>
-                      <FoundingCreatorBadge founder={creator.foundingCreator} showNumber />
+                      <CreatorBadgeList badges={creator.badges} />
                     </div>
                     <p className="mt-2 break-all text-sm text-muted-foreground">@{creator.handle}</p>
                     <p className="body-sm mt-4 line-clamp-3">
@@ -294,5 +294,6 @@ export default async function HomePage() {
     </div>
   );
 }
+
 
 

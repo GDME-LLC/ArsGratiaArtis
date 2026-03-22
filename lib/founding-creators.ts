@@ -1,4 +1,12 @@
-﻿import { FOUNDING_CREATOR_LIMIT } from "@/lib/constants/founding-creators";
+import { FOUNDING_CREATOR_LIMIT } from "@/lib/constants/founding-creators";
+import {
+  applyFoundingBadgeMetadata,
+  assignBadgeToCreator,
+  getAdminBadgeOverview,
+  getCreatorBadgesByProfileIds,
+  unassignBadgeFromCreator,
+  updateCreatorBadgeAssignment,
+} from "@/lib/services/badges";
 import { getFollowerCount } from "@/lib/services/engagement";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -27,8 +35,9 @@ function mapFoundingCreatorInfo(row: Record<string, unknown>): FoundingCreatorIn
 
 export function getNextAvailableFounderNumber(founderNumbers: Array<number | null | undefined>) {
   const used = new Set(
-    founderNumbers
-      .filter((value): value is number => typeof value === "number" && value >= 1 && value <= FOUNDING_CREATOR_LIMIT),
+    founderNumbers.filter(
+      (value): value is number => typeof value === "number" && value >= 1 && value <= FOUNDING_CREATOR_LIMIT,
+    ),
   );
 
   for (let number = 1; number <= FOUNDING_CREATOR_LIMIT; number += 1) {
@@ -96,26 +105,33 @@ export async function listFeaturedFoundingCreators(limit = FOUNDING_CREATOR_LIMI
       followerCounts.set(profileId, await getFollowerCount(profileId));
     }),
   );
+  const badgeMap = await getCreatorBadgesByProfileIds(profileIds);
 
-  return (creators ?? []).map((creator) => ({
-    id: String(creator.id),
-    handle: String(creator.handle),
-    displayName: String(creator.display_name ?? ""),
-    bio: typeof creator.bio === "string" ? creator.bio : null,
-    avatarUrl: typeof creator.avatar_url === "string" ? creator.avatar_url : null,
-    bannerUrl: typeof creator.banner_url === "string" ? creator.banner_url : null,
-    publicFilmCount: releaseCountMap.get(String(creator.id)) ?? 0,
-    followerCount: followerCounts.get(String(creator.id)) ?? 0,
-    latestReleaseTitle: latestReleaseMap.get(String(creator.id)) ?? null,
-    foundingCreator: mapFoundingCreatorInfo(creator),
-  }));
+  return (creators ?? []).map((creator) => {
+    const foundingCreator = mapFoundingCreatorInfo(creator);
+    return {
+      id: String(creator.id),
+      handle: String(creator.handle),
+      displayName: String(creator.display_name ?? ""),
+      bio: typeof creator.bio === "string" ? creator.bio : null,
+      avatarUrl: typeof creator.avatar_url === "string" ? creator.avatar_url : null,
+      bannerUrl: typeof creator.banner_url === "string" ? creator.banner_url : null,
+      publicFilmCount: releaseCountMap.get(String(creator.id)) ?? 0,
+      followerCount: followerCounts.get(String(creator.id)) ?? 0,
+      latestReleaseTitle: latestReleaseMap.get(String(creator.id)) ?? null,
+      foundingCreator,
+      badges: applyFoundingBadgeMetadata(badgeMap.get(String(creator.id)) ?? [], foundingCreator),
+    };
+  });
 }
 
 function mapAdminFoundingCreatorRow(
   row: Record<string, unknown>,
   followerCount: number,
   publicFilmCount: number,
+  badgeMap: Map<string, ReturnType<typeof applyFoundingBadgeMetadata>>,
 ): AdminFoundingCreatorRow {
+  const foundingCreator = mapFoundingCreatorInfo(row);
   return {
     id: String(row.id),
     handle: String(row.handle),
@@ -127,7 +143,8 @@ function mapAdminFoundingCreatorRow(
     isCreator: Boolean(row.is_creator),
     publicFilmCount,
     followerCount,
-    foundingCreator: mapFoundingCreatorInfo(row),
+    foundingCreator,
+    badges: applyFoundingBadgeMetadata(badgeMap.get(String(row.id)) ?? [], foundingCreator),
   };
 }
 
@@ -178,11 +195,28 @@ export async function getFoundingCreatorAdminOverview(limit = 40): Promise<Admin
     }
   }
 
+  const badgeOverview = await getAdminBadgeOverview();
+  const badgeMap = new Map(badgeOverview.creators.map((creator) => [creator.id, creator.badges.map((assignment) => ({
+    id: assignment.badge.id,
+    slug: assignment.badge.slug,
+    name: assignment.badge.name,
+    description: assignment.badge.description,
+    iconName: assignment.badge.iconName,
+    theme: assignment.badge.theme,
+    isSystem: assignment.badge.isSystem,
+    isActive: assignment.badge.isActive,
+    sortOrder: assignment.badge.sortOrder,
+    displayOrder: assignment.displayOrder,
+    assignedAt: assignment.assignedAt,
+    foundingCreator: assignment.foundingCreator,
+  }))]));
+
   const mapped = (profiles ?? []).map((profile) =>
     mapAdminFoundingCreatorRow(
       profile,
       followerCounts.get(String(profile.id)) ?? 0,
       publicFilmCounts.get(String(profile.id)) ?? 0,
+      badgeMap,
     ),
   );
 
@@ -231,6 +265,7 @@ export async function updateFoundingCreatorStatus(input: {
   notes: string | null;
   markInvited: boolean;
   markAccepted: boolean;
+  assignedBy?: string | null;
 }) {
   const supabase = createServiceRoleSupabaseClient();
 
@@ -238,70 +273,78 @@ export async function updateFoundingCreatorStatus(input: {
     throw new Error("Supabase service role is not configured.");
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, is_creator, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_invited_at, founding_creator_accepted_at")
-    .eq("id", input.profileId)
+  const { data: badge, error: badgeError } = await supabase
+    .from("badges")
+    .select("id")
+    .eq("slug", "founding-creator")
     .single();
 
-  if (profileError || !profile) {
-    throw new Error(profileError?.message ?? "Profile not found.");
+  if (badgeError || !badge) {
+    throw new Error(badgeError?.message ?? "Founding Creator badge is not available.");
   }
 
-  if (!profile.is_creator) {
-    throw new Error("Only approved creator accounts can receive Founding Creator status.");
+  const { data: existingAssignment, error: assignmentError } = await supabase
+    .from("creator_badges")
+    .select("id, display_order")
+    .eq("profile_id", input.profileId)
+    .eq("badge_id", badge.id)
+    .maybeSingle();
+
+  if (assignmentError) {
+    throw new Error(assignmentError.message);
   }
 
   if (input.isFoundingCreator) {
-    if (typeof input.founderNumber !== "number" || input.founderNumber < 1 || input.founderNumber > FOUNDING_CREATOR_LIMIT) {
-      throw new Error(`Founder numbers must be between 1 and ${FOUNDING_CREATOR_LIMIT}.`);
+    if (existingAssignment) {
+      await updateCreatorBadgeAssignment({
+        assignmentId: existingAssignment.id,
+        displayOrder: input.founderNumber ?? existingAssignment.display_order ?? 0,
+        foundingCreator: {
+          founderNumber: input.founderNumber,
+          featured: input.featured,
+          notes: input.notes,
+          markInvited: input.markInvited,
+          markAccepted: input.markAccepted,
+        },
+      });
+    } else {
+      await assignBadgeToCreator({
+        profileId: input.profileId,
+        badgeId: badge.id,
+        assignedBy: input.assignedBy ?? input.profileId,
+        displayOrder: input.founderNumber ?? 0,
+        foundingCreator: {
+          founderNumber: input.founderNumber,
+          featured: input.featured,
+          notes: input.notes,
+          markInvited: input.markInvited,
+          markAccepted: input.markAccepted,
+        },
+      });
     }
-
-    const { count, error: countError } = await supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("is_founding_creator", true)
-      .neq("id", input.profileId);
-
-    if (countError) {
-      throw new Error(countError.message);
-    }
-
-    if ((count ?? 0) >= FOUNDING_CREATOR_LIMIT) {
-      throw new Error("All 20 Founding Creator slots are already filled.");
-    }
+    return;
   }
 
-  const now = new Date().toISOString();
-  const invitedAt = input.markInvited
-    ? profile.founding_creator_invited_at ?? now
-    : null;
-  const acceptedAt = input.markAccepted || input.isFoundingCreator
-    ? profile.founding_creator_accepted_at ?? now
-    : null;
+  if (existingAssignment) {
+    await unassignBadgeFromCreator({ assignmentId: existingAssignment.id });
+    return;
+  }
 
-  const updatePayload = {
-    is_founding_creator: input.isFoundingCreator,
-    founding_creator_number: input.isFoundingCreator ? input.founderNumber : null,
-    founding_creator_featured: input.isFoundingCreator ? input.featured : false,
-    founding_creator_notes: input.notes,
-    founding_creator_invited_at: invitedAt,
-    founding_creator_accepted_at: acceptedAt,
-    founding_creator_awarded_at: input.isFoundingCreator ? profile.founding_creator_awarded_at ?? now : null,
-  };
-
-  const { error: updateError } = await supabase
+  const { error: profileError } = await supabase
     .from("profiles")
-    .update(updatePayload)
+    .update({
+      is_founding_creator: false,
+      founding_creator_number: null,
+      founding_creator_featured: false,
+      founding_creator_notes: null,
+      founding_creator_invited_at: null,
+      founding_creator_accepted_at: null,
+      founding_creator_awarded_at: null,
+    })
     .eq("id", input.profileId);
 
-  if (updateError) {
-    if (updateError.message.toLowerCase().includes("profiles_founding_creator_number_key")) {
-      throw new Error("That Founding Creator number is already assigned.");
-    }
-
-    throw new Error(updateError.message);
+  if (profileError) {
+    throw new Error(profileError.message);
   }
 }
-
 

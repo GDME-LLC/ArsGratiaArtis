@@ -39,6 +39,63 @@ export type FoundingCreatorInfo = {
   acceptedAt: string | null;
 };
 
+export type BadgeTheme = "gold" | "silver" | "obsidian" | "ember" | "velvet" | "signal" | string;
+
+export type CreatorBadge = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  iconName: string | null;
+  theme: BadgeTheme;
+  isSystem: boolean;
+  isActive: boolean;
+  sortOrder: number;
+  displayOrder: number;
+  assignedAt: string;
+  foundingCreator: FoundingCreatorInfo | null;
+};
+
+export type AdminBadgeRecord = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  iconName: string | null;
+  theme: BadgeTheme;
+  isActive: boolean;
+  isSystem: boolean;
+  sortOrder: number;
+  assignedCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminCreatorBadgeAssignment = {
+  id: string;
+  profileId: string;
+  badgeId: string;
+  displayOrder: number;
+  assignedAt: string;
+  badge: AdminBadgeRecord;
+  foundingCreator: FoundingCreatorInfo | null;
+};
+
+export type AdminBadgeCreatorRow = {
+  id: string;
+  handle: string;
+  displayName: string;
+  avatarUrl: string | null;
+  isCreator: boolean;
+  isPublic: boolean;
+  badges: AdminCreatorBadgeAssignment[];
+};
+
+export type AdminBadgeOverview = {
+  badges: AdminBadgeRecord[];
+  creators: AdminBadgeCreatorRow[];
+};
+
 export type Film = {
   id: string;
   title: string;
@@ -91,6 +148,7 @@ export type Profile = {
   isCreator: boolean;
   theatreSettings: CreatorTheatreSettings;
   foundingCreator: FoundingCreatorInfo;
+  badges: CreatorBadge[];
 };
 
 export type PublicFilmCard = {
@@ -111,6 +169,7 @@ export type PublicFilmCard = {
     displayName: string;
     avatarUrl: string | null;
     foundingCreator: FoundingCreatorInfo;
+    badges: CreatorBadge[];
   };
   publishedAt: string | null;
 };
@@ -250,6 +309,7 @@ export type PublicFilmPageData = {
     displayName: string;
     avatarUrl: string | null;
     foundingCreator: FoundingCreatorInfo;
+    badges: CreatorBadge[];
   };
   isOwner: boolean;
   moderationStatus: ModerationStatus;
@@ -301,6 +361,7 @@ export type PublicCreatorProfileData = {
     isCurrentUser: boolean;
     theatreSettings: CreatorTheatreSettings;
     foundingCreator: FoundingCreatorInfo;
+    badges: CreatorBadge[];
   };
   films: PublicFilmCard[];
 };
@@ -317,6 +378,7 @@ export type PublicCreatorListItem = {
   seriesCount: number;
   latestPublishedAt?: string;
   foundingCreator: FoundingCreatorInfo;
+  badges: CreatorBadge[];
   featuredReleases: Array<{
     id: string;
     title: string;
@@ -337,6 +399,7 @@ export type PublicFoundingCreatorListItem = {
   followerCount: number;
   latestReleaseTitle: string | null;
   foundingCreator: FoundingCreatorInfo;
+  badges: CreatorBadge[];
 };
 
 export type AdminFoundingCreatorRow = {
@@ -351,6 +414,7 @@ export type AdminFoundingCreatorRow = {
   publicFilmCount: number;
   followerCount: number;
   foundingCreator: FoundingCreatorInfo;
+  badges: CreatorBadge[];
 };
 
 export type AdminFoundingCreatorOverview = {
@@ -390,5 +454,3 @@ export type FilmComment = {
   isDeleted: boolean;
   createdAt: string;
 };
-
-

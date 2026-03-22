@@ -12,6 +12,10 @@ import {
   getFilmLikeCounts,
   getViewerLikedFilmIds,
 } from "@/lib/services/engagement";
+import {
+  applyFoundingBadgeMetadata,
+  getCreatorBadgesByProfileIds,
+} from "@/lib/services/badges";
 import { getFilmCommentCounts } from "@/lib/services/comments";
 import { listPublicFilmWorkflows } from "@/lib/services/workflows";
 import { normalizeSlug } from "@/lib/films/slug";
@@ -166,6 +170,7 @@ export async function getCreatorFilmById(
   if (!data) {
     return null;
   }
+
 
   return {
     id: data.id,
@@ -347,6 +352,7 @@ export async function getDraftFilmOwnership(
     return null;
   }
 
+
   return {
     id: data.id,
     muxAssetId: data.mux_asset_id ?? null,
@@ -381,6 +387,7 @@ export async function attachMuxAssetToDraftFilm(input: {
   if (error) {
     throw new Error(error.message);
   }
+
 
   return {
     id: data.id,
@@ -433,6 +440,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     .select("handle, display_name, avatar_url, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
     .eq("id", data.creator_id)
     .maybeSingle();
+  const badgeMap = await getCreatorBadgesByProfileIds([String(data.creator_id)]);
 
   if (profileError) {
     throw new Error(profileError.message);
@@ -541,6 +549,17 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     }
   }
 
+  const foundingCreator = {
+    isFoundingCreator: Boolean(profile?.is_founding_creator),
+    founderNumber: typeof profile?.founding_creator_number === "number" ? profile.founding_creator_number : null,
+    awardedAt: typeof profile?.founding_creator_awarded_at === "string" ? profile.founding_creator_awarded_at : null,
+    featured: profile?.founding_creator_featured !== false,
+    notes: typeof profile?.founding_creator_notes === "string" ? profile.founding_creator_notes : null,
+    invitedAt: typeof profile?.founding_creator_invited_at === "string" ? profile.founding_creator_invited_at : null,
+    acceptedAt: typeof profile?.founding_creator_accepted_at === "string" ? profile.founding_creator_accepted_at : null,
+  };
+  const creatorBadges = applyFoundingBadgeMetadata(badgeMap.get(String(data.creator_id)) ?? [], foundingCreator);
+
   return {
     id: data.id,
     title: data.title,
@@ -568,15 +587,8 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
       handle: String(profile?.handle ?? ""),
       displayName: String(profile?.display_name ?? ""),
       avatarUrl: typeof profile?.avatar_url === "string" ? profile.avatar_url : null,
-      foundingCreator: {
-        isFoundingCreator: Boolean(profile?.is_founding_creator),
-        founderNumber: typeof profile?.founding_creator_number === "number" ? profile.founding_creator_number : null,
-        awardedAt: typeof profile?.founding_creator_awarded_at === "string" ? profile.founding_creator_awarded_at : null,
-        featured: profile?.founding_creator_featured !== false,
-        notes: typeof profile?.founding_creator_notes === "string" ? profile.founding_creator_notes : null,
-        invitedAt: typeof profile?.founding_creator_invited_at === "string" ? profile.founding_creator_invited_at : null,
-        acceptedAt: typeof profile?.founding_creator_accepted_at === "string" ? profile.founding_creator_accepted_at : null,
-      },
+      foundingCreator,
+      badges: creatorBadges,
     },
     isOwner,
     moderationStatus: data.moderation_status ?? "active",
@@ -612,15 +624,13 @@ async function hydratePublicFilmCards(
     films.map((film) => film.id),
     user?.id,
   );
+  const badgeMap = await getCreatorBadgesByProfileIds(creatorIds);
 
   const profileMap = new Map(
     (profiles ?? []).map((profile) => [
       profile.id,
-      {
-        handle: String(profile.handle ?? ""),
-        displayName: String(profile.display_name ?? ""),
-        avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
-        foundingCreator: {
+      (() => {
+        const foundingCreator = {
           isFoundingCreator: Boolean(profile.is_founding_creator),
           founderNumber: typeof profile.founding_creator_number === "number" ? profile.founding_creator_number : null,
           awardedAt: typeof profile.founding_creator_awarded_at === "string" ? profile.founding_creator_awarded_at : null,
@@ -628,8 +638,16 @@ async function hydratePublicFilmCards(
           notes: typeof profile.founding_creator_notes === "string" ? profile.founding_creator_notes : null,
           invitedAt: typeof profile.founding_creator_invited_at === "string" ? profile.founding_creator_invited_at : null,
           acceptedAt: typeof profile.founding_creator_accepted_at === "string" ? profile.founding_creator_accepted_at : null,
-        },
-      },
+        };
+
+        return {
+          handle: String(profile.handle ?? ""),
+          displayName: String(profile.display_name ?? ""),
+          avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
+          foundingCreator,
+          badges: applyFoundingBadgeMetadata(badgeMap.get(String(profile.id)) ?? [], foundingCreator),
+        };
+      })(),
     ]),
   );
 
@@ -660,6 +678,7 @@ async function hydratePublicFilmCards(
         invitedAt: null,
         acceptedAt: null,
       },
+      badges: [],
     },
   }));
 }
@@ -865,6 +884,10 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
+
+
+
+
 
 
 

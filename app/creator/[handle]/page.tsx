@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { FollowButton } from "@/components/engagement/follow-button";
 import { FilmArtwork } from "@/components/films/film-artwork";
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
-import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
+import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
@@ -182,7 +182,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                       <p className="display-kicker break-all text-white/70">@{profile.handle}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-3">
                         <h1 className="headline-xl min-w-0 break-words text-white">{profile.displayName}</h1>
-                        <FoundingCreatorBadge founder={profile.foundingCreator} showNumber />
+                        <CreatorBadgeList badges={profile.badges} />
                       </div>
                     </div>
                   </div>
@@ -359,5 +359,6 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
     </section>
   );
 }
+
 
 

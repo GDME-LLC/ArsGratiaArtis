@@ -1,12 +1,12 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
+import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { FilmArtwork } from "@/components/films/film-artwork";
 import { StatePanel } from "@/components/shared/state-panel";
 import { SavedWorkflowCard } from "@/components/workflows/saved-workflow-card";
 import { Button } from "@/components/ui/button";
-import { isAdminEmail } from "@/lib/admin";
+import { hasAdminAccess } from "@/lib/admin";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { getFilmCategoryLabel } from "@/lib/films/categories";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
@@ -53,7 +53,7 @@ export default async function DashboardPage() {
       listCreatorFilms(profile.id),
       listCreatorWorkflows(profile.id),
     ]);
-    const isAdmin = isAdminEmail(user.email);
+    const isAdmin = await hasAdminAccess(user);
     const founderSince = formatMonthYear(profile.foundingCreator.awardedAt ?? null);
 
     return (
@@ -64,7 +64,7 @@ export default async function DashboardPage() {
               <p className="display-kicker">Dashboard</p>
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <h1 className="headline-xl">{profile.displayName || profile.handle}</h1>
-                <FoundingCreatorBadge founder={profile.foundingCreator} showNumber />
+                <CreatorBadgeList badges={profile.badges} />
               </div>
               <p className="body-lg mt-4">
                 Prepare releases, direct your Theatre, and keep the next film moving without losing the thread.
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
                     <Link href="/admin/films">Manage Films</Link>
                   </Button>
                   <Button asChild variant="ghost" size="lg">
-                    <Link href="/founding-creators">Manage Founding Creators</Link>
+                    <Link href="/admin/badges">Manage Badges</Link>
                   </Button>
                 </>
               ) : null}
@@ -279,3 +279,5 @@ export default async function DashboardPage() {
     );
   }
 }
+
+

@@ -5,7 +5,7 @@ import { CommentForm } from "@/components/comments/comment-form";
 import { CommentList } from "@/components/comments/comment-list";
 import { LikeButton } from "@/components/engagement/like-button";
 import { FilmArtwork } from "@/components/films/film-artwork";
-import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
+import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
@@ -142,7 +142,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                     ) : (
                       <span className="inline-block text-sm text-foreground">{creatorName}</span>
                     )}
-                    <FoundingCreatorBadge founder={data.creator.foundingCreator} showNumber />
+                    <CreatorBadgeList badges={data.creator.badges} />
                   </div>
                 </div>
                 {data.series ? (
@@ -279,4 +279,5 @@ export default async function FilmPage({ params }: FilmPageProps) {
     </section>
   );
 }
+
 

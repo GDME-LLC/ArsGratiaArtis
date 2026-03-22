@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Heart, MessageCircle } from "lucide-react";
 
 import { FilmArtwork } from "@/components/films/film-artwork";
-import { FoundingCreatorBadge } from "@/components/founding/founding-creator-badge";
+import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { getFilmArtworkUrl, getMuxAnimatedPreviewUrl } from "@/lib/films/artwork";
 import { getFilmCategoryLabel } from "@/lib/films/categories";
 import {
@@ -70,7 +70,7 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
           ) : (
             <span className="min-w-0 break-words text-sm text-muted-foreground">{creatorName}</span>
           )}
-          <FoundingCreatorBadge founder={film.creator.foundingCreator} className="px-2.5 py-1 text-[10px]" />
+          <CreatorBadgeList badges={film.creator.badges} itemClassName="px-2.5 py-1 text-[10px]" />
         </div>
 
         <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 text-xs text-muted-foreground">
@@ -97,3 +97,4 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
     </article>
   );
 }
+

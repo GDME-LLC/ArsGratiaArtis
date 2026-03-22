@@ -1,15 +1,19 @@
 import type { User } from "@supabase/supabase-js";
 
-import { normalizeTheatreSettings } from "@/lib/theatre";
+import {
+  applyFoundingBadgeMetadata,
+  getCreatorBadgesByProfileIds,
+} from "@/lib/services/badges";
+import { getFilmCommentCounts } from "@/lib/services/comments";
 import {
   getFollowerCount,
   getFilmLikeCounts,
   getViewerFollowingCreator,
   getViewerLikedFilmIds,
 } from "@/lib/services/engagement";
-import { getFilmCommentCounts } from "@/lib/services/comments";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { normalizeTheatreSettings } from "@/lib/theatre";
 import type {
   FoundingCreatorInfo,
   Profile,
@@ -137,7 +141,8 @@ export async function ensureProfileForUser(user: User): Promise<Profile | null> 
   }
 
   if (existing) {
-    return mapProfile(existing);
+    const badgeMap = await getCreatorBadgesByProfileIds([String(user.id)]);
+    return mapProfile(existing, badgeMap.get(String(user.id)) ?? []);
   }
 
   const seedHandle = buildHandleFromUser(user);
@@ -180,7 +185,8 @@ export async function ensureProfileForUser(user: User): Promise<Profile | null> 
     throw new Error(insertError.message);
   }
 
-  return mapProfile(inserted);
+  const insertedBadgeMap = await getCreatorBadgesByProfileIds([String(user.id)]);
+  return mapProfile(inserted, insertedBadgeMap.get(String(user.id)) ?? []);
 }
 
 export async function getProfileForCurrentUser() {
@@ -242,10 +248,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
   }
 
   const viewerCanFollow = Boolean(
-    user &&
-      user.id !== profile.id &&
-      viewerProfile?.data &&
-      viewerProfile.data.is_creator,
+    user && user.id !== profile.id && viewerProfile?.data && viewerProfile.data.is_creator,
   );
 
   let films:
@@ -304,7 +307,8 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
   const followerCount = await getFollowerCount(String(profile.id));
   const viewerIsFollowing = await getViewerFollowingCreator(String(profile.id), user?.id);
   const foundingCreator = mapFoundingCreator(profile);
-  const mappedProfile = mapProfile(profile);
+  const badgeMap = await getCreatorBadgesByProfileIds([String(profile.id)]);
+  const mappedProfile = mapProfile(profile, badgeMap.get(String(profile.id)) ?? []);
 
   return {
     profile: {
@@ -315,6 +319,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
       viewerIsSignedIn: Boolean(user),
       isCurrentUser: user?.id === profile.id,
       foundingCreator,
+      badges: mappedProfile.badges,
     },
     films: (films ?? []).map((film) => ({
       id: film.id,
@@ -334,6 +339,7 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
         displayName: String(profile.display_name ?? ""),
         avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
         foundingCreator,
+        badges: mappedProfile.badges,
       },
       publishedAt: film.published_at,
     })) satisfies PublicFilmCard[],
@@ -358,7 +364,7 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
     throw new Error(profilesError.message);
   }
 
-  const profileIds = (profiles ?? []).map((profile) => profile.id);
+  const profileIds = (profiles ?? []).map((profile) => String(profile.id));
 
   if (profileIds.length === 0) {
     return [];
@@ -422,25 +428,31 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
   const followerCounts = new Map<string, number>();
   await Promise.all(
     profileIds.map(async (profileId) => {
-      followerCounts.set(String(profileId), await getFollowerCount(String(profileId)));
+      followerCounts.set(profileId, await getFollowerCount(profileId));
     }),
   );
 
+  const badgeMap = await getCreatorBadgesByProfileIds(profileIds);
+
   return (profiles ?? [])
-    .map((profile) => ({
-      id: String(profile.id),
-      handle: String(profile.handle),
-      displayName: String(profile.display_name ?? ""),
-      bio: typeof profile.bio === "string" ? profile.bio : null,
-      avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
-      isCreator: Boolean(profile.is_creator),
-      followerCount: followerCounts.get(String(profile.id)) ?? 0,
-      publicFilmCount: filmCountMap.get(String(profile.id)) ?? 0,
-      seriesCount: seriesCountMap.get(String(profile.id))?.size ?? 0,
-      featuredReleases: releasePreviewMap.get(String(profile.id)) ?? [],
-      latestPublishedAt: latestPublishedAtMap.get(String(profile.id)) ?? "",
-      foundingCreator: mapFoundingCreator(profile),
-    }))
+    .map((profile) => {
+      const foundingCreator = mapFoundingCreator(profile);
+      return {
+        id: String(profile.id),
+        handle: String(profile.handle),
+        displayName: String(profile.display_name ?? ""),
+        bio: typeof profile.bio === "string" ? profile.bio : null,
+        avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
+        isCreator: Boolean(profile.is_creator),
+        followerCount: followerCounts.get(String(profile.id)) ?? 0,
+        publicFilmCount: filmCountMap.get(String(profile.id)) ?? 0,
+        seriesCount: seriesCountMap.get(String(profile.id))?.size ?? 0,
+        featuredReleases: releasePreviewMap.get(String(profile.id)) ?? [],
+        latestPublishedAt: latestPublishedAtMap.get(String(profile.id)) ?? "",
+        foundingCreator,
+        badges: applyFoundingBadgeMetadata(badgeMap.get(String(profile.id)) ?? [], foundingCreator),
+      };
+    })
     .sort((a, b) => {
       if (a.foundingCreator.isFoundingCreator !== b.foundingCreator.isFoundingCreator) {
         return a.foundingCreator.isFoundingCreator ? -1 : 1;
@@ -467,7 +479,9 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
     .slice(0, limit);
 }
 
-export function mapProfile(row: Record<string, unknown>): Profile {
+export function mapProfile(row: Record<string, unknown>, badgesInput: ReturnType<typeof applyFoundingBadgeMetadata> = []): Profile {
+  const foundingCreator = mapFoundingCreator(row);
+
   return {
     id: String(row.id),
     handle: String(row.handle),
@@ -478,7 +492,8 @@ export function mapProfile(row: Record<string, unknown>): Profile {
     websiteUrl: typeof row.website_url === "string" ? row.website_url : null,
     isCreator: Boolean(row.is_creator),
     theatreSettings: normalizeTheatreSettings(row.theatre_settings),
-    foundingCreator: mapFoundingCreator(row),
+    foundingCreator,
+    badges: applyFoundingBadgeMetadata(badgesInput, foundingCreator),
   };
 }
 

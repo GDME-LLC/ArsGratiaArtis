@@ -1,6 +1,7 @@
-import type { User } from "@supabase/supabase-js";
+﻿import type { User } from "@supabase/supabase-js";
 
 import { getUser } from "@/lib/supabase/auth";
+import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 
 function getConfiguredAdminEmails() {
   return (process.env.ADMIN_EMAILS ?? "")
@@ -33,16 +34,45 @@ function getUserEmailCandidates(user: User) {
     .map((value) => value.trim().toLowerCase());
 }
 
+export async function isAdminProfileId(profileId: string | null | undefined) {
+  if (!profileId) {
+    return false;
+  }
+
+  const supabase = createServiceRoleSupabaseClient();
+  if (!supabase) {
+    return false;
+  }
+
+  const { data, error } = await supabase
+    .from("admin_users")
+    .select("profile_id")
+    .eq("profile_id", profileId)
+    .maybeSingle();
+
+  if (error) {
+    return false;
+  }
+
+  return Boolean(data?.profile_id);
+}
+
+export async function hasAdminAccess(user: User | null | undefined) {
+  if (!user) {
+    return false;
+  }
+
+  if (await isAdminProfileId(user.id)) {
+    return true;
+  }
+
+  return getUserEmailCandidates(user).some((email) => isAdminEmail(email));
+}
+
 export async function getAdminUser() {
   const user = await getUser();
 
-  if (!user) {
-    return null;
-  }
-
-  const isAdmin = getUserEmailCandidates(user).some((email) => isAdminEmail(email));
-
-  if (!isAdmin) {
+  if (!(await hasAdminAccess(user))) {
     return null;
   }
 
