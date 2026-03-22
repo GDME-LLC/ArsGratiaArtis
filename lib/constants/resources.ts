@@ -1,4 +1,4 @@
-﻿export type ResourceTag = "Tool" | "Education" | "Community" | "Festival" | "Showcase" | "Research" | "Learning" | "Inspiration";
+export type ResourceTag = "Tool" | "Education" | "Community" | "Festival" | "Showcase" | "Research" | "Learning" | "Inspiration";
 
 export type ResourceCategoryId =
   | "video_generation"
@@ -15,6 +15,8 @@ export type ResourceEntry = {
   description: string;
   url: string;
   tags: ResourceTag[];
+  logoUrl?: string;
+  logoAlt?: string;
   note?: string;
   featured?: boolean;
   sortOrder?: number;
@@ -71,6 +73,8 @@ export const resourceEntries: ResourceEntry[] = [
     description: "Widely used for motion generation, shot extension, cleanup, and rapid cinematic tests.",
     url: "https://runwayml.com",
     tags: ["Tool"],
+    logoUrl: "https://runway-static-assets.s3.amazonaws.com/site/images/api-page/powered-by-runway-white.svg",
+    logoAlt: "Runway",
     note: "Popular with AI filmmakers",
     featured: true,
     sortOrder: 10,
@@ -132,6 +136,8 @@ export const resourceEntries: ResourceEntry[] = [
     description: "Frequently used for temp dialogue, narration tests, multilingual voice experiments, and polished voice references.",
     url: "https://elevenlabs.io",
     tags: ["Tool"],
+    logoUrl: "https://11labs-nonprd-15f22c1d.s3.eu-west-3.amazonaws.com/0b9cd3e1-9fad-4a5b-b3a0-c96b0a1f1d2b/elevenlabs-logo-white.svg",
+    logoAlt: "ElevenLabs",
     featured: true,
     sortOrder: 80,
   },
