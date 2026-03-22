@@ -296,6 +296,8 @@ export type PublicCreatorProfileData = {
     isCreator: boolean;
     followerCount: number;
     viewerIsFollowing: boolean;
+    viewerCanFollow: boolean;
+    viewerIsSignedIn: boolean;
     isCurrentUser: boolean;
     theatreSettings: CreatorTheatreSettings;
     foundingCreator: FoundingCreatorInfo;
@@ -388,3 +390,5 @@ export type FilmComment = {
   isDeleted: boolean;
   createdAt: string;
 };
+
+

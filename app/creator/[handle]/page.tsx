@@ -113,6 +113,8 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
     ? films.find((film) => film.id === theatreSettings.featuredFilmId) ?? null
     : null;
   const publicWorkflows = await listPublicTheatreWorkflows(profile.id);
+  const showCreatorFollowPrompt = !profile.isCurrentUser && !profile.viewerCanFollow;
+  const creatorFollowCtaHref = profile.viewerIsSignedIn ? "/settings#profile" : "/signup";
   const visibleSections = getOrderedVisibleTheatreSections(theatreSettings).filter((sectionId) => {
     if (sectionId === "featured_work") {
       return Boolean(featuredFilm);
@@ -198,12 +200,19 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 <div className={cn("rounded-[24px] border p-5 backdrop-blur-sm", preset.panelClass, preset.borderClass)}>
                   <div className="flex flex-wrap gap-2">
-                    <FollowButton
-                      creatorId={profile.id}
-                      initialFollowerCount={profile.followerCount}
-                      initialFollowing={profile.viewerIsFollowing}
-                      isCurrentUser={profile.isCurrentUser}
-                    />
+                    {profile.viewerCanFollow ? (
+                      <FollowButton
+                        creatorId={profile.id}
+                        initialFollowerCount={profile.followerCount}
+                        initialFollowing={profile.viewerIsFollowing}
+                        isCurrentUser={profile.isCurrentUser}
+                      />
+                    ) : null}
+                    {showCreatorFollowPrompt ? (
+                      <Button asChild variant="ghost" className={preset.buttonVariantClass}>
+                        <Link href={creatorFollowCtaHref}>Become a creator to follow this filmmaker</Link>
+                      </Button>
+                    ) : null}
                     {profile.websiteUrl ? (
                       <Button asChild variant="ghost" className={preset.buttonVariantClass}>
                         <a href={profile.websiteUrl} target="_blank" rel="noreferrer">Visit website</a>
@@ -215,6 +224,11 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                       </Button>
                     ) : null}
                   </div>
+                  {showCreatorFollowPrompt ? (
+                    <p className="mt-4 max-w-sm text-sm leading-6 text-white/68">
+                      Follow is reserved for creator accounts. Become a creator to follow this filmmaker and keep up with their Theatre.
+                    </p>
+                  ) : null}
                   <div className="mt-5 space-y-2 text-sm text-white/72">
                     <p>
                       <span className="text-white">{formatFollowerCount(profile.followerCount)}</span>
@@ -345,3 +359,4 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
     </section>
   );
 }
+

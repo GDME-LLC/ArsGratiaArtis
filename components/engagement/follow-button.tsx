@@ -46,6 +46,11 @@ export function FollowButton({
         return;
       }
 
+      if (response.status === 403) {
+        router.push("/settings#profile");
+        return;
+      }
+
       const payload = (await response.json()) as {
         error?: string;
         followerCount?: number;
@@ -81,3 +86,4 @@ export function FollowButton({
     </Button>
   );
 }
+

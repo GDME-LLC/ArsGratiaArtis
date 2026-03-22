@@ -35,9 +35,28 @@ async function validateCreatorFollowTarget(creatorId: string) {
     return { error: NextResponse.json({ error: "You cannot follow yourself." }, { status: 400 }) };
   }
 
+  const { data: viewerProfile, error: viewerProfileError } = await supabase
+    .from("profiles")
+    .select("id, is_creator")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (viewerProfileError) {
+    return { error: NextResponse.json({ error: viewerProfileError.message }, { status: 400 }) };
+  }
+
+  if (!viewerProfile?.is_creator) {
+    return {
+      error: NextResponse.json(
+        { error: "Only creator accounts can follow filmmakers." },
+        { status: 403 },
+      ),
+    };
+  }
+
   const { data: creator, error: creatorError } = await supabase
     .from("profiles")
-    .select("id, is_public")
+    .select("id, is_public, is_creator")
     .eq("id", creatorId)
     .maybeSingle();
 
@@ -45,7 +64,7 @@ async function validateCreatorFollowTarget(creatorId: string) {
     return { error: NextResponse.json({ error: creatorError.message }, { status: 400 }) };
   }
 
-  if (!creator) {
+  if (!creator || !creator.is_public || !creator.is_creator) {
     return { error: NextResponse.json({ error: "Creator not found." }, { status: 404 }) };
   }
 
@@ -102,3 +121,4 @@ export async function DELETE(_: Request, { params }: CreatorFollowRouteProps) {
 
   return NextResponse.json(await getFollowPayload(id, access.userId));
 }
+

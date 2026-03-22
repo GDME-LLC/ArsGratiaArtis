@@ -229,6 +229,25 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
     data: { user },
   } = await supabase.auth.getUser();
 
+  const viewerProfile = user
+    ? await supabase
+        .from("profiles")
+        .select("id, is_creator")
+        .eq("id", user.id)
+        .maybeSingle()
+    : null;
+
+  if (viewerProfile?.error) {
+    throw new Error(viewerProfile.error.message);
+  }
+
+  const viewerCanFollow = Boolean(
+    user &&
+      user.id !== profile.id &&
+      viewerProfile?.data &&
+      viewerProfile.data.is_creator,
+  );
+
   let films:
     | Array<{
         id: string;
@@ -292,6 +311,8 @@ export async function getPublicProfileByHandle(handle: string): Promise<PublicCr
       ...mappedProfile,
       followerCount,
       viewerIsFollowing,
+      viewerCanFollow,
+      viewerIsSignedIn: Boolean(user),
       isCurrentUser: user?.id === profile.id,
       foundingCreator,
     },
@@ -483,3 +504,4 @@ export async function listCreatorsToWatch(limit = 8): Promise<PublicCreatorListI
     })
     .slice(0, limit);
 }
+
