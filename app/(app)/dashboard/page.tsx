@@ -93,14 +93,9 @@ export default async function DashboardPage() {
                 <Link href={`/creator/${profile.handle}`}>My Theatre</Link>
               </Button>
               {isAdmin ? (
-                <>
-                  <Button asChild variant="ghost" size="lg">
-                    <Link href="/admin">Admin Tools</Link>
-                  </Button>
-                  <Button asChild variant="ghost" size="lg">
-                    <Link href="/admin/badges">Badge Management</Link>
-                  </Button>
-                </>
+                <Button asChild variant="ghost" size="lg">
+                  <Link href="/admin">Admin Tools</Link>
+                </Button>
               ) : null}
             </div>
           </div>
@@ -279,6 +274,7 @@ export default async function DashboardPage() {
     );
   }
 }
+
 
 
 
