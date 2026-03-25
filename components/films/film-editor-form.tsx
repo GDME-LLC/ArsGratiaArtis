@@ -184,7 +184,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
 
         <div className="mt-4 grid gap-3.5 sm:mt-6 sm:gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)] lg:gap-5">
-          <div className="grid gap-4">
+          <div className="min-w-0 grid gap-4">
             <Field label="Title">
               <input
                 value={form.title}
@@ -264,9 +264,11 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
             </Field>
           </div>
 
-          <aside className="rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:p-5">
+          <aside className="min-w-0 rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:p-5">
             <p className="display-kicker">Release Route</p>
-            <p className="mt-3 text-sm uppercase tracking-[0.22em] text-muted-foreground">/film/{normalizeSlug(form.slug || form.title || "your-film")}</p>
+            <p className="mt-3 break-all text-sm uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.22em]">
+              /film/{normalizeSlug(form.slug || form.title || "your-film")}
+            </p>
             <div className="mt-5 grid gap-3 text-sm text-muted-foreground">
               <p>Start with language and structure.</p>
               <p>Add presentation details once the release reads clearly.</p>
@@ -286,7 +288,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
 
         <div className="mt-4 grid gap-3.5 sm:mt-6 sm:gap-4 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
-          <div className="grid gap-4">
+          <div className="min-w-0 grid gap-4">
             <Field label="Poster image" helperText="Optional. A custom poster overrides the automatic thumbnail.">
               <ImageUploadField
                 entityType="film"
@@ -353,7 +355,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
             </Field>
           </div>
 
-          <div className="grid gap-4">
+          <div className="min-w-0 grid gap-4">
             <Field label="Process Summary" helperText="A short summary of how the piece was made.">
               <div className="grid gap-2">
                 <textarea
