@@ -385,6 +385,32 @@ export type AdminFilmRow = {
   };
 };
 
+export type AdminReportedFilmRow = AdminFilmRow & {
+  reportCount: number;
+  openReportCount: number;
+  latestReportAt: string;
+  reportReasons: string[];
+};
+
+export type AdminReportedProfileRow = {
+  id: string;
+  handle: string;
+  displayName: string;
+  avatarUrl: string | null;
+  isCreator: boolean;
+  isPublic: boolean;
+  reportCount: number;
+  openReportCount: number;
+  latestReportAt: string;
+  reportReasons: string[];
+};
+
+export type AdminModerationOverview = {
+  search: string;
+  reportedFilms: AdminReportedFilmRow[];
+  reportedProfiles: AdminReportedProfileRow[];
+};
+
 export type FilmComment = {
   id: string;
   authorId: string;

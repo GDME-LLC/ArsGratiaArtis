@@ -1,4 +1,3 @@
-﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminToolsNav } from "@/components/admin/admin-tools-nav";
@@ -6,10 +5,16 @@ import { AdminFilmPanel } from "@/components/admin/admin-film-panel";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { StatePanel } from "@/components/shared/state-panel";
 import { getAdminUser } from "@/lib/admin";
-import { listAdminFilms } from "@/lib/admin-films";
+import { listAdminReportedContent } from "@/lib/admin-films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
-export default async function AdminFilmsPage() {
+type AdminFilmsPageProps = {
+  searchParams?: Promise<{
+    q?: string;
+  }>;
+};
+
+export default async function AdminFilmsPage({ searchParams }: AdminFilmsPageProps) {
   if (!hasSupabaseServerEnv()) {
     return (
       <SectionShell className="py-20">
@@ -28,7 +33,8 @@ export default async function AdminFilmsPage() {
   }
 
   try {
-    const films = await listAdminFilms(40);
+    const params = searchParams ? await searchParams : undefined;
+    const overview = await listAdminReportedContent(params?.q ?? "");
 
     return (
       <SectionShell className="py-14 sm:py-16">
@@ -38,12 +44,12 @@ export default async function AdminFilmsPage() {
           <p className="display-kicker">Admin Tools</p>
           <h1 className="headline-xl mt-4">Moderation tools</h1>
           <p className="body-lg mt-4">
-            Review recent film records, check public status, and use controlled visibility actions when platform quality or safety needs a human hand.
+            Search across reported films and users, review the active report queue, and take visibility actions only where a human decision is needed.
           </p>
         </div>
 
         <div className="mt-8">
-          <AdminFilmPanel films={films} />
+          <AdminFilmPanel overview={overview} />
         </div>
       </SectionShell>
     );
