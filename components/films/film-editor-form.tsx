@@ -173,7 +173,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
   }
 
   return (
-    <form className="grid gap-3.5 sm:gap-5" onSubmit={handleSubmit}>
+    <form className="grid w-full min-w-0 max-w-full gap-3.5 overflow-hidden sm:gap-5" onSubmit={handleSubmit}>
       <section className="rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Release Identity</p>

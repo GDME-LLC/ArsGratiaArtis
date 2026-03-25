@@ -128,7 +128,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
             </div>
           </div>
 
-          <div className="mt-4 sm:mt-6">
+          <div className="mt-4 min-w-0 sm:mt-6">
             <FilmEditorForm initialFilm={film} availableTools={availableTools} />
           </div>
         </div>

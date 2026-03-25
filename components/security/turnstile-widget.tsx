@@ -67,6 +67,7 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
     try {
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
         sitekey: siteKey,
+        size: 'flexible',
         theme: "dark",
         action,
         callback: (token: string) => {
@@ -105,7 +106,7 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
   }
 
   return (
-    <div className="space-y-3">
+    <div className="max-w-full space-y-3 overflow-hidden">
       <Script
         id="cf-turnstile-script"
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
@@ -128,7 +129,7 @@ export function TurnstileWidget({ action, onTokenChange, resetKey = 0 }: Turnsti
           setRenderError(formatTurnstileError());
         }}
       />
-      <div ref={containerRef} id={elementId} key={`${elementId}-${resetKey}`} className="min-h-[66px]" />
+      <div ref={containerRef} id={elementId} key={`${elementId}-${resetKey}`} className="min-h-[66px] w-full max-w-full" />
       {renderError ? <p className="text-sm text-destructive">{renderError}</p> : null}
       <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
         Protected by Turnstile.
