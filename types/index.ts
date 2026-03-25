@@ -17,7 +17,7 @@ export type TheatreStylePresetId =
   | "ember"
   | "obsidian";
 
-export type TheatreSectionId = "about" | "featured_work" | "releases" | "links";
+export type TheatreSectionId = "about" | "creative_stack" | "featured_work" | "releases" | "links";
 
 export type CreatorTheatreSettings = {
   stylePreset: TheatreStylePresetId;
@@ -25,8 +25,20 @@ export type CreatorTheatreSettings = {
   heroVideoUrl: string | null;
   openingStatement: string | null;
   featuredFilmId: string | null;
+  preferredToolSlugs: string[];
+  creativeProcessSummary: string | null;
   visibleSections: TheatreSectionId[];
   sectionOrder: TheatreSectionId[];
+};
+
+export type ToolOption = {
+  id: string;
+  name: string;
+  slug: string;
+  category: string | null;
+  description: string | null;
+  websiteUrl: string | null;
+  isFeatured: boolean;
 };
 
 export type FoundingCreatorInfo = {
@@ -185,7 +197,10 @@ export type FilmEditorValues = {
   muxAssetId: string | null;
   muxPlaybackId: string | null;
   promptText: string;
+  processSummary: string;
   processNotes: string;
+  processTags: string[];
+  selectedToolIds: string[];
   promptVisibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publishStatus: "draft" | "published" | "archived";
@@ -205,13 +220,11 @@ export type PublicFilmPageData = {
   muxPlaybackId: string | null;
   creation: {
     promptText: string | null;
+    processSummary: string | null;
     processNotes: string | null;
+    processTags: string[];
     promptVisibility: "public" | "followers" | "private";
-    tools: Array<{
-      id: string;
-      name: string;
-      slug: string;
-    }>;
+    tools: ToolOption[];
   };
   engagement: {
     likeCount: number;
@@ -382,6 +395,3 @@ export type FilmComment = {
   isDeleted: boolean;
   createdAt: string;
 };
-
-
-

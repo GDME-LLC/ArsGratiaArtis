@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 
+import { MAX_TOOL_SELECTIONS, FILM_PROCESS_SUMMARY_LIMIT, normalizeProcessTags } from "@/lib/constants/process";
 import { isFilmCategory } from "@/lib/films/categories";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { isValidFilmSlug, normalizeSlug } from "@/lib/films/slug";
 import { moderateTextFields } from "@/lib/security/moderation";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
-import {
-  createOrUpdateFilm,
-} from "@/lib/services/films";
+import { createOrUpdateFilm } from "@/lib/services/films";
 import {
   createServerSupabaseClient,
   hasSupabaseServerEnv,
@@ -22,7 +21,10 @@ type FilmPayload = {
   category?: string;
   poster_url?: string | null;
   prompt_text?: string | null;
+  process_summary?: string | null;
   process_notes?: string | null;
+  process_tags?: unknown;
+  tool_ids?: unknown;
   prompt_visibility?: "public" | "followers" | "private";
   visibility?: "public" | "unlisted" | "private";
   publish_status?: "draft" | "published" | "archived";
@@ -80,6 +82,12 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
   const publishStatus = payload.publish_status ?? "draft";
   const promptVisibility = payload.prompt_visibility ?? "private";
   const category = payload.category ?? "film";
+  const processSummary = payload.process_summary?.trim() || null;
+  const processNotes = payload.process_notes?.trim() || null;
+  const processTags = normalizeProcessTags(payload.process_tags);
+  const toolIds = Array.isArray(payload.tool_ids)
+    ? [...new Set(payload.tool_ids.filter((value): value is string => typeof value === "string" && value.trim().length > 0).map((value) => value.trim()))].slice(0, MAX_TOOL_SELECTIONS)
+    : [];
 
   if (!title) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
@@ -93,10 +101,16 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
     return NextResponse.json({ error: "Category is invalid." }, { status: 400 });
   }
 
+  if (processSummary && processSummary.length > FILM_PROCESS_SUMMARY_LIMIT) {
+    return NextResponse.json({ error: `Process summary must be ${FILM_PROCESS_SUMMARY_LIMIT} characters or fewer.` }, { status: 400 });
+  }
+
   const moderation = await moderateTextFields([
     { label: "title", value: title },
     { label: "synopsis", value: payload.synopsis ?? null },
     { label: "description", value: payload.description ?? null },
+    { label: "process_summary", value: processSummary },
+    { label: "process_notes", value: processNotes },
   ]);
 
   if (!moderation.ok) {
@@ -118,7 +132,10 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
       category,
       posterUrl: payload.poster_url?.trim() || null,
       promptText: payload.prompt_text?.trim() || null,
-      processNotes: payload.process_notes?.trim() || null,
+      processSummary,
+      processNotes,
+      processTags,
+      toolIds,
       promptVisibility,
       visibility,
       publishStatus,

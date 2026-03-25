@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { CREATIVE_PROCESS_SUMMARY_LIMIT } from "@/lib/constants/process";
 import { isValidHandle, mapProfile } from "@/lib/profiles";
 import { normalizeTheatreSettings, THEATRE_OPENING_STATEMENT_LIMIT } from "@/lib/theatre";
 import { moderateTextFields } from "@/lib/security/moderation";
@@ -77,10 +78,21 @@ export async function PUT(request: Request) {
     );
   }
 
+  if (
+    theatreSettings.creativeProcessSummary &&
+    theatreSettings.creativeProcessSummary.length > CREATIVE_PROCESS_SUMMARY_LIMIT
+  ) {
+    return NextResponse.json(
+      { error: `Creative Stack summary must be ${CREATIVE_PROCESS_SUMMARY_LIMIT} characters or fewer.` },
+      { status: 400 },
+    );
+  }
+
   const moderation = await moderateTextFields([
     { label: "display_name", value: displayName },
     { label: "bio", value: payload.bio ?? null },
     { label: "opening_statement", value: theatreSettings.openingStatement },
+    { label: "creative_process_summary", value: theatreSettings.creativeProcessSummary },
   ]);
 
   if (!moderation.ok) {

@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
+import { CREATIVE_PROCESS_SUMMARY_LIMIT, MAX_TOOL_SELECTIONS, normalizeToolSlugs } from "@/lib/constants/process";
 import { theatreStylePresetOrder, theatreStylePresets } from "@/lib/constants/theatre-style-presets";
 import {
   defaultTheatreSettings,
@@ -13,11 +14,18 @@ import {
   THEATRE_OPENING_STATEMENT_LIMIT,
 } from "@/lib/theatre";
 import { cn } from "@/lib/utils";
-import type { CreatorFilmListItem, CreatorTheatreSettings, Profile, TheatreSectionId } from "@/types";
+import type {
+  CreatorFilmListItem,
+  CreatorTheatreSettings,
+  Profile,
+  TheatreSectionId,
+  ToolOption,
+} from "@/types";
 
 type ProfileSettingsFormProps = {
   profile: Profile;
   availableFilms: CreatorFilmListItem[];
+  availableTools: ToolOption[];
 };
 
 type FormState = {
@@ -50,7 +58,7 @@ const studioSections = [
   { id: "theatre-settings", label: "Theatre Settings" },
 ] as const;
 
-export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettingsFormProps) {
+export function ProfileSettingsForm({ profile, availableFilms, availableTools }: ProfileSettingsFormProps) {
   const [form, setForm] = useState<FormState>({
     handle: profile.handle,
     display_name: profile.displayName,
@@ -70,6 +78,7 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
 
   const uploadInFlight = isAvatarUploading || isBannerUploading || isHeroUploading;
   const openingStatementLength = form.theatre_settings.openingStatement?.length ?? 0;
+  const creativeProcessSummaryLength = form.theatre_settings.creativeProcessSummary?.length ?? 0;
   const orderedSections = useMemo(
     () => form.theatre_settings.sectionOrder.map((sectionId) => theatreSectionDefinitions.find((section) => section.id === sectionId)).filter(Boolean),
     [form.theatre_settings.sectionOrder],
@@ -120,6 +129,22 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
     });
   }
 
+  function togglePreferredTool(slug: string) {
+    updateTheatreSettings((current) => {
+      const next = new Set(current.preferredToolSlugs);
+      if (next.has(slug)) {
+        next.delete(slug);
+      } else if (next.size < MAX_TOOL_SELECTIONS) {
+        next.add(slug);
+      }
+
+      return {
+        ...current,
+        preferredToolSlugs: normalizeToolSlugs([...next]),
+      };
+    });
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -137,6 +162,11 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
 
     if (openingStatementLength > THEATRE_OPENING_STATEMENT_LIMIT) {
       setError(`Opening Statement must be ${THEATRE_OPENING_STATEMENT_LIMIT} characters or fewer.`);
+      return;
+    }
+
+    if (creativeProcessSummaryLength > CREATIVE_PROCESS_SUMMARY_LIMIT) {
+      setError(`Creative Stack summary must be ${CREATIVE_PROCESS_SUMMARY_LIMIT} characters or fewer.`);
       return;
     }
 
@@ -166,6 +196,8 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
             openingStatement: form.theatre_settings.openingStatement?.trim() || null,
             heroImageUrl: form.theatre_settings.heroImageUrl || null,
             featuredFilmId: form.theatre_settings.featuredFilmId || null,
+            creativeProcessSummary: form.theatre_settings.creativeProcessSummary?.trim() || null,
+            preferredToolSlugs: normalizeToolSlugs(form.theatre_settings.preferredToolSlugs),
           }),
         }),
       });
@@ -192,7 +224,7 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
           <p className="display-kicker">Creator Studio</p>
           <h1 className="headline-lg text-balance">Private workspace for your profile and Theatre settings</h1>
           <p className="body-sm max-w-3xl">
-            Manage your creator identity behind the scenes and shape what appears publicly on your Theatre without turning ArsGratia into a creation suite.
+            Manage your creator identity behind the scenes and shape what appears publicly on your Theatre, including your creative stack and process framing, without turning ArsGratia into a creation suite.
           </p>
         </div>
         <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-start sm:gap-3">
@@ -271,7 +303,7 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
             <p className="display-kicker text-foreground/80">Theatre Settings</p>
             <h2 className="headline-sm text-foreground">Configure what the public Theatre shows and how it feels</h2>
             <p className="body-sm max-w-3xl">
-              The Theatre is your public-facing stage. These controls affect presentation, section visibility, and the mood of the shareable page without turning ArsGratia into a template editor.
+              The Theatre is your public-facing stage. These controls affect presentation, section visibility, and the mood of the shareable page, including whether you credit a creative stack and describe your practice.
             </p>
           </div>
 
@@ -313,6 +345,13 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
                     <p className="text-xs text-muted-foreground">{openingStatementLength}/{THEATRE_OPENING_STATEMENT_LIMIT}</p>
                   </div>
                 </Field>
+
+                <Field label="Practice / Methods" helperText="A short note on how you typically approach the work.">
+                  <div className="grid gap-2">
+                    <textarea value={form.theatre_settings.creativeProcessSummary ?? ""} onChange={(event) => updateTheatreSettings((current) => ({ ...current, creativeProcessSummary: event.target.value.slice(0, CREATIVE_PROCESS_SUMMARY_LIMIT) }))} className={cn(inputClassName, "min-h-28 py-3")} placeholder="A concise summary of your creative process, methods, or production approach." />
+                    <p className="text-xs text-muted-foreground">{creativeProcessSummaryLength}/{CREATIVE_PROCESS_SUMMARY_LIMIT}</p>
+                  </div>
+                </Field>
               </div>
 
               <div className="grid gap-5">
@@ -324,6 +363,31 @@ export function ProfileSettingsForm({ profile, availableFilms }: ProfileSettings
                     ))}
                   </select>
                 </Field>
+
+                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 sm:p-5">
+                  <p className="display-kicker text-foreground/80">Creative Stack</p>
+                  <p className="body-sm mt-2">Choose up to {MAX_TOOL_SELECTIONS} preferred tools to display publicly on your Theatre.</p>
+                  <div className="mt-4 flex flex-wrap gap-2.5">
+                    {availableTools.map((tool) => {
+                      const selected = form.theatre_settings.preferredToolSlugs.includes(tool.slug);
+                      return (
+                        <button
+                          key={tool.id}
+                          type="button"
+                          onClick={() => togglePreferredTool(tool.slug)}
+                          className={cn(
+                            "rounded-full border px-3.5 py-2 text-[11px] uppercase tracking-[0.14em] transition",
+                            selected
+                              ? "border-primary/40 bg-primary/10 text-primary"
+                              : "border-white/10 bg-black/20 text-foreground/82 hover:border-white/20 hover:text-foreground",
+                          )}
+                        >
+                          {tool.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 sm:p-5">
                   <p className="display-kicker text-foreground/80">Visible Sections</p>

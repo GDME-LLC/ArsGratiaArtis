@@ -1,4 +1,8 @@
-﻿import { theatreStylePresets, type TheatreStylePresetDefinition } from "@/lib/constants/theatre-style-presets";
+import { theatreStylePresets, type TheatreStylePresetDefinition } from "@/lib/constants/theatre-style-presets";
+import {
+  CREATIVE_PROCESS_SUMMARY_LIMIT,
+  normalizeToolSlugs,
+} from "@/lib/constants/process";
 import type { CreatorTheatreSettings, TheatreSectionId, TheatreStylePresetId } from "@/types";
 
 export const THEATRE_OPENING_STATEMENT_LIMIT = 160;
@@ -12,6 +16,11 @@ export const theatreSectionDefinitions: Array<{
     id: "about",
     label: "About",
     description: "Bio and identity details near the top of the Theatre.",
+  },
+  {
+    id: "creative_stack",
+    label: "Creative Stack",
+    description: "Preferred tools and a short note on practice or methods.",
   },
   {
     id: "featured_work",
@@ -36,6 +45,8 @@ export const defaultTheatreSettings: CreatorTheatreSettings = {
   heroVideoUrl: null,
   openingStatement: null,
   featuredFilmId: null,
+  preferredToolSlugs: [],
+  creativeProcessSummary: null,
   visibleSections: theatreSectionDefinitions.map((section) => section.id),
   sectionOrder: theatreSectionDefinitions.map((section) => section.id),
 };
@@ -86,6 +97,13 @@ export function normalizeTheatreSettings(value: unknown): CreatorTheatreSettings
   const featuredFilmId = typeof source.featuredFilmId === "string" && source.featuredFilmId.trim()
     ? source.featuredFilmId
     : null;
+  const preferredToolSlugs = normalizeToolSlugs(source.preferredToolSlugs);
+  const creativeProcessSummaryRaw = typeof source.creativeProcessSummary === "string"
+    ? source.creativeProcessSummary.trim()
+    : "";
+  const creativeProcessSummary = creativeProcessSummaryRaw
+    ? creativeProcessSummaryRaw.slice(0, CREATIVE_PROCESS_SUMMARY_LIMIT)
+    : null;
   const visibleSections = normalizeSectionIds(source.visibleSections, defaultTheatreSettings.visibleSections);
   const orderedSections = normalizeSectionIds(source.sectionOrder, defaultTheatreSettings.sectionOrder);
   const missingSections = theatreSectionDefinitions.map((section) => section.id).filter((sectionId) => !orderedSections.includes(sectionId));
@@ -96,6 +114,8 @@ export function normalizeTheatreSettings(value: unknown): CreatorTheatreSettings
     heroVideoUrl,
     openingStatement,
     featuredFilmId,
+    preferredToolSlugs,
+    creativeProcessSummary,
     visibleSections,
     sectionOrder: [...orderedSections, ...missingSections],
   };

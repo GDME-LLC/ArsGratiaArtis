@@ -3,16 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { FILM_PROCESS_SUMMARY_LIMIT, MAX_TOOL_SELECTIONS, normalizeProcessTags, processTagOptions } from "@/lib/constants/process";
 import { FilmVideoUpload } from "@/components/films/film-video-upload";
 import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { FILM_CATEGORY_LABELS, FILM_CATEGORY_VALUES, type FilmCategory } from "@/lib/films/categories";
 import { normalizeSlug } from "@/lib/films/slug";
 import { cn } from "@/lib/utils";
-import type { FilmEditorValues } from "@/types";
+import type { FilmEditorValues, ToolOption } from "@/types";
 
 type FilmEditorFormProps = {
   initialFilm?: FilmEditorValues | null;
+  availableTools: ToolOption[];
 };
 
 type FormState = {
@@ -23,13 +25,16 @@ type FormState = {
   category: FilmCategory;
   poster_url: string;
   prompt_text: string;
+  process_summary: string;
   process_notes: string;
+  process_tags: string[];
+  tool_ids: string[];
   prompt_visibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publish_status: "draft" | "published";
 };
 
-export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
+export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<FormState>({
     title: initialFilm?.title ?? "",
@@ -39,7 +44,10 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
     category: initialFilm?.category ?? "film",
     poster_url: initialFilm?.posterUrl ?? "",
     prompt_text: initialFilm?.promptText ?? "",
+    process_summary: initialFilm?.processSummary ?? "",
     process_notes: initialFilm?.processNotes ?? "",
+    process_tags: initialFilm?.processTags ?? [],
+    tool_ids: initialFilm?.selectedToolIds ?? [],
     prompt_visibility: initialFilm?.promptVisibility ?? "private",
     visibility: initialFilm?.visibility ?? "private",
     publish_status: initialFilm?.publishStatus === "published" ? "published" : "draft",
@@ -52,10 +60,42 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
     ? "Saving..."
     : isPosterUploading
       ? "Uploading Poster..."
-    : initialFilm?.id
-      ? "Save Release"
-      : "Create Draft Release";
+      : initialFilm?.id
+        ? "Save Release"
+        : "Create Draft Release";
   const isPublishing = form.publish_status === "published";
+
+  function toggleTool(toolId: string) {
+    setForm((current) => {
+      const next = new Set(current.tool_ids);
+      if (next.has(toolId)) {
+        next.delete(toolId);
+      } else if (next.size < MAX_TOOL_SELECTIONS) {
+        next.add(toolId);
+      }
+
+      return {
+        ...current,
+        tool_ids: [...next],
+      };
+    });
+  }
+
+  function toggleProcessTag(tag: string) {
+    setForm((current) => {
+      const next = new Set(current.process_tags);
+      if (next.has(tag)) {
+        next.delete(tag);
+      } else if (next.size < MAX_TOOL_SELECTIONS) {
+        next.add(tag);
+      }
+
+      return {
+        ...current,
+        process_tags: normalizeProcessTags([...next]),
+      };
+    });
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -71,6 +111,11 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
 
     if (!slug) {
       setError("Slug is required.");
+      return;
+    }
+
+    if (form.process_summary.trim().length > FILM_PROCESS_SUMMARY_LIMIT) {
+      setError(`Process summary must be ${FILM_PROCESS_SUMMARY_LIMIT} characters or fewer.`);
       return;
     }
 
@@ -101,7 +146,10 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
           category: form.category,
           poster_url: form.poster_url || null,
           prompt_text: form.prompt_text.trim() || null,
+          process_summary: form.process_summary.trim() || null,
           process_notes: form.process_notes.trim() || null,
+          process_tags: normalizeProcessTags(form.process_tags),
+          tool_ids: form.tool_ids,
           prompt_visibility: form.prompt_visibility,
           visibility: form.visibility,
           publish_status: form.publish_status,
@@ -137,9 +185,9 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
       </div>
 
       <div className="mt-6 rounded-[22px] border border-white/10 bg-white/5 p-5">
-        <p className="display-kicker">Publishing Notes</p>
+        <p className="display-kicker">Credits & Process</p>
         <p className="body-sm mt-3">
-          A strong poster, title, synopsis, and public slug are enough to open the page well. Add video when the cut is ready to screen.
+          Use this area to credit tools and describe process with restraint. The work stays primary; production notes should support the release, not overwhelm it.
         </p>
       </div>
 
@@ -244,6 +292,83 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
           />
         </Field>
 
+        <Field label="Tools Used" helperText={`Choose up to ${MAX_TOOL_SELECTIONS} tools to credit on the release page.`}>
+          <div className="flex flex-wrap gap-2.5 rounded-[22px] border border-white/10 bg-black/20 p-4">
+            {availableTools.map((tool) => {
+              const selected = form.tool_ids.includes(tool.id);
+              return (
+                <button
+                  key={tool.id}
+                  type="button"
+                  onClick={() => toggleTool(tool.id)}
+                  className={cn(
+                    "rounded-full border px-3.5 py-2 text-[11px] uppercase tracking-[0.14em] transition",
+                    selected
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-white/10 bg-white/5 text-foreground/82 hover:border-white/20 hover:text-foreground",
+                  )}
+                >
+                  {tool.name}
+                </button>
+              );
+            })}
+          </div>
+        </Field>
+
+        <Field label="Process Summary" helperText="A short summary of how the piece was made.">
+          <div className="grid gap-2">
+            <textarea
+              value={form.process_summary}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  process_summary: event.target.value.slice(0, FILM_PROCESS_SUMMARY_LIMIT),
+                }))
+              }
+              className={cn(inputClassName, "min-h-24 py-3")}
+              placeholder="A concise note on production method, key tools, or the making approach."
+            />
+            <p className="text-xs text-muted-foreground">{form.process_summary.length}/{FILM_PROCESS_SUMMARY_LIMIT}</p>
+          </div>
+        </Field>
+
+        <Field label="Production Notes">
+          <textarea
+            value={form.process_notes}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                process_notes: event.target.value,
+              }))
+            }
+            className={cn(inputClassName, "min-h-32 py-3")}
+            placeholder="Optional notes on process, iteration, tools, or production approach"
+          />
+        </Field>
+
+        <Field label="Process Tags" helperText={`Choose up to ${MAX_TOOL_SELECTIONS} tags to frame the process succinctly.`}>
+          <div className="flex flex-wrap gap-2.5 rounded-[22px] border border-white/10 bg-black/20 p-4">
+            {processTagOptions.map((tag) => {
+              const selected = form.process_tags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => toggleProcessTag(tag)}
+                  className={cn(
+                    "rounded-full border px-3.5 py-2 text-[11px] uppercase tracking-[0.14em] transition",
+                    selected
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-white/10 bg-white/5 text-foreground/82 hover:border-white/20 hover:text-foreground",
+                  )}
+                >
+                  {tag}
+                </button>
+              );
+            })}
+          </div>
+        </Field>
+
         <Field label="Prompt">
           <textarea
             value={form.prompt_text}
@@ -255,20 +380,6 @@ export function FilmEditorForm({ initialFilm }: FilmEditorFormProps) {
             }
             className={cn(inputClassName, "min-h-32 py-3")}
             placeholder="Optional prompt text, creative brief, or excerpt"
-          />
-        </Field>
-
-        <Field label="Process Notes">
-          <textarea
-            value={form.process_notes}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                process_notes: event.target.value,
-              }))
-            }
-            className={cn(inputClassName, "min-h-32 py-3")}
-            placeholder="Optional notes on process, iteration, tools, or production approach"
           />
         </Field>
 
@@ -406,5 +517,3 @@ const selectClassName =
   "h-12 w-full rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition focus:border-primary/60 focus:bg-[hsl(var(--surface-3))] focus:text-foreground [color-scheme:dark] [&>option]:bg-[#11141c] [&>option]:text-[#f4eee4]";
 
 const selectOptionClassName = "bg-[#11141c] text-[#f4eee4]";
-
-

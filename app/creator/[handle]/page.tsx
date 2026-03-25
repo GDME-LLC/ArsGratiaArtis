@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -9,7 +9,9 @@ import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
+import { findResourceEntryByToolSlug } from "@/lib/resources/tool-links";
 import { getPublicProfileByHandle } from "@/lib/profiles";
+import { listToolsBySlugs } from "@/lib/services/tools";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { getOrderedVisibleTheatreSections, getTheatreStylePreset } from "@/lib/theatre";
 import { cn, formatCountLabel, formatFollowerCount, formatMonthYear } from "@/lib/utils";
@@ -43,6 +45,7 @@ export async function generateMetadata({ params }: CreatorPageProps): Promise<Me
   const title = `${profile.displayName} (@${profile.handle}) | ArsGratia`;
   const description =
     profile.theatreSettings.openingStatement ||
+    profile.theatreSettings.creativeProcessSummary ||
     profile.bio ||
     `${profile.displayName} on ArsGratia${films.length > 0 ? ` - ${formatCountLabel(films.length, "public release")}` : "."}`;
 
@@ -101,6 +104,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   }
 
   const { profile, films } = data;
+  const preferredTools = await listToolsBySlugs(profile.theatreSettings.preferredToolSlugs);
   const founderSince = formatMonthYear(profile.foundingCreator.awardedAt);
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
   const theatreUrl = `${siteUrl}/creator/${profile.handle}`;
@@ -115,6 +119,10 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   const visibleSections = getOrderedVisibleTheatreSections(theatreSettings).filter((sectionId) => {
     if (sectionId === "featured_work") {
       return Boolean(featuredFilm);
+    }
+
+    if (sectionId === "creative_stack") {
+      return preferredTools.length > 0 || Boolean(theatreSettings.creativeProcessSummary);
     }
 
     if (sectionId === "releases") {
@@ -242,6 +250,38 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                       <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">
                         {profile.bio || "This Theatre is open. A fuller note will appear here as releases and context accumulate around the work."}
                       </p>
+                    </article>
+                  );
+                }
+
+                if (sectionId === "creative_stack") {
+                  return (
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
+                      <p className={cn("display-kicker", preset.eyebrowClass)}>Creative Stack</p>
+                      {theatreSettings.creativeProcessSummary ? (
+                        <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">{theatreSettings.creativeProcessSummary}</p>
+                      ) : null}
+                      {preferredTools.length > 0 ? (
+                        <div className="mt-4 flex flex-wrap gap-2.5 sm:mt-5">
+                          {preferredTools.map((tool) => {
+                            const resourceEntry = findResourceEntryByToolSlug(tool.slug);
+                            const href = resourceEntry ? `/resources#resource-entry-${tool.slug}` : tool.websiteUrl;
+                            const content = (
+                              <span className="rounded-full border border-white/10 bg-black/20 px-3.5 py-2 text-[11px] uppercase tracking-[0.14em] text-foreground/84">
+                                {tool.name}
+                              </span>
+                            );
+
+                            return href ? (
+                              <Link key={tool.id} href={href} className="transition hover:opacity-90">
+                                {content}
+                              </Link>
+                            ) : (
+                              <span key={tool.id}>{content}</span>
+                            );
+                          })}
+                        </div>
+                      ) : null}
                     </article>
                   );
                 }

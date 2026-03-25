@@ -5,6 +5,7 @@ import type {
   PublicFilmCard,
   PublicFilmPageData,
   PublicSeriesPageData,
+  ToolOption,
 } from "@/types";
 
 import { type FilmCategory } from "@/lib/films/categories";
@@ -18,6 +19,7 @@ import {
 } from "@/lib/services/badges";
 import { getFilmCommentCounts } from "@/lib/services/comments";
 import { normalizeSlug } from "@/lib/films/slug";
+import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const GLOBAL_FILM_SLUG_MESSAGE =
@@ -108,6 +110,57 @@ async function selectPublicFilmRows(
   }
 }
 
+async function listFilmToolIds(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>> | ReturnType<typeof createServiceRoleSupabaseClient>,
+  filmId: string,
+): Promise<string[]> {
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("film_tools")
+    .select("tool_id")
+    .eq("film_id", filmId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return [...new Set((data ?? []).map((row) => String(row.tool_id)))];
+}
+
+async function syncFilmTools(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>> | ReturnType<typeof createServiceRoleSupabaseClient>,
+  filmId: string,
+  toolIds: string[],
+) {
+  if (!supabase) {
+    return;
+  }
+
+  const { error: deleteError } = await supabase
+    .from("film_tools")
+    .delete()
+    .eq("film_id", filmId);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  if (toolIds.length === 0) {
+    return;
+  }
+
+  const { error: insertError } = await supabase
+    .from("film_tools")
+    .insert(toolIds.map((toolId) => ({ film_id: filmId, tool_id: toolId })));
+
+  if (insertError) {
+    throw new Error(insertError.message);
+  }
+}
+
 export async function listCreatorFilms(creatorId: string): Promise<CreatorFilmListItem[]> {
   const supabase = await createServerSupabaseClient();
 
@@ -156,7 +209,7 @@ export async function getCreatorFilmById(
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, description, category, poster_url, mux_asset_id, mux_playback_id, prompt_text, process_notes, prompt_visibility, visibility, publish_status, moderation_status, moderation_reason, reviewed_at")
+    .select("id, title, slug, synopsis, description, category, poster_url, mux_asset_id, mux_playback_id, prompt_text, process_summary, process_notes, process_tags, prompt_visibility, visibility, publish_status, moderation_status, moderation_reason, reviewed_at")
     .eq("id", filmId)
     .eq("creator_id", creatorId)
     .eq("publish_status", "draft")
@@ -170,6 +223,7 @@ export async function getCreatorFilmById(
     return null;
   }
 
+  const selectedToolIds = await listFilmToolIds(supabase, filmId);
 
   return {
     id: data.id,
@@ -182,7 +236,10 @@ export async function getCreatorFilmById(
     muxAssetId: data.mux_asset_id ?? null,
     muxPlaybackId: data.mux_playback_id ?? null,
     promptText: data.prompt_text ?? "",
+    processSummary: data.process_summary ?? "",
     processNotes: data.process_notes ?? "",
+    processTags: Array.isArray(data.process_tags) ? data.process_tags.filter((tag): tag is string => typeof tag === "string") : [],
+    selectedToolIds,
     promptVisibility: data.prompt_visibility,
     visibility: data.visibility,
     publishStatus: data.publish_status,
@@ -232,12 +289,16 @@ export async function createOrUpdateFilm(input: {
   category: FilmCategory;
   posterUrl: string | null;
   promptText: string | null;
+  processSummary: string | null;
   processNotes: string | null;
+  processTags: string[];
+  toolIds: string[];
   promptVisibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publishStatus: "draft" | "published" | "archived";
 }) {
   const supabase = await createServerSupabaseClient();
+  const serviceRoleSupabase = createServiceRoleSupabaseClient();
 
   if (!supabase) {
     throw new Error("Supabase is not configured.");
@@ -272,7 +333,9 @@ export async function createOrUpdateFilm(input: {
         category: input.category,
         poster_url: input.posterUrl,
         prompt_text: input.promptText,
+        process_summary: input.processSummary,
         process_notes: input.processNotes,
+        process_tags: input.processTags,
         prompt_visibility: input.promptVisibility,
         visibility: input.visibility,
         publish_status: input.publishStatus,
@@ -291,6 +354,7 @@ export async function createOrUpdateFilm(input: {
       throw new Error(error.message);
     }
 
+    await syncFilmTools(serviceRoleSupabase ?? supabase, data.id, input.toolIds);
     return data;
   }
 
@@ -305,7 +369,9 @@ export async function createOrUpdateFilm(input: {
       category: input.category,
       poster_url: input.posterUrl,
       prompt_text: input.promptText,
+      process_summary: input.processSummary,
       process_notes: input.processNotes,
+      process_tags: input.processTags,
       prompt_visibility: input.promptVisibility,
       visibility: input.visibility,
       publish_status: input.publishStatus,
@@ -322,6 +388,7 @@ export async function createOrUpdateFilm(input: {
     throw new Error(error.message);
   }
 
+  await syncFilmTools(serviceRoleSupabase ?? supabase, data.id, input.toolIds);
   return data;
 }
 
@@ -350,7 +417,6 @@ export async function getDraftFilmOwnership(
   if (!data) {
     return null;
   }
-
 
   return {
     id: data.id,
@@ -387,7 +453,6 @@ export async function attachMuxAssetToDraftFilm(input: {
     throw new Error(error.message);
   }
 
-
   return {
     id: data.id,
     muxAssetId: data.mux_asset_id ?? null,
@@ -408,7 +473,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
 
   const { data, error } = await supabase
     .from("films")
-    .select("id, title, slug, synopsis, description, category, poster_url, mux_playback_id, prompt_text, process_notes, prompt_visibility, published_at, creator_id, visibility, moderation_status, moderation_reason, reviewed_at, series_id, season_number, episode_number")
+    .select("id, title, slug, synopsis, description, category, poster_url, mux_playback_id, prompt_text, process_summary, process_notes, process_tags, prompt_visibility, published_at, creator_id, visibility, moderation_status, moderation_reason, reviewed_at, series_id, season_number, episode_number")
     .eq("slug", slug.toLowerCase())
     .eq("publish_status", "published")
     .maybeSingle();
@@ -428,10 +493,10 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
   }
 
   const [commentCounts, likeCounts, likedIds] = await Promise.all([
-  getFilmCommentCounts([data.id]),
-  getFilmLikeCounts([data.id]),
-  getViewerLikedFilmIds([data.id], user?.id),
-]);
+    getFilmCommentCounts([data.id]),
+    getFilmLikeCounts([data.id]),
+    getViewerLikedFilmIds([data.id], user?.id),
+  ]);
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
@@ -476,12 +541,12 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
   }
 
   const toolIds = [...new Set((filmToolRows ?? []).map((row) => row.tool_id))];
-  let tools: Array<{ id: string; name: string; slug: string }> = [];
+  let tools: ToolOption[] = [];
 
   if (toolIds.length > 0) {
     const { data: toolRows, error: toolsError } = await supabase
       .from("tools")
-      .select("id, name, slug")
+      .select("id, name, slug, category, description, website_url, is_featured")
       .in("id", toolIds)
       .order("name", { ascending: true });
 
@@ -493,6 +558,10 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
       id: tool.id,
       name: tool.name,
       slug: tool.slug,
+      category: tool.category ?? null,
+      description: tool.description ?? null,
+      websiteUrl: tool.website_url ?? null,
+      isFeatured: Boolean(tool.is_featured),
     }));
   }
 
@@ -569,7 +638,9 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     muxPlaybackId: data.mux_playback_id ?? null,
     creation: {
       promptText: canViewPrompt ? data.prompt_text ?? null : null,
+      processSummary: data.process_summary ?? null,
       processNotes: data.process_notes ?? null,
+      processTags: Array.isArray(data.process_tags) ? data.process_tags.filter((tag): tag is string => typeof tag === "string") : [],
       promptVisibility: data.prompt_visibility,
       tools,
     },
@@ -591,9 +662,10 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     isOwner,
     moderationStatus: data.moderation_status ?? "active",
     moderationReason: data.moderation_reason ?? null,
-    reviewedAt: data.reviewed_at ?? null
+    reviewedAt: data.reviewed_at ?? null,
   };
 }
+
 async function hydratePublicFilmCards(
   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   films: PublicFilmRow[],
@@ -881,23 +953,3 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
@@ -6,6 +6,7 @@ import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
+import { listToolCatalog } from "@/lib/services/tools";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
@@ -41,7 +42,10 @@ export default async function SettingsPage() {
       );
     }
 
-    const availableFilms = await listCreatorFilms(profile.id);
+    const [availableFilms, availableTools] = await Promise.all([
+      listCreatorFilms(profile.id),
+      listToolCatalog(),
+    ]);
 
     return (
       <section className="container-shell py-8 sm:py-12 lg:py-16">
@@ -53,7 +57,7 @@ export default async function SettingsPage() {
             <Link href={`/creator/${profile.handle}`}>My Theatre</Link>
           </Button>
         </div>
-        <ProfileSettingsForm profile={profile} availableFilms={availableFilms} />
+        <ProfileSettingsForm profile={profile} availableFilms={availableFilms} availableTools={availableTools} />
       </section>
     );
   } catch (error) {

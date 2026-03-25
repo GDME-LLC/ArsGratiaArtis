@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { FilmEditorForm } from "@/components/films/film-editor-form";
@@ -6,6 +6,7 @@ import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { getCreatorFilmById } from "@/lib/services/films";
+import { listToolCatalog } from "@/lib/services/tools";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
@@ -59,7 +60,10 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     }
 
     const params = searchParams ? await searchParams : undefined;
-    const film = params?.film ? await getCreatorFilmById(params.film, profile.id) : null;
+    const [film, availableTools] = await Promise.all([
+      params?.film ? getCreatorFilmById(params.film, profile.id) : Promise.resolve(null),
+      listToolCatalog(),
+    ]);
 
     if (params?.film && !film) {
       return (
@@ -85,10 +89,10 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <div className="mb-6 max-w-2xl">
           <p className="display-kicker">Creator Workspace</p>
           <h1 className="headline-lg mt-3">
-            {film ? "Refine your release page" : "Start a release page"}
+            {film ? "Refine your release" : "Start a release"}
           </h1>
           <p className="body-lg mt-4">
-            Poster-led release pages are supported. You can publish artwork, title, synopsis, and slug first, then attach video when the final delivery is ready.
+            Poster-led release pages are supported. You can publish artwork, title, synopsis, and slug first, then attach video, credited tools, and production notes when the final delivery is ready.
           </p>
         </div>
         <div className="mb-6 rounded-[24px] border border-white/10 bg-white/5 p-6">
@@ -116,12 +120,12 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
               </p>
             </article>
             <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-              <p className="title-md text-foreground">Draft Release Path</p>
+              <p className="title-md text-foreground">Credits & Process</p>
               <ol className="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">
-                <li>1. Create and save your film draft</li>
-                <li>2. Upload your video</li>
-                <li>3. Add poster or allow automatic thumbnail</li>
-                <li>4. Publish your film</li>
+                <li>1. Add the tools used on the release</li>
+                <li>2. Write a short process summary</li>
+                <li>3. Expand with production notes only if it helps the work</li>
+                <li>4. Publish when the page reads clearly and cleanly</li>
               </ol>
             </article>
           </div>
@@ -129,7 +133,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
             ArsGratia does not manually pre-approve every upload. Creators are responsible for publishing only work they have the legal right to release. Reports and takedown requests are reviewed if concerns are raised.
           </div>
         </div>
-        <FilmEditorForm initialFilm={film} />
+        <FilmEditorForm initialFilm={film} availableTools={availableTools} />
       </section>
     );
   } catch (error) {

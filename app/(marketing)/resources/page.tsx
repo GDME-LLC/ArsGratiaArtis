@@ -1,9 +1,16 @@
-import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
 import { resourcesByCategory, type ResourceCategoryId } from "@/lib/constants/resources";
+
+function normalizeResourceKey(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 type ResourceGroup = {
   id: string;
@@ -115,13 +122,18 @@ export default function ResourcesPage() {
                 </div>
 
                 <div className="relative min-h-[180px] overflow-hidden rounded-[24px] border border-white/10 bg-black/30">
-                  <Image
-                    src={group.imageSrc}
-                    alt={group.imageAlt}
-                    fill
-                    className={group.id === "community" ? "object-contain p-8 opacity-80" : "object-cover opacity-45"}
-                    sizes="(max-width: 1024px) 100vw, 36vw"
+                  <div
+                    className="absolute inset-0 bg-cover bg-center opacity-45"
+                    style={{ backgroundImage: `url(${group.imageSrc})` }}
                   />
+                  {group.id === "community" ? (
+                    <div className="absolute inset-0 flex items-center justify-center p-8">
+                      <div
+                        className="h-full w-full bg-contain bg-center bg-no-repeat opacity-80"
+                        style={{ backgroundImage: `url(${group.imageSrc})` }}
+                      />
+                    </div>
+                  ) : null}
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,14,0.2),rgba(10,10,14,0.82))]" />
                   <div className="absolute inset-x-0 bottom-0 p-5">
                     <p className="display-kicker">Curated Focus</p>
@@ -146,16 +158,18 @@ export default function ResourcesPage() {
 
                     <div className="mt-4 grid gap-3">
                       {category.items.slice(0, group.id === "tools" ? 3 : 4).map((resource) => (
-                        <div key={resource.name} className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+                        <div key={resource.name} id={`resource-entry-${normalizeResourceKey(resource.name)}`} className="rounded-[20px] border border-white/10 bg-white/5 p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               {resource.logoUrl ? (
-                                <img
-                                  src={resource.logoUrl}
-                                  alt={resource.logoAlt ?? resource.name}
-                                  className="mb-3 h-5 w-auto max-w-[140px] object-contain opacity-90"
-                                  loading="lazy"
-                                />
+                                <div className="mb-3 h-5 max-w-[140px]">
+                                  <img
+                                    src={resource.logoUrl}
+                                    alt={resource.logoAlt ?? resource.name}
+                                    className="h-full w-auto object-contain opacity-90"
+                                    loading="lazy"
+                                  />
+                                </div>
                               ) : null}
                               <h3 className="title-md text-foreground">{resource.name}</h3>
                               <p className="body-sm mt-2">{resource.description}</p>

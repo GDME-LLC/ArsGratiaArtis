@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
@@ -72,15 +72,9 @@ export default async function DashboardPage() {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              {profile.isCreator ? (
-                <Button asChild size="lg">
-                  <Link href="/upload">Start New Release</Link>
-                </Button>
-              ) : (
-                <Button asChild size="lg">
-                  <Link href="/settings">Open Creator Studio</Link>
-                </Button>
-              )}
+              <Button asChild size="lg">
+                <Link href="/upload">Start a Release</Link>
+              </Button>
               <Button asChild variant="ghost" size="lg">
                 <Link href="/settings">Creator Studio</Link>
               </Button>
@@ -260,3 +254,4 @@ export default async function DashboardPage() {
     );
   }
 }
+

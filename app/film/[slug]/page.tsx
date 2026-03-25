@@ -8,6 +8,7 @@ import { FilmArtwork } from "@/components/films/film-artwork";
 import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
+import { findResourceEntryByToolSlug } from "@/lib/resources/tool-links";
 import { getFilmArtworkUrl } from "@/lib/films/artwork";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
 import { getMuxPlaybackUrl } from "@/lib/films/playback";
@@ -51,8 +52,10 @@ export default async function FilmPage({ params }: FilmPageProps) {
   const creatorName = resolveCreatorName({ handle: data.creator.handle, displayName: data.creator.displayName });
   const hasTools = data.creation.tools.length > 0;
   const hasProcessNotes = Boolean(data.creation.processNotes);
+  const hasProcessSummary = Boolean(data.creation.processSummary);
   const hasPromptText = Boolean(data.creation.promptText);
-  const hasAnyProcessMaterial = hasTools || hasProcessNotes || hasPromptText;
+  const hasProcessTags = data.creation.processTags.length > 0;
+  const hasAnyProcessMaterial = hasTools || hasProcessSummary || hasProcessNotes || hasPromptText || hasProcessTags;
   const promptVisibilityLabel =
     data.creation.promptVisibility === "public"
       ? "Visible on this release page"
@@ -131,14 +134,26 @@ export default async function FilmPage({ params }: FilmPageProps) {
                   </div>
                 ) : null}
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Tools behind the work</p>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Tools Used</p>
                   {hasTools ? (
                     <div className="mt-3 flex min-w-0 flex-wrap gap-2">
-                      {data.creation.tools.map((tool) => (
-                        <span key={tool.id} className="max-w-full rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
-                          {tool.name}
-                        </span>
-                      ))}
+                      {data.creation.tools.map((tool) => {
+                        const resourceEntry = findResourceEntryByToolSlug(tool.slug);
+                        const href = resourceEntry ? `/resources#resource-entry-${tool.slug}` : tool.websiteUrl;
+                        const content = (
+                          <span className="max-w-full rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
+                            {tool.name}
+                          </span>
+                        );
+
+                        return href ? (
+                          <Link key={tool.id} href={href} className="transition hover:opacity-90">
+                            {content}
+                          </Link>
+                        ) : (
+                          <span key={tool.id}>{content}</span>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="mt-2 text-sm text-muted-foreground">{processSummary}</p>
@@ -161,35 +176,65 @@ export default async function FilmPage({ params }: FilmPageProps) {
             <div className="mt-7 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
-                  <p className="display-kicker">Tools behind the work</p>
+                  <p className="display-kicker">Process</p>
                   <p className="mt-4 text-sm text-muted-foreground">{processSummary}</p>
                   <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
                     <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Prompt visibility</p>
                     <p className="mt-2 text-sm text-foreground">{promptVisibilityLabel}</p>
                   </div>
+                  {data.creation.processSummary ? (
+                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Workflow / Process</p>
+                      <p className="mt-2 body-sm">{data.creation.processSummary}</p>
+                    </div>
+                  ) : null}
+                  {hasProcessTags ? (
+                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Made With</p>
+                      <div className="mt-3 flex min-w-0 flex-wrap gap-2">
+                        {data.creation.processTags.map((tag) => (
+                          <span key={tag} className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                   {hasPromptText ? (
                     <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
                       <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Prompt</p>
                       <p className="mt-2 body-sm">{data.creation.promptText}</p>
                     </div>
                   ) : null}
-                  {hasTools ? (
-                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Listed tools</p>
-                      <div className="mt-3 flex min-w-0 flex-wrap gap-2">
-                        {data.creation.tools.map((tool) => (
-                          <span key={tool.id} className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
-                            {tool.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
                 </article>
 
                 <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
-                  <p className="display-kicker">Process notes</p>
+                  <p className="display-kicker">Production Notes</p>
                   <p className="body-sm mt-4">{data.creation.processNotes || "No process notes were shared for this release."}</p>
+                  {hasTools ? (
+                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Tools Used</p>
+                      <div className="mt-3 flex min-w-0 flex-wrap gap-2">
+                        {data.creation.tools.map((tool) => {
+                          const resourceEntry = findResourceEntryByToolSlug(tool.slug);
+                          const href = resourceEntry ? `/resources#resource-entry-${tool.slug}` : tool.websiteUrl;
+                          const content = (
+                            <span className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
+                              {tool.name}
+                            </span>
+                          );
+
+                          return href ? (
+                            <Link key={tool.id} href={href} className="transition hover:opacity-90">
+                              {content}
+                            </Link>
+                          ) : (
+                            <span key={tool.id}>{content}</span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
                   {data.series?.nextEpisode ? (
                     <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
                       <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Series continuity</p>
@@ -215,4 +260,3 @@ export default async function FilmPage({ params }: FilmPageProps) {
     </section>
   );
 }
-
