@@ -16,6 +16,24 @@ type UploadPageProps = {
   }>;
 };
 
+const releaseSteps = [
+  {
+    label: "Step 1",
+    title: "Shape the release",
+    description: "Set the title, slug, synopsis, and category before anything else.",
+  },
+  {
+    label: "Step 2",
+    title: "Frame the presentation",
+    description: "Choose the poster, credits, and production notes that deserve to live with the work.",
+  },
+  {
+    label: "Step 3",
+    title: "Attach the final cut",
+    description: "Upload video last, once the release page already reads clearly and feels ready.",
+  },
+];
+
 export default async function UploadPage({ searchParams }: UploadPageProps) {
   if (!hasSupabaseServerEnv()) {
     return (
@@ -77,8 +95,8 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     }
 
     return (
-      <section className="container-shell py-14">
-        <div className="mb-6 flex flex-wrap gap-3">
+      <section className="container-shell py-8 sm:py-10 lg:py-14">
+        <div className="mb-5 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:flex-wrap sm:gap-3">
           <Button asChild variant="ghost" size="lg">
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
@@ -86,54 +104,34 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
             <Link href={`/creator/${profile.handle}`}>View Creator Page</Link>
           </Button>
         </div>
-        <div className="mb-6 max-w-2xl">
-          <p className="display-kicker">Creator Workspace</p>
-          <h1 className="headline-lg mt-3">
-            {film ? "Refine your release" : "Start a release"}
-          </h1>
-          <p className="body-lg mt-4">
-            Poster-led release pages are supported. You can publish artwork, title, synopsis, and slug first, then attach video, credited tools, and production notes when the final delivery is ready.
-          </p>
-        </div>
-        <div className="mb-6 rounded-[24px] border border-white/10 bg-white/5 p-6">
-          <p className="display-kicker">Uploading Your Film</p>
-          <p className="body-sm mt-3 max-w-2xl text-muted-foreground">
-            Recommended export: MP4 (H.264), 1080p, under 1GB when possible.
-          </p>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-              <p className="title-md text-foreground">Video Upload</p>
-              <p className="body-sm mt-2">
-                Upload your final video file. Once processing completes, ArsGratia will automatically generate a preview image from the video.
+
+        <div className="surface-panel cinema-frame overflow-hidden px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
+          <div className="relative isolate rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(190,155,89,0.22),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
+            <div className="max-w-3xl">
+              <p className="display-kicker">Creator Workspace</p>
+              <h1 className="headline-lg mt-3 sm:mt-4">
+                {film ? "Refine your release" : "Start a release"}
+              </h1>
+              <p className="body-lg mt-3 max-w-2xl text-foreground/88 sm:mt-4">
+                Build the page first. Upload the final cut last. The release should already feel composed before the video arrives.
               </p>
-            </article>
-            <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-              <p className="title-md text-foreground">Automatic Thumbnails</p>
-              <p className="body-sm mt-2">
-                When a video finishes processing, a thumbnail is generated automatically using Mux.
-              </p>
-            </article>
-            <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-              <p className="title-md text-foreground">Custom Posters</p>
-              <p className="body-sm mt-2">
-                If you prefer, you can upload a poster image. This will be shown instead of the auto-generated thumbnail.
-              </p>
-            </article>
-            <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-              <p className="title-md text-foreground">Credits & Process</p>
-              <ol className="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">
-                <li>1. Add the tools used on the release</li>
-                <li>2. Write a short process summary</li>
-                <li>3. Expand with production notes only if it helps the work</li>
-                <li>4. Publish when the page reads clearly and cleanly</li>
-              </ol>
-            </article>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:mt-6 lg:grid-cols-3">
+              {releaseSteps.map((step) => (
+                <article key={step.title} className="rounded-[22px] border border-white/10 bg-black/20 p-4 sm:p-5">
+                  <p className="display-kicker">{step.label}</p>
+                  <h2 className="title-md mt-3 text-foreground">{step.title}</h2>
+                  <p className="body-sm mt-3 text-muted-foreground">{step.description}</p>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="mt-4 rounded-[20px] border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-100">
-            ArsGratia does not manually pre-approve every upload. Creators are responsible for publishing only work they have the legal right to release. Reports and takedown requests are reviewed if concerns are raised.
+
+          <div className="mt-5 sm:mt-6">
+            <FilmEditorForm initialFilm={film} availableTools={availableTools} />
           </div>
         </div>
-        <FilmEditorForm initialFilm={film} availableTools={availableTools} />
       </section>
     );
   } catch (error) {
@@ -147,4 +145,3 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     );
   }
 }
-

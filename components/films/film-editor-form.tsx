@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { FILM_PROCESS_SUMMARY_LIMIT, MAX_TOOL_SELECTIONS, normalizeProcessTags, processTagOptions } from "@/lib/constants/process";
 import { FilmVideoUpload } from "@/components/films/film-video-upload";
 import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
+import { FILM_PROCESS_SUMMARY_LIMIT, MAX_TOOL_SELECTIONS, normalizeProcessTags, processTagOptions } from "@/lib/constants/process";
 import { FILM_CATEGORY_LABELS, FILM_CATEGORY_VALUES, type FilmCategory } from "@/lib/films/categories";
 import { normalizeSlug } from "@/lib/films/slug";
 import { cn } from "@/lib/utils";
@@ -173,221 +173,246 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
   }
 
   return (
-    <form className="surface-panel cinema-frame p-6 sm:p-8" onSubmit={handleSubmit}>
-      <div className="space-y-1">
-        <p className="display-kicker">Film Draft</p>
-        <h1 className="headline-lg">
-          {initialFilm?.id ? "Edit your draft release" : "Create a new draft release"}
-        </h1>
-        <p className="body-sm">
-          Set the core release details now. Poster-led film pages are supported, and video can be attached later.
-        </p>
-      </div>
+    <form className="grid gap-4 sm:gap-5" onSubmit={handleSubmit}>
+      <section className="rounded-[26px] border border-white/10 bg-white/[0.04] p-4 sm:p-5 lg:p-6">
+        <div className="max-w-2xl">
+          <p className="display-kicker">Release Identity</p>
+          <h2 className="title-lg mt-3 text-foreground">Build the page before the delivery</h2>
+          <p className="body-sm mt-3 text-muted-foreground">
+            Keep the first pass editorial and calm. Give the release its title, structure, and visual presence before you think about upload.
+          </p>
+        </div>
 
-      <div className="mt-6 rounded-[22px] border border-white/10 bg-white/5 p-5">
-        <p className="display-kicker">Credits & Process</p>
-        <p className="body-sm mt-3">
-          Use this area to credit tools and describe process with restraint. The work stays primary; production notes should support the release, not overwhelm it.
-        </p>
-      </div>
+        <div className="mt-5 grid gap-4 sm:mt-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)] lg:gap-5">
+          <div className="grid gap-4">
+            <Field label="Title">
+              <input
+                value={form.title}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    title: event.target.value,
+                    slug: current.slug ? current.slug : normalizeSlug(event.target.value),
+                  }))
+                }
+                className={inputClassName}
+                placeholder="Title of the film"
+              />
+            </Field>
 
-      <div className="mt-8 grid gap-5">
-        <FilmVideoUpload
-          filmId={initialFilm?.id}
-          initialMuxPlaybackId={initialFilm?.muxPlaybackId ?? null}
-        />
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
+              <Field label="Slug" helperText="Public route name for the release.">
+                <input
+                  value={form.slug}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      slug: normalizeSlug(event.target.value),
+                    }))
+                  }
+                  className={inputClassName}
+                  placeholder="film-title"
+                />
+              </Field>
 
-        <Field label="Title">
-          <input
-            value={form.title}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                title: event.target.value,
-                slug: current.slug ? current.slug : normalizeSlug(event.target.value),
-              }))
-            }
-            className={inputClassName}
-            placeholder="Title of the film"
-          />
-        </Field>
-
-        <Field label="Slug">
-          <input
-            value={form.slug}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                slug: normalizeSlug(event.target.value),
-              }))
-            }
-            className={inputClassName}
-            placeholder="film-title"
-          />
-        </Field>
-
-        <Field label="Synopsis">
-          <textarea
-            value={form.synopsis}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                synopsis: event.target.value,
-              }))
-            }
-            className={cn(inputClassName, "min-h-24 py-3")}
-            placeholder="Short line for the public page"
-          />
-        </Field>
-
-        <Field label="Description">
-          <textarea
-            value={form.description}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                description: event.target.value,
-              }))
-            }
-            className={cn(inputClassName, "min-h-36 py-3")}
-            placeholder="Longer note about the film, release, or context"
-          />
-        </Field>
-
-        <Field label="Category">
-          <select
-            value={form.category}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                category: event.target.value as FilmCategory,
-              }))
-            }
-            className={selectClassName}
-          >
-            {FILM_CATEGORY_VALUES.map((category) => (
-              <option className={selectOptionClassName} key={category} value={category}>
-                {FILM_CATEGORY_LABELS[category]}
-              </option>
-            ))}
-          </select>
-        </Field>
-
-        <Field label="Poster image">
-          <ImageUploadField
-            entityType="film"
-            field="poster"
-            filmId={initialFilm?.id}
-            value={form.poster_url}
-            onChange={(nextValue) =>
-              setForm((current) => ({
-                ...current,
-                poster_url: nextValue,
-              }))
-            }
-            onUploadingChange={setIsPosterUploading}
-            label="Film poster"
-            aspectRatio="poster"
-            helperText="Upload a custom poster to override the automatic thumbnail generated from the video."
-          />
-        </Field>
-
-        <Field label="Tools Used" helperText={`Choose up to ${MAX_TOOL_SELECTIONS} tools to credit on the release page.`}>
-          <div className="flex flex-wrap gap-2.5 rounded-[22px] border border-white/10 bg-black/20 p-4">
-            {availableTools.map((tool) => {
-              const selected = form.tool_ids.includes(tool.id);
-              return (
-                <button
-                  key={tool.id}
-                  type="button"
-                  onClick={() => toggleTool(tool.id)}
-                  className={cn(
-                    "rounded-full border px-3.5 py-2 text-[11px] uppercase tracking-[0.14em] transition",
-                    selected
-                      ? "border-primary/40 bg-primary/10 text-primary"
-                      : "border-white/10 bg-white/5 text-foreground/82 hover:border-white/20 hover:text-foreground",
-                  )}
+              <Field label="Category">
+                <select
+                  value={form.category}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      category: event.target.value as FilmCategory,
+                    }))
+                  }
+                  className={selectClassName}
                 >
-                  {tool.name}
-                </button>
-              );
-            })}
+                  {FILM_CATEGORY_VALUES.map((category) => (
+                    <option className={selectOptionClassName} key={category} value={category}>
+                      {FILM_CATEGORY_LABELS[category]}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            <Field label="Synopsis" helperText="A short line for listings and previews.">
+              <textarea
+                value={form.synopsis}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    synopsis: event.target.value,
+                  }))
+                }
+                className={cn(inputClassName, "min-h-24 py-3")}
+                placeholder="Short line for the public page"
+              />
+            </Field>
+
+            <Field label="Description" helperText="Longer context for the release page.">
+              <textarea
+                value={form.description}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    description: event.target.value,
+                  }))
+                }
+                className={cn(inputClassName, "min-h-40 py-3")}
+                placeholder="Longer note about the film, release, or context"
+              />
+            </Field>
           </div>
-        </Field>
 
-        <Field label="Process Summary" helperText="A short summary of how the piece was made.">
-          <div className="grid gap-2">
-            <textarea
-              value={form.process_summary}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  process_summary: event.target.value.slice(0, FILM_PROCESS_SUMMARY_LIMIT),
-                }))
-              }
-              className={cn(inputClassName, "min-h-24 py-3")}
-              placeholder="A concise note on production method, key tools, or the making approach."
-            />
-            <p className="text-xs text-muted-foreground">{form.process_summary.length}/{FILM_PROCESS_SUMMARY_LIMIT}</p>
+          <aside className="rounded-[24px] border border-white/10 bg-black/20 p-4 sm:p-5">
+            <p className="display-kicker">Release Route</p>
+            <p className="mt-3 text-sm uppercase tracking-[0.22em] text-muted-foreground">/film/{normalizeSlug(form.slug || form.title || "your-film")}</p>
+            <div className="mt-5 grid gap-3 text-sm text-muted-foreground">
+              <p>Start with language and structure.</p>
+              <p>Add presentation details once the release reads clearly.</p>
+              <p>Attach video last, after the page already feels complete.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="rounded-[26px] border border-white/10 bg-white/[0.04] p-4 sm:p-5 lg:p-6">
+        <div className="max-w-2xl">
+          <p className="display-kicker">Presentation</p>
+          <h2 className="title-lg mt-3 text-foreground">Shape the surface with restraint</h2>
+          <p className="body-sm mt-3 text-muted-foreground">
+            Poster, credits, and process should support the work rather than turning the release into a dashboard.
+          </p>
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:mt-6 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
+          <div className="grid gap-4">
+            <Field label="Poster image" helperText="Optional. A custom poster overrides the automatic thumbnail.">
+              <ImageUploadField
+                entityType="film"
+                field="poster"
+                filmId={initialFilm?.id}
+                value={form.poster_url}
+                onChange={(nextValue) =>
+                  setForm((current) => ({
+                    ...current,
+                    poster_url: nextValue,
+                  }))
+                }
+                onUploadingChange={setIsPosterUploading}
+                label="Film poster"
+                aspectRatio="poster"
+                helperText="Upload a custom poster to override the automatic thumbnail generated from the video."
+              />
+            </Field>
+
+            <Field label="Tools Used" helperText={`Choose up to ${MAX_TOOL_SELECTIONS} tools to credit on the release page.`}>
+              <div className="flex flex-wrap gap-2.5 rounded-[22px] border border-white/10 bg-black/20 p-4">
+                {availableTools.map((tool) => {
+                  const selected = form.tool_ids.includes(tool.id);
+                  return (
+                    <button
+                      key={tool.id}
+                      type="button"
+                      onClick={() => toggleTool(tool.id)}
+                      className={cn(
+                        "rounded-full border px-3.5 py-2 text-[11px] uppercase tracking-[0.14em] transition",
+                        selected
+                          ? "border-primary/40 bg-primary/10 text-primary"
+                          : "border-white/10 bg-white/5 text-foreground/82 hover:border-white/20 hover:text-foreground",
+                      )}
+                    >
+                      {tool.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </Field>
+
+            <Field label="Process Tags" helperText={`Choose up to ${MAX_TOOL_SELECTIONS} tags to frame the process succinctly.`}>
+              <div className="flex flex-wrap gap-2.5 rounded-[22px] border border-white/10 bg-black/20 p-4">
+                {processTagOptions.map((tag) => {
+                  const selected = form.process_tags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleProcessTag(tag)}
+                      className={cn(
+                        "rounded-full border px-3.5 py-2 text-[11px] uppercase tracking-[0.14em] transition",
+                        selected
+                          ? "border-primary/40 bg-primary/10 text-primary"
+                          : "border-white/10 bg-white/5 text-foreground/82 hover:border-white/20 hover:text-foreground",
+                      )}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </Field>
           </div>
-        </Field>
 
-        <Field label="Production Notes">
-          <textarea
-            value={form.process_notes}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                process_notes: event.target.value,
-              }))
-            }
-            className={cn(inputClassName, "min-h-32 py-3")}
-            placeholder="Optional notes on process, iteration, tools, or production approach"
-          />
-        </Field>
+          <div className="grid gap-4">
+            <Field label="Process Summary" helperText="A short summary of how the piece was made.">
+              <div className="grid gap-2">
+                <textarea
+                  value={form.process_summary}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      process_summary: event.target.value.slice(0, FILM_PROCESS_SUMMARY_LIMIT),
+                    }))
+                  }
+                  className={cn(inputClassName, "min-h-28 py-3")}
+                  placeholder="A concise note on production method, key tools, or the making approach."
+                />
+                <p className="text-xs text-muted-foreground">{form.process_summary.length}/{FILM_PROCESS_SUMMARY_LIMIT}</p>
+              </div>
+            </Field>
 
-        <Field label="Process Tags" helperText={`Choose up to ${MAX_TOOL_SELECTIONS} tags to frame the process succinctly.`}>
-          <div className="flex flex-wrap gap-2.5 rounded-[22px] border border-white/10 bg-black/20 p-4">
-            {processTagOptions.map((tag) => {
-              const selected = form.process_tags.includes(tag);
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => toggleProcessTag(tag)}
-                  className={cn(
-                    "rounded-full border px-3.5 py-2 text-[11px] uppercase tracking-[0.14em] transition",
-                    selected
-                      ? "border-primary/40 bg-primary/10 text-primary"
-                      : "border-white/10 bg-white/5 text-foreground/82 hover:border-white/20 hover:text-foreground",
-                  )}
-                >
-                  {tag}
-                </button>
-              );
-            })}
+            <Field label="Production Notes" helperText="Optional deeper notes for viewers who want more process context.">
+              <textarea
+                value={form.process_notes}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    process_notes: event.target.value,
+                  }))
+                }
+                className={cn(inputClassName, "min-h-32 py-3")}
+                placeholder="Optional notes on process, iteration, tools, or production approach"
+              />
+            </Field>
+
+            <Field label="Prompt" helperText="Optional prompt text, brief, or excerpt.">
+              <textarea
+                value={form.prompt_text}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    prompt_text: event.target.value,
+                  }))
+                }
+                className={cn(inputClassName, "min-h-32 py-3")}
+                placeholder="Optional prompt text, creative brief, or excerpt"
+              />
+            </Field>
           </div>
-        </Field>
+        </div>
+      </section>
 
-        <Field label="Prompt">
-          <textarea
-            value={form.prompt_text}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                prompt_text: event.target.value,
-              }))
-            }
-            className={cn(inputClassName, "min-h-32 py-3")}
-            placeholder="Optional prompt text, creative brief, or excerpt"
-          />
-        </Field>
+      <section className="rounded-[26px] border border-white/10 bg-white/[0.04] p-4 sm:p-5 lg:p-6">
+        <div className="max-w-2xl">
+          <p className="display-kicker">Release Settings</p>
+          <h2 className="title-lg mt-3 text-foreground">Decide how the release appears</h2>
+          <p className="body-sm mt-3 text-muted-foreground">
+            Save privately while composing. Publish only when the page and the rights are both in order.
+          </p>
+        </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <Field
-            label="Prompt visibility"
-            helperText="Control who can read the prompt or brief on the public film page."
-          >
+        <div className="mt-5 grid gap-4 sm:mt-6 md:grid-cols-2 lg:grid-cols-3">
+          <Field label="Prompt visibility" helperText="Who can read the prompt or brief.">
             <select
               value={form.prompt_visibility}
               onChange={(event) =>
@@ -404,7 +429,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
             </select>
           </Field>
 
-          <Field label="Visibility">
+          <Field label="Visibility" helperText="How discoverable the release is.">
             <select
               value={form.visibility}
               onChange={(event) =>
@@ -420,12 +445,10 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
               <option className={selectOptionClassName} value="public">Public</option>
             </select>
           </Field>
-        </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
           <Field
             label="Publish status"
-            helperText="Use Draft while you're building the page. Published makes the release eligible to go live; internal active review states stay out of the creator UI."
+            helperText="Keep it as draft until the release is ready to stand on its own."
           >
             <select
               value={form.publish_status}
@@ -443,7 +466,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
           </Field>
         </div>
 
-        <div className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+        <div className="mt-5 rounded-[22px] border border-white/10 bg-black/20 p-4 sm:mt-6 sm:p-5">
           <p className="display-kicker">Creator Responsibility</p>
           <p className="body-sm mt-3 text-muted-foreground">
             ArsGratia does not pre-approve every upload. Creators are responsible for publishing only work they have the legal right to release and for avoiding unlawful or abusive material.
@@ -459,34 +482,42 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
               I confirm that I have the rights to publish this release on ArsGratia and that, to the best of my knowledge, it does not violate applicable law or the rights of others.
             </span>
           </label>
-          {isPublishing ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              This acknowledgment is required before a release can be published.
-            </p>
-          ) : (
-            <p className="mt-3 text-sm text-muted-foreground">
-              You can keep drafting without publishing yet. This acknowledgment becomes relevant when the release is moved to published.
-            </p>
-          )}
-        </div>
-
-        {error ? (
-          <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error}
-          </div>
-        ) : null}
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button type="submit" size="xl" disabled={isSaving || isPosterUploading}>
-            {submitLabel}
-          </Button>
-          <p className="body-sm self-center">
-            Public route:{" "}
-            <span className="text-foreground">
-              /film/{normalizeSlug(form.slug || form.title || "your-film")}
-            </span>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {isPublishing
+              ? "This acknowledgment is required before a release can be published."
+              : "You can continue building in draft. This acknowledgment becomes required only when you publish."}
           </p>
         </div>
+      </section>
+
+      <section className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-4 sm:p-5 lg:p-6">
+        <div className="max-w-2xl">
+          <p className="display-kicker">Final Delivery</p>
+          <h2 className="title-lg mt-3 text-foreground">Attach the final cut last</h2>
+          <p className="body-sm mt-3 text-muted-foreground">
+            Once the page is already shaped, save the draft and then upload the video. That keeps the process deliberate instead of feeling like a generic SaaS intake form.
+          </p>
+        </div>
+
+        <div className="mt-5 sm:mt-6">
+          <FilmVideoUpload filmId={initialFilm?.id} initialMuxPlaybackId={initialFilm?.muxPlaybackId ?? null} />
+        </div>
+      </section>
+
+      {error ? (
+        <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      ) : null}
+
+      <div className="flex flex-col gap-3 rounded-[24px] border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div>
+          <p className="display-kicker">Save</p>
+          <p className="body-sm mt-2 text-muted-foreground">{initialFilm?.id ? "Update the current release draft." : "Create the draft first, then return here to upload the final cut."}</p>
+        </div>
+        <Button type="submit" size="xl" disabled={isSaving || isPosterUploading}>
+          {submitLabel}
+        </Button>
       </div>
     </form>
   );
@@ -502,7 +533,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="grid gap-2">
+    <label className="grid gap-2.5">
       <span className="display-kicker text-[0.68rem] text-foreground/85">{label}</span>
       {children}
       {helperText ? <p className="text-sm text-muted-foreground">{helperText}</p> : null}
