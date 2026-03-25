@@ -119,8 +119,8 @@ export function FilmVideoUpload({
   }
 
   return (
-    <section className="rounded-[24px] border border-white/10 bg-white/5 p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <section className="rounded-[22px] border border-white/10 bg-white/5 p-3.5 sm:rounded-[24px] sm:p-6">
+      <div className="flex flex-col gap-3.5 sm:gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl">
           <p className="display-kicker">Video</p>
           <h2 className="title-md mt-3 text-foreground">Attach video when the cut is ready</h2>
@@ -132,7 +132,7 @@ export function FilmVideoUpload({
           </p>
         </div>
 
-        <div className="inline-flex">
+        <div className="flex w-full sm:w-auto">
           <Button
             type="button"
             size="lg"

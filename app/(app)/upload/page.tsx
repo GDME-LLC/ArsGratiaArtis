@@ -95,18 +95,18 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     }
 
     return (
-      <section className="container-shell py-8 sm:py-10 lg:py-14">
-        <div className="mb-5 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:flex-wrap sm:gap-3">
-          <Button asChild variant="ghost" size="lg">
+      <section className="container-shell py-6 sm:py-10 lg:py-14">
+        <div className="mb-4 grid gap-2.5 sm:mb-6 sm:flex sm:flex-row sm:flex-wrap sm:gap-3">
+          <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
-          <Button asChild variant="ghost" size="lg">
+          <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
             <Link href={`/creator/${profile.handle}`}>View Creator Page</Link>
           </Button>
         </div>
 
-        <div className="surface-panel cinema-frame overflow-hidden px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
-          <div className="relative isolate rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(190,155,89,0.22),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
+        <div className="surface-panel cinema-frame overflow-hidden px-3 py-4 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
+          <div className="relative isolate rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(190,155,89,0.22),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] px-3.5 py-4 sm:rounded-[28px] sm:px-6 sm:py-7 lg:px-8 lg:py-8">
             <div className="max-w-3xl">
               <p className="display-kicker">Creator Workspace</p>
               <h1 className="headline-lg mt-3 sm:mt-4">
@@ -117,18 +117,18 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
               </p>
             </div>
 
-            <div className="mt-5 grid gap-3 sm:mt-6 lg:grid-cols-3">
+            <div className="mt-4 grid gap-2.5 sm:mt-6 sm:gap-3 lg:grid-cols-3">
               {releaseSteps.map((step) => (
                 <article key={step.title} className="rounded-[22px] border border-white/10 bg-black/20 p-4 sm:p-5">
                   <p className="display-kicker">{step.label}</p>
-                  <h2 className="title-md mt-3 text-foreground">{step.title}</h2>
-                  <p className="body-sm mt-3 text-muted-foreground">{step.description}</p>
+                  <h2 className="title-md mt-2.5 text-foreground">{step.title}</h2>
+                  <p className="body-sm mt-2.5 text-muted-foreground">{step.description}</p>
                 </article>
               ))}
             </div>
           </div>
 
-          <div className="mt-5 sm:mt-6">
+          <div className="mt-4 sm:mt-6">
             <FilmEditorForm initialFilm={film} availableTools={availableTools} />
           </div>
         </div>

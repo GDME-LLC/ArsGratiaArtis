@@ -173,8 +173,8 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
   }
 
   return (
-    <form className="grid gap-4 sm:gap-5" onSubmit={handleSubmit}>
-      <section className="rounded-[26px] border border-white/10 bg-white/[0.04] p-4 sm:p-5 lg:p-6">
+    <form className="grid gap-3.5 sm:gap-5" onSubmit={handleSubmit}>
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Release Identity</p>
           <h2 className="title-lg mt-3 text-foreground">Build the page before the delivery</h2>
@@ -183,7 +183,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
           </p>
         </div>
 
-        <div className="mt-5 grid gap-4 sm:mt-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)] lg:gap-5">
+        <div className="mt-4 grid gap-3.5 sm:mt-6 sm:gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)] lg:gap-5">
           <div className="grid gap-4">
             <Field label="Title">
               <input
@@ -264,7 +264,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
             </Field>
           </div>
 
-          <aside className="rounded-[24px] border border-white/10 bg-black/20 p-4 sm:p-5">
+          <aside className="rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:p-5">
             <p className="display-kicker">Release Route</p>
             <p className="mt-3 text-sm uppercase tracking-[0.22em] text-muted-foreground">/film/{normalizeSlug(form.slug || form.title || "your-film")}</p>
             <div className="mt-5 grid gap-3 text-sm text-muted-foreground">
@@ -276,7 +276,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
       </section>
 
-      <section className="rounded-[26px] border border-white/10 bg-white/[0.04] p-4 sm:p-5 lg:p-6">
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Presentation</p>
           <h2 className="title-lg mt-3 text-foreground">Shape the surface with restraint</h2>
@@ -285,7 +285,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
           </p>
         </div>
 
-        <div className="mt-5 grid gap-4 sm:mt-6 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
+        <div className="mt-4 grid gap-3.5 sm:mt-6 sm:gap-4 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
           <div className="grid gap-4">
             <Field label="Poster image" helperText="Optional. A custom poster overrides the automatic thumbnail.">
               <ImageUploadField
@@ -402,7 +402,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
       </section>
 
-      <section className="rounded-[26px] border border-white/10 bg-white/[0.04] p-4 sm:p-5 lg:p-6">
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Release Settings</p>
           <h2 className="title-lg mt-3 text-foreground">Decide how the release appears</h2>
@@ -411,7 +411,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
           </p>
         </div>
 
-        <div className="mt-5 grid gap-4 sm:mt-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid gap-3.5 sm:mt-6 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Field label="Prompt visibility" helperText="Who can read the prompt or brief.">
             <select
               value={form.prompt_visibility}
@@ -466,7 +466,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
           </Field>
         </div>
 
-        <div className="mt-5 rounded-[22px] border border-white/10 bg-black/20 p-4 sm:mt-6 sm:p-5">
+        <div className="mt-4 rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:mt-6 sm:p-5">
           <p className="display-kicker">Creator Responsibility</p>
           <p className="body-sm mt-3 text-muted-foreground">
             ArsGratia does not pre-approve every upload. Creators are responsible for publishing only work they have the legal right to release and for avoiding unlawful or abusive material.
@@ -490,7 +490,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
       </section>
 
-      <section className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-4 sm:p-5 lg:p-6">
+      <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Final Delivery</p>
           <h2 className="title-lg mt-3 text-foreground">Attach the final cut last</h2>
@@ -510,12 +510,12 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-3 rounded-[24px] border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="flex flex-col gap-3 rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div>
           <p className="display-kicker">Save</p>
           <p className="body-sm mt-2 text-muted-foreground">{initialFilm?.id ? "Update the current release draft." : "Create the draft first, then return here to upload the final cut."}</p>
         </div>
-        <Button type="submit" size="xl" disabled={isSaving || isPosterUploading}>
+        <Button type="submit" size="xl" className="w-full sm:w-auto" disabled={isSaving || isPosterUploading}>
           {submitLabel}
         </Button>
       </div>
