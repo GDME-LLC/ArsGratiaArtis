@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 
 import { SectionShell } from "@/components/marketing/section-shell";
@@ -163,11 +164,12 @@ export default function ResourcesPage() {
                             <div className="min-w-0">
                               {resource.logoUrl ? (
                                 <div className="mb-3 h-5 max-w-[140px]">
-                                  <img
+                                  <Image
                                     src={resource.logoUrl}
                                     alt={resource.logoAlt ?? resource.name}
+                                    width={140}
+                                    height={20}
                                     className="h-full w-auto object-contain opacity-90"
-                                    loading="lazy"
                                   />
                                 </div>
                               ) : null}
