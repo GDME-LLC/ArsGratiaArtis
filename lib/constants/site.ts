@@ -8,7 +8,8 @@ export const siteConfig = {
   heroTitle: "Cinema belongs to creators again.",
   heroDescription:
     "ArsGratia is a home for AI filmmakers publishing authored work with releases, process, and presence attached.",
-  contactEmail: securityConfig.supportEmail,
+  supportEmail: securityConfig.supportEmail,
+  contactEmail: "contact@arsgratia.com",
   privacyEmail: "privacy@arsgratia.art",
   legalLastUpdated: securityConfig.legalLastUpdated,
 } as const;

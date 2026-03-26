@@ -25,7 +25,7 @@ export function SiteFooter() {
             Releases, creator pages, and selected craft notes for filmmakers publishing on ArsGratia.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            Support: {siteConfig.contactEmail}
+            Support: {siteConfig.supportEmail}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Abuse: {securityConfig.abuseEmail}
