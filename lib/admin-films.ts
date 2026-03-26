@@ -205,6 +205,22 @@ export async function listAdminModerationContent(search = ""): Promise<AdminMode
   };
 }
 
+
+export async function getAdminModerationAlertCount() {
+  const supabase = getAdminFilmStorageClient();
+
+  const { data, error } = await supabase
+    .from("reports")
+    .select("target_id, target_type")
+    .in("status", ["open", "reviewing"])
+    .in("target_type", ["film", "profile"]);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return new Set((data ?? []).map((row) => `${row.target_type}:${row.target_id}`)).size;
+}
 export async function updateAdminFilmAction(input: {
   filmId: string;
   action: AdminFilmAction;

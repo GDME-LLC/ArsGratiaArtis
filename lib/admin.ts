@@ -1,4 +1,4 @@
-﻿import type { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 
 import { getUser } from "@/lib/supabase/auth";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
@@ -79,6 +79,22 @@ export async function getAdminUser() {
   return user;
 }
 
+
+export async function listAdminProfileIds() {
+  const supabase = createServiceRoleSupabaseClient();
+
+  if (!supabase) {
+    return [] as string[];
+  }
+
+  const { data, error } = await supabase.from("admin_users").select("profile_id");
+
+  if (error) {
+    return [] as string[];
+  }
+
+  return (data ?? []).map((row) => String(row.profile_id)).filter(Boolean);
+}
 export async function requireAdminUser() {
   const user = await getAdminUser();
 

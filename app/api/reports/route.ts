@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 
+import { listAdminProfileIds } from "@/lib/admin";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { moderateTextFields } from "@/lib/security/moderation";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { verifyTurnstileToken } from "@/lib/security/turnstile";
+import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 const ALLOWED_REPORT_REASONS = [
@@ -24,6 +26,33 @@ type ReportPayload = {
   details?: string;
   turnstileToken?: string;
 };
+
+async function notifyAdminsOfReport(input: {
+  targetType: "film" | "profile";
+  targetId: string;
+}) {
+  const adminProfileIds = await listAdminProfileIds();
+
+  if (adminProfileIds.length === 0) {
+    return;
+  }
+
+  const supabase = createServiceRoleSupabaseClient();
+
+  if (!supabase) {
+    return;
+  }
+
+  const notificationType = input.targetType === "film" ? "admin_report_film" : "admin_report_profile";
+
+  const rows = adminProfileIds.map((profileId) => ({
+    user_id: profileId,
+    type: notificationType,
+    entity_id: input.targetId,
+  }));
+
+  await supabase.from("notifications").insert(rows);
+}
 
 async function resolveTargetId(
   supabase: NonNullable<Awaited<ReturnType<typeof createServerSupabaseClient>>>,
@@ -144,6 +173,11 @@ export async function POST(request: Request) {
       .eq("id", target.targetId)
       .in("moderation_status", ["active", "pending_review"]);
   }
+
+  await notifyAdminsOfReport({
+    targetType: target.targetType,
+    targetId: target.targetId,
+  });
 
   return NextResponse.json({ ok: true });
 }

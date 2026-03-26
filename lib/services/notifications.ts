@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export type NotificationItem = {
   id: string;
-  type: "like" | "comment" | "follow" | "staff_pick" | "featured";
+  type: "like" | "comment" | "follow" | "staff_pick" | "featured" | "admin_report_film" | "admin_report_profile";
   entityId: string;
   createdAt: string;
   read: boolean;
@@ -51,8 +51,8 @@ export async function listNotificationsForUser(userId: string, limit = 10): Prom
     return [];
   }
 
-  const filmIds = [...new Set(rows.filter((row) => row.type !== "follow").map((row) => row.entity_id))];
-  const profileIds = [...new Set(rows.filter((row) => row.type === "follow").map((row) => row.entity_id))];
+  const filmIds = [...new Set(rows.filter((row) => row.type !== "follow" && row.type !== "admin_report_profile").map((row) => row.entity_id))];
+  const profileIds = [...new Set(rows.filter((row) => row.type === "follow" || row.type === "admin_report_profile").map((row) => row.entity_id))];
 
   const filmMap = new Map<string, { title: string; slug: string }>();
   const profileMap = new Map<string, { handle: string; displayName: string }>();
@@ -109,6 +109,21 @@ export async function listNotificationsForUser(userId: string, limit = 10): Prom
       };
     }
 
+    if (row.type === "admin_report_profile") {
+      const profile = profileMap.get(row.entity_id);
+      const profileLabel = profile?.displayName || (profile ? `@${profile.handle}` : "a user");
+
+      return {
+        id: row.id,
+        type: row.type,
+        entityId: row.entity_id,
+        createdAt: row.created_at,
+        read: row.read,
+        message: `A profile was reported: ${profileLabel}.`,
+        href: profile ? `/creator/${profile.handle}` : "/admin/films",
+      };
+    }
+
     const film = filmMap.get(row.entity_id);
     const filmTitle = film?.title ?? "your release";
     const href = film ? `/film/${film.slug}` : "/dashboard";
@@ -146,6 +161,18 @@ export async function listNotificationsForUser(userId: string, limit = 10): Prom
         read: row.read,
         message: `Your film ${filmTitle} was featured on ArsGratia.`,
         href,
+      };
+    }
+
+    if (row.type === "admin_report_film") {
+      return {
+        id: row.id,
+        type: row.type,
+        entityId: row.entity_id,
+        createdAt: row.created_at,
+        read: row.read,
+        message: `A film was reported: ${filmTitle}.`,
+        href: film ? `/film/${film.slug}` : "/admin/films",
       };
     }
 
