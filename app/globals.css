@@ -108,6 +108,22 @@
     @apply text-sm leading-6 text-muted-foreground;
   }
 
+  .app-stack-shell {
+    @apply w-full max-w-full min-w-0 overflow-x-clip;
+  }
+
+  .app-stack-shell > * {
+    @apply w-full max-w-full min-w-0;
+  }
+
+  .app-stack-card {
+    @apply box-border w-full max-w-full min-w-0;
+  }
+
+  .app-grid-safe {
+    @apply w-full max-w-full min-w-0;
+  }
+
   .cinema-frame {
     position: relative;
     isolation: isolate;

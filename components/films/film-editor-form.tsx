@@ -173,8 +173,8 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
   }
 
   return (
-    <form className="grid w-full min-w-0 max-w-full gap-3.5 overflow-x-clip sm:gap-5 [&>*]:w-full [&>*]:max-w-full [&>*]:min-w-0" onSubmit={handleSubmit}>
-      <section className="box-border w-full max-w-full min-w-0 rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
+    <form className="app-stack-shell grid gap-3.5 sm:gap-5" onSubmit={handleSubmit}>
+      <section className="app-stack-card rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Release Identity</p>
           <h2 className="title-lg mt-3 text-foreground">Build the page before the delivery</h2>
@@ -184,7 +184,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
 
         <div className="mt-4 grid gap-3.5 sm:mt-6 sm:gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)] lg:gap-5">
-          <div className="min-w-0 w-full max-w-full grid gap-4">
+          <div className="app-grid-safe grid gap-4">
             <Field label="Title">
               <input
                 value={form.title}
@@ -200,7 +200,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
               />
             </Field>
 
-            <div className="grid w-full min-w-0 max-w-full gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
+            <div className="app-grid-safe grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
               <Field label="Slug" helperText="Public route name for the release.">
                 <input
                   value={form.slug}
@@ -264,7 +264,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
             </Field>
           </div>
 
-          <aside className="box-border min-w-0 w-full max-w-full rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:p-5">
+          <aside className="app-stack-card rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:p-5">
             <p className="display-kicker">Release Route</p>
             <p className="mt-3 break-all text-sm uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.22em]">
               /film/{normalizeSlug(form.slug || form.title || "your-film")}
@@ -278,7 +278,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
       </section>
 
-      <section className="box-border w-full max-w-full min-w-0 rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
+      <section className="app-stack-card rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Presentation</p>
           <h2 className="title-lg mt-3 text-foreground">Shape the surface with restraint</h2>
@@ -288,7 +288,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
 
         <div className="mt-4 grid gap-3.5 sm:mt-6 sm:gap-4 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
-          <div className="min-w-0 w-full max-w-full grid gap-4">
+          <div className="app-grid-safe grid gap-4">
             <Field label="Poster image" helperText="Optional. A custom poster overrides the automatic thumbnail.">
               <ImageUploadField
                 entityType="film"
@@ -355,7 +355,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
             </Field>
           </div>
 
-          <div className="min-w-0 w-full max-w-full grid gap-4">
+          <div className="app-grid-safe grid gap-4">
             <Field label="Process Summary" helperText="A short summary of how the piece was made.">
               <div className="grid gap-2">
                 <textarea
@@ -404,7 +404,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
       </section>
 
-      <section className="box-border w-full max-w-full min-w-0 rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
+      <section className="app-stack-card rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Release Settings</p>
           <h2 className="title-lg mt-3 text-foreground">Decide how the release appears</h2>
@@ -492,7 +492,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
       </section>
 
-      <section className="box-border w-full max-w-full min-w-0 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
+      <section className="app-stack-card rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
           <p className="display-kicker">Final Delivery</p>
           <h2 className="title-lg mt-3 text-foreground">Attach the final cut last</h2>
@@ -512,7 +512,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         </div>
       ) : null}
 
-      <div className="box-border flex w-full max-w-full min-w-0 flex-col gap-3 rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="app-stack-card flex flex-col gap-3 rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div>
           <p className="display-kicker">Save</p>
           <p className="body-sm mt-2 text-muted-foreground">{initialFilm?.id ? "Update the current release draft." : "Create the draft first, then return here to upload the final cut."}</p>
