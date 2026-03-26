@@ -105,7 +105,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
           </Button>
         </div>
 
-        <div className="surface-panel cinema-frame overflow-hidden px-3 py-4 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
+        <div className="surface-panel cinema-frame w-full max-w-full overflow-x-clip px-3 py-4 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
           <div className="relative isolate rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(190,155,89,0.22),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] px-3.5 py-4 sm:rounded-[28px] sm:px-6 sm:py-7 lg:px-8 lg:py-8">
             <div className="max-w-3xl">
               <p className="display-kicker">Creator Workspace</p>
