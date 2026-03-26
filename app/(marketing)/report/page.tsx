@@ -66,10 +66,7 @@ export default async function ReportPage({ searchParams }: ReportPageProps) {
             ArsGratia does not claim automated media moderation that it does not have. Reports, copyright concerns, and abusive behavior are currently reviewed by hand.
           </p>
           <p className="body-sm mt-4">
-            Abuse contact: <span className="text-foreground">{securityConfig.abuseEmail}</span>
-          </p>
-          <p className="body-sm mt-2">
-            Copyright and takedown: <span className="text-foreground">{securityConfig.copyrightEmail}</span>
+            DMCA / abuse / takedown: <span className="text-foreground">{securityConfig.dmcaEmail}</span>
           </p>
         </aside>
       </div>

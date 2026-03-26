@@ -81,7 +81,7 @@ const sections: PolicySection[] = [
       "Privacy questions may be directed to:",
       siteConfig.privacyEmail,
       `Security: ${securityConfig.securityEmail}`,
-      `Abuse: ${securityConfig.abuseEmail}`,
+      `DMCA / abuse / takedown: ${securityConfig.dmcaEmail}`,
     ],
   },
 ];

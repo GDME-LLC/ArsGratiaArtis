@@ -53,7 +53,7 @@ const sections: PolicySection[] = [
     title: "4. Reports, Takedowns, and Removal",
     paragraphs: [
       "ArsGratia may review, flag, hide, limit, or remove content when reports, legal concerns, or policy issues arise.",
-      "Copyright complaints, abuse reports, and takedown requests should be sent to the contact addresses listed below. ArsGratia may request supporting information before acting on a claim.",
+      "DMCA notices, abuse reports, and takedown requests should be sent to the contact addresses listed below. ArsGratia may request supporting information before acting on a claim.",
       "Invite-stage moderation remains lean and partly manual. ArsGratia may place a release under review while a report or legal concern is being assessed.",
     ],
   },
@@ -91,8 +91,8 @@ const sections: PolicySection[] = [
     paragraphs: [
       "Questions about these Terms may be directed to:",
       siteConfig.contactEmail,
-      `Abuse reports: ${securityConfig.abuseEmail}`,
-      `Copyright and takedown notices: ${securityConfig.copyrightEmail}`,
+      `DMCA / abuse / takedown: ${securityConfig.dmcaEmail}`,
+
     ],
   },
 ];

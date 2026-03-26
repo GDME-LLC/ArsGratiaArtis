@@ -28,10 +28,7 @@ export function SiteFooter() {
             Support: {siteConfig.supportEmail}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Abuse: {securityConfig.abuseEmail}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Copyright: {securityConfig.copyrightEmail}
+            DMCA / abuse / takedown: {securityConfig.dmcaEmail}
           </p>
           <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Copyright 2026 ArsGratia
