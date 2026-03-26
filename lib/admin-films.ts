@@ -67,7 +67,17 @@ function matchesSearch(value: string, query: string) {
   return value.toLowerCase().includes(query);
 }
 
-export async function listAdminReportedContent(search = ""): Promise<AdminModerationOverview> {
+function compareByPriority<T extends { openReportCount: number; latestReportAt: string; updatedAt?: string; createdAt?: string }>(a: T, b: T) {
+  if (a.openReportCount !== b.openReportCount) {
+    return b.openReportCount - a.openReportCount;
+  }
+
+  const aLatest = new Date(a.latestReportAt || a.updatedAt || a.createdAt || 0).getTime();
+  const bLatest = new Date(b.latestReportAt || b.updatedAt || b.createdAt || 0).getTime();
+  return bLatest - aLatest;
+}
+
+export async function listAdminModerationContent(search = ""): Promise<AdminModerationOverview> {
   const supabase = getAdminFilmStorageClient();
   const normalizedSearch = search.trim().toLowerCase();
 
@@ -84,34 +94,44 @@ export async function listAdminReportedContent(search = ""): Promise<AdminModera
   }
 
   const { filmReportMap, profileReportMap } = aggregateReports((reports ?? []) as ReportRecord[]);
-  const filmIds = [...filmReportMap.keys()];
+  const reportedFilmIds = [...filmReportMap.keys()];
   const reportedProfileIds = [...profileReportMap.keys()];
 
-  const [{ data: films, error: filmsError }, { data: reportedProfiles, error: reportedProfilesError }] = await Promise.all([
-    filmIds.length
-      ? supabase
-          .from("films")
-          .select("id, title, slug, synopsis, poster_url, publish_status, visibility, moderation_status, created_at, updated_at, published_at, creator_id")
-          .in("id", filmIds)
-      : Promise.resolve({ data: [], error: null }),
-    reportedProfileIds.length
-      ? supabase
-          .from("profiles")
-          .select("id, handle, display_name, avatar_url, is_creator, is_public")
-          .in("id", reportedProfileIds)
-      : Promise.resolve({ data: [], error: null }),
+  const filmQuery = supabase
+    .from("films")
+    .select("id, title, slug, synopsis, poster_url, publish_status, visibility, moderation_status, created_at, updated_at, published_at, creator_id")
+    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(normalizedSearch ? 50 : 40);
+
+  const profileQuery = supabase
+    .from("profiles")
+    .select("id, handle, display_name, avatar_url, is_creator, is_public, created_at")
+    .order("updated_at", { ascending: false })
+    .limit(normalizedSearch ? 50 : 40);
+
+  const [{ data: films, error: filmsError }, { data: profiles, error: profilesError }] = await Promise.all([
+    normalizedSearch
+      ? filmQuery.or(`title.ilike.%${normalizedSearch}%,slug.ilike.%${normalizedSearch}%`)
+      : reportedFilmIds.length
+        ? filmQuery.in("id", reportedFilmIds)
+        : Promise.resolve({ data: [], error: null }),
+    normalizedSearch
+      ? profileQuery.or(`handle.ilike.%${normalizedSearch}%,display_name.ilike.%${normalizedSearch}%`)
+      : reportedProfileIds.length
+        ? profileQuery.in("id", reportedProfileIds)
+        : Promise.resolve({ data: [], error: null }),
   ]);
 
   if (filmsError) {
     throw new Error(filmsError.message);
   }
 
-  if (reportedProfilesError) {
-    throw new Error(reportedProfilesError.message);
+  if (profilesError) {
+    throw new Error(profilesError.message);
   }
 
   const creatorIds = [...new Set((films ?? []).map((film) => film.creator_id))];
-
   const { data: creatorProfiles, error: creatorProfilesError } = creatorIds.length
     ? await supabase.from("profiles").select("id, handle, display_name").in("id", creatorIds)
     : { data: [], error: null };
@@ -130,7 +150,7 @@ export async function listAdminReportedContent(search = ""): Promise<AdminModera
     ]),
   );
 
-  let reportedFilms: AdminReportedFilmRow[] = (films ?? []).map((film) => {
+  const moderationFilms: AdminReportedFilmRow[] = (films ?? []).map((film) => {
     const aggregate = filmReportMap.get(film.id);
 
     return {
@@ -156,7 +176,7 @@ export async function listAdminReportedContent(search = ""): Promise<AdminModera
     };
   });
 
-  let reportedProfilesRows: AdminReportedProfileRow[] = (reportedProfiles ?? []).map((profile) => {
+  const moderationProfiles: AdminReportedProfileRow[] = (profiles ?? []).map((profile) => {
     const aggregate = profileReportMap.get(profile.id);
 
     return {
@@ -168,28 +188,20 @@ export async function listAdminReportedContent(search = ""): Promise<AdminModera
       isPublic: Boolean(profile.is_public),
       reportCount: aggregate?.reportCount ?? 0,
       openReportCount: aggregate?.openReportCount ?? 0,
-      latestReportAt: aggregate?.latestReportAt ?? new Date(0).toISOString(),
+      latestReportAt: aggregate?.latestReportAt ?? profile.created_at ?? new Date(0).toISOString(),
       reportReasons: aggregate?.reasons ?? [],
     };
   });
 
-  if (normalizedSearch) {
-    reportedFilms = reportedFilms.filter((film) =>
-      [film.title, film.slug, film.creator.handle, film.creator.displayName].some((value) => matchesSearch(value || "", normalizedSearch)),
-    );
-
-    reportedProfilesRows = reportedProfilesRows.filter((profile) =>
-      [profile.handle, profile.displayName].some((value) => matchesSearch(value || "", normalizedSearch)),
-    );
-  }
-
-  reportedFilms.sort((a, b) => new Date(b.latestReportAt).getTime() - new Date(a.latestReportAt).getTime());
-  reportedProfilesRows.sort((a, b) => new Date(b.latestReportAt).getTime() - new Date(a.latestReportAt).getTime());
+  moderationFilms.sort(compareByPriority);
+  moderationProfiles.sort(compareByPriority);
 
   return {
     search,
-    reportedFilms,
-    reportedProfiles: reportedProfilesRows,
+    films: moderationFilms,
+    profiles: moderationProfiles,
+    reportedFilmCount: moderationFilms.filter((film) => film.openReportCount > 0).length,
+    reportedProfileCount: moderationProfiles.filter((profile) => profile.openReportCount > 0).length,
   };
 }
 

@@ -72,9 +72,9 @@ export function AdminFilmPanel({ overview }: AdminFilmPanelProps) {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="display-kicker">Moderation Search</p>
-            <h2 className="headline-lg mt-3">Reported films and users</h2>
+            <h2 className="headline-lg mt-3">Films and users</h2>
             <p className="body-sm mt-3 max-w-2xl">
-              Search by film title, release slug, creator handle, or display name. Only accounts and releases with active reports are shown here.
+              Search by film title, release slug, creator handle, or display name. Reported releases and profiles surface here automatically and stay prioritized at the top.
             </p>
           </div>
 
@@ -84,11 +84,11 @@ export function AdminFilmPanel({ overview }: AdminFilmPanelProps) {
               name="q"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search reported films or users"
+              placeholder="Search films or users"
               className="h-12 flex-1 rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition placeholder:text-muted-foreground focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]"
             />
             <Button type="submit" size="lg">
-              Search Reports
+              Search
             </Button>
             {overview.search ? (
               <Button asChild type="button" variant="ghost" size="lg">
@@ -113,32 +113,42 @@ export function AdminFilmPanel({ overview }: AdminFilmPanelProps) {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
+          <p className="display-kicker">Films</p>
+          <p className="title-md mt-3 text-foreground">{overview.films.length}</p>
+          <p className="body-sm mt-3">Film records currently in the moderation view.</p>
+        </article>
+        <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
+          <p className="display-kicker">Users</p>
+          <p className="title-md mt-3 text-foreground">{overview.profiles.length}</p>
+          <p className="body-sm mt-3">User and creator profiles currently in the moderation view.</p>
+        </article>
+        <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
           <p className="display-kicker">Reported Films</p>
-          <p className="title-md mt-3 text-foreground">{overview.reportedFilms.length}</p>
-          <p className="body-sm mt-3">Release records currently matching the report search.</p>
+          <p className="title-md mt-3 text-foreground">{overview.reportedFilmCount}</p>
+          <p className="body-sm mt-3">Releases with active reports are surfaced first.</p>
         </article>
         <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
           <p className="display-kicker">Reported Users</p>
-          <p className="title-md mt-3 text-foreground">{overview.reportedProfiles.length}</p>
-          <p className="body-sm mt-3">Profiles with active reports that need review.</p>
+          <p className="title-md mt-3 text-foreground">{overview.reportedProfileCount}</p>
+          <p className="body-sm mt-3">Profiles with active reports are surfaced first.</p>
         </article>
       </div>
 
       <section className="grid gap-4">
         <div>
           <p className="display-kicker">Films</p>
-          <h3 className="title-md mt-3 text-foreground">Reported releases</h3>
+          <h3 className="title-md mt-3 text-foreground">Film results</h3>
         </div>
 
-        {overview.reportedFilms.length === 0 ? (
+        {overview.films.length === 0 ? (
           <div className="rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
             <p className="display-kicker">No Matches</p>
-            <p className="title-md mt-3 text-foreground">No reported films found</p>
-            <p className="body-sm mt-3">Try another search term, or clear the search to review all currently reported releases.</p>
+            <p className="title-md mt-3 text-foreground">No films found</p>
+            <p className="body-sm mt-3">Try another search term, or clear the search to review currently reported releases.</p>
           </div>
         ) : (
           <div className="grid gap-4">
-            {overview.reportedFilms.map((film) => (
+            {overview.films.map((film) => (
               <article key={film.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex gap-4">
@@ -150,14 +160,20 @@ export function AdminFilmPanel({ overview }: AdminFilmPanelProps) {
                       <h3 className="title-md mt-3 text-foreground">{film.title}</h3>
                       <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">{getStatusCopy(film)}</p>
                       <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">slug / {film.slug}</p>
-                      <p className="mt-3 inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-amber-100">
-                        {film.openReportCount} active report{film.openReportCount === 1 ? "" : "s"}
-                      </p>
+                      {film.openReportCount > 0 ? (
+                        <p className="mt-3 inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-amber-100">
+                          {film.openReportCount} active report{film.openReportCount === 1 ? "" : "s"}
+                        </p>
+                      ) : (
+                        <p className="mt-3 inline-flex rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.18em] text-foreground/78">
+                          No active reports
+                        </p>
+                      )}
                       <p className="body-sm mt-3">{film.synopsis || "No synopsis added yet."}</p>
                       <p className="mt-3 text-sm text-muted-foreground">
                         Creator: <span className="text-foreground">{film.creator.displayName || film.creator.handle || "Unknown creator"}</span>
                         {" · "}
-                        Latest report {formatReleaseDate(film.latestReportAt) ?? "recently"}
+                        Updated {formatReleaseDate(film.updatedAt) ?? "recently"}
                       </p>
                       {film.reportReasons.length > 0 ? (
                         <p className="mt-2 text-sm text-muted-foreground">Reasons: {film.reportReasons.join(", ")}</p>
@@ -211,31 +227,37 @@ export function AdminFilmPanel({ overview }: AdminFilmPanelProps) {
       <section className="grid gap-4">
         <div>
           <p className="display-kicker">Users</p>
-          <h3 className="title-md mt-3 text-foreground">Reported profiles</h3>
+          <h3 className="title-md mt-3 text-foreground">User results</h3>
         </div>
 
-        {overview.reportedProfiles.length === 0 ? (
+        {overview.profiles.length === 0 ? (
           <div className="rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
             <p className="display-kicker">No Matches</p>
-            <p className="title-md mt-3 text-foreground">No reported users found</p>
-            <p className="body-sm mt-3">Try another search term, or clear the search to review all currently reported profiles.</p>
+            <p className="title-md mt-3 text-foreground">No users found</p>
+            <p className="body-sm mt-3">Try another search term, or clear the search to review currently reported profiles.</p>
           </div>
         ) : (
           <div className="grid gap-4">
-            {overview.reportedProfiles.map((profile) => (
+            {overview.profiles.map((profile) => (
               <article key={profile.id} className="rounded-[24px] border border-white/10 bg-white/5 p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="max-w-3xl">
                     <p className="display-kicker">{profile.isCreator ? "Creator profile" : "User profile"}</p>
                     <h3 className="title-md mt-3 text-foreground">{profile.displayName || profile.handle || "Unknown user"}</h3>
                     <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">@{profile.handle || "unknown"}</p>
-                    <p className="mt-3 inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-amber-100">
-                      {profile.openReportCount} active report{profile.openReportCount === 1 ? "" : "s"}
-                    </p>
+                    {profile.openReportCount > 0 ? (
+                      <p className="mt-3 inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-amber-100">
+                        {profile.openReportCount} active report{profile.openReportCount === 1 ? "" : "s"}
+                      </p>
+                    ) : (
+                      <p className="mt-3 inline-flex rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.18em] text-foreground/78">
+                        No active reports
+                      </p>
+                    )}
                     <p className="mt-3 text-sm text-muted-foreground">
                       Visibility: <span className="text-foreground">{profile.isPublic ? "public" : "private"}</span>
                       {" · "}
-                      Latest report {formatReleaseDate(profile.latestReportAt) ?? "recently"}
+                      Latest moderation activity {formatReleaseDate(profile.latestReportAt) ?? "recently"}
                     </p>
                     {profile.reportReasons.length > 0 ? (
                       <p className="mt-2 text-sm text-muted-foreground">Reasons: {profile.reportReasons.join(", ")}</p>

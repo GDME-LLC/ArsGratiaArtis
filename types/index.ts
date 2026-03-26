@@ -407,8 +407,10 @@ export type AdminReportedProfileRow = {
 
 export type AdminModerationOverview = {
   search: string;
-  reportedFilms: AdminReportedFilmRow[];
-  reportedProfiles: AdminReportedProfileRow[];
+  films: AdminReportedFilmRow[];
+  profiles: AdminReportedProfileRow[];
+  reportedFilmCount: number;
+  reportedProfileCount: number;
 };
 
 export type FilmComment = {

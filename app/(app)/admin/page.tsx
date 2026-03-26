@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminToolsNav } from "@/components/admin/admin-tools-nav";
@@ -20,17 +20,9 @@ const toolGroups = [
     label: "Moderation Tools",
     title: "Film review and visibility controls",
     description:
-      "Review recent releases, check moderation state, and quickly hide or unpublish work when platform quality or safety needs attention.",
+      "Review reported releases and users, check moderation state, and take visibility actions only where platform quality or safety needs attention.",
     href: "/admin/films",
     cta: "Open Moderation Tools",
-  },
-  {
-    label: "Platform Operations",
-    title: "Admin access and manual oversight",
-    description:
-      "Keep the platform human-scaled with manual review, curated creator distinctions, and a clear path for additional admin tools as moderation expands.",
-    href: "/admin/films",
-    cta: "Review Platform Controls",
   },
 ];
 
@@ -59,11 +51,11 @@ export default async function AdminDashboardPage() {
         <p className="display-kicker">Admin Tools</p>
         <h1 className="headline-xl mt-4">Platform management</h1>
         <p className="body-lg mt-4">
-          A restrained operations hub for the surfaces that shape creator identity, public visibility, and platform trust.
+          A restrained operations hub for the admin tools that currently exist: creator badges and moderation review.
         </p>
       </div>
 
-      <div className="mt-8 grid gap-5 xl:grid-cols-3">
+      <div className="mt-8 grid gap-5 xl:grid-cols-2">
         {toolGroups.map((group) => (
           <Link
             key={group.title}

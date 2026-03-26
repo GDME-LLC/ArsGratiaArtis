@@ -5,7 +5,7 @@ import { AdminFilmPanel } from "@/components/admin/admin-film-panel";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { StatePanel } from "@/components/shared/state-panel";
 import { getAdminUser } from "@/lib/admin";
-import { listAdminReportedContent } from "@/lib/admin-films";
+import { listAdminModerationContent } from "@/lib/admin-films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 type AdminFilmsPageProps = {
@@ -34,7 +34,7 @@ export default async function AdminFilmsPage({ searchParams }: AdminFilmsPagePro
 
   try {
     const params = searchParams ? await searchParams : undefined;
-    const overview = await listAdminReportedContent(params?.q ?? "");
+    const overview = await listAdminModerationContent(params?.q ?? "");
 
     return (
       <SectionShell className="py-14 sm:py-16">
@@ -44,7 +44,7 @@ export default async function AdminFilmsPage({ searchParams }: AdminFilmsPagePro
           <p className="display-kicker">Admin Tools</p>
           <h1 className="headline-xl mt-4">Moderation tools</h1>
           <p className="body-lg mt-4">
-            Search across reported films and users, review the active report queue, and take visibility actions only where a human decision is needed.
+            Search across films and users, with reported items surfaced automatically so moderation can stay proactive instead of report-only.
           </p>
         </div>
 
