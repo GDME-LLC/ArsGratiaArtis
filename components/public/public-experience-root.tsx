@@ -126,7 +126,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="public-experience relative min-h-screen" data-public-variant={variant}>
+    <div className="public-experience relative min-h-screen" data-public-variant={variant} data-intro-active={showIntro ? "true" : "false"}>
       <CinematicBackground variant={variant} />
       <PublicIntroOverlay
         active={showIntro}
@@ -144,3 +144,4 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     </div>
   );
 }
+

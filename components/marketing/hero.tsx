@@ -62,7 +62,7 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
           )}
         </div>
 
-        <div className="relative max-w-3xl lg:max-w-[58%]">
+        <div className="public-home-hero-copy relative max-w-3xl lg:max-w-[58%]">
           <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(7,8,14,0.88),rgba(7,8,14,0.72))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-[3px] sm:p-5">
             <p className="display-kicker">{siteConfig.motto}</p>
             <p className="eyebrow mt-1.5 text-foreground/84">Art, for art's sake</p>
@@ -70,7 +70,7 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
             <p className="mt-4 max-w-2xl body-lg text-foreground/84">{siteConfig.heroDescription}</p>
           </div>
 
-          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3" data-reveal="hero-actions">
+          <div className="public-home-hero-actions mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3" data-reveal="hero-actions">
             <Button asChild size="xl" className="w-full sm:w-auto">
               <Link href="/feed">Watch New Work</Link>
             </Button>
@@ -107,3 +107,4 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
     </section>
   );
 }
+
