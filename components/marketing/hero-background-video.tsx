@@ -2,10 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const HERO_LOOP_PRIMARY_VIDEO = "/brand/intro-premiere.mp4";
+const HERO_LOOP_PRIMARY_VIDEO = "/hero-loop.mp4";
 const HERO_LOOP_FALLBACK_VIDEO = "/video/hero-loop.mp4";
 const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
-const HERO_BACKGROUND_PLAYBACK_RATE = 0.92;
 
 export function HeroBackgroundVideo() {
   const [shouldAnimate, setShouldAnimate] = useState(false);
@@ -33,20 +32,19 @@ export function HeroBackgroundVideo() {
       return;
     }
 
-    video.playbackRate = HERO_BACKGROUND_PLAYBACK_RATE;
     video.play().catch(() => undefined);
   }, [shouldAnimate]);
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div
-        className="absolute inset-0 scale-[1.08] bg-cover bg-[center_42%] bg-no-repeat opacity-38 sm:scale-[1.06]"
+        className="absolute inset-0 scale-[1.08] bg-cover bg-[center_42%] bg-no-repeat opacity-36 sm:scale-[1.06]"
         style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
       />
       {shouldAnimate ? (
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full scale-[1.08] object-cover object-[center_42%] opacity-[0.14] sm:scale-[1.06]"
+          className="absolute inset-0 h-full w-full scale-[1.08] object-cover object-[center_42%] opacity-[0.18] sm:scale-[1.06]"
           autoPlay
           muted
           loop

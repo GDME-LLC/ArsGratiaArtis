@@ -60,11 +60,13 @@ const publicEntryBootstrap = `
 (function () {
   try {
     var pathname = window.location.pathname || "/";
-    var isPublic = pathname === "/" || pathname === "/feed" || pathname === "/filmmakers" || pathname === "/beyond-cinema" || pathname === "/manifesto" || pathname === "/resources" || pathname === "/report" || pathname === "/privacy" || pathname === "/terms" || pathname.indexOf("/creator/") === 0 || pathname.indexOf("/film/") === 0 || pathname.indexOf("/series/") === 0 || pathname.indexOf("/resources/") === 0;
+    var isHome = pathname === "/";
     var root = document.documentElement;
-    root.dataset.publicRoute = isPublic ? "true" : "false";
+    var isMobile = window.matchMedia("(max-width: 820px), (pointer: coarse)").matches;
+    root.dataset.platform = isMobile ? "mobile" : "desktop";
+    root.dataset.publicRoute = isHome ? "true" : "false";
 
-    if (!isPublic) {
+    if (!isHome) {
       root.dataset.publicEntry = "ready";
       return;
     }

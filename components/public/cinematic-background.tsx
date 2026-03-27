@@ -6,6 +6,7 @@ export type PublicExperienceVariant = "home" | "creator" | "film" | "theatre" | 
 
 type CinematicBackgroundProps = {
   variant: PublicExperienceVariant;
+  platform?: "mobile" | "desktop";
 };
 
 const ENABLE_SKY_SPOTLIGHTS = true;
@@ -21,29 +22,26 @@ const variantClassMap: Record<PublicExperienceVariant, string> = {
 };
 
 const spotlightConfigs = [
-  { className: "public-background__spotlight public-background__spotlight--left", duration: "68s", delay: "-12s" },
-  { className: "public-background__spotlight public-background__spotlight--center", duration: "78s", delay: "-26s" },
-  { className: "public-background__spotlight public-background__spotlight--right", duration: "88s", delay: "-18s" },
-  { className: "public-background__spotlight public-background__spotlight--far-right", duration: "96s", delay: "-38s" },
+  { className: "public-background__spotlight public-background__spotlight--left", duration: "68s", delay: "-12s", mobile: true },
+  { className: "public-background__spotlight public-background__spotlight--center", duration: "78s", delay: "-26s", mobile: true },
+  { className: "public-background__spotlight public-background__spotlight--right", duration: "88s", delay: "-18s", mobile: true },
+  { className: "public-background__spotlight public-background__spotlight--far-right", duration: "96s", delay: "-38s", mobile: false },
 ];
 
-export function CinematicBackground({ variant }: CinematicBackgroundProps) {
+export function CinematicBackground({ variant, platform = "desktop" }: CinematicBackgroundProps) {
   const showStrongSpotlights = ENABLE_SKY_SPOTLIGHTS && (variant === "home" || variant === "theatre");
-  const showMediumSpotlights = ENABLE_SKY_SPOTLIGHTS && variant === "film";
-  const showSubtleSpotlights = ENABLE_SKY_SPOTLIGHTS && (variant === "creator" || variant === "editorial" || variant === "resource");
+  const visibleSpotlights = spotlightConfigs.filter((spotlight) => platform === "desktop" || spotlight.mobile);
 
   return (
-    <div className={`public-background ${variantClassMap[variant]}`} aria-hidden="true">
+    <div className={`public-background ${variantClassMap[variant]}`} aria-hidden="true" data-platform={platform}>
       <div className="public-background__base" />
       <div className="public-background__starfield" />
       <div className="public-background__nebula" />
       <div className="public-background__haze public-background__drift-slower" />
       <div className="public-background__light" />
-      {(showStrongSpotlights || showMediumSpotlights || showSubtleSpotlights) ? (
-        <div
-          className={`public-background__spotlights ${showStrongSpotlights ? "is-strong" : showMediumSpotlights ? "is-medium" : "is-subtle"}`}
-        >
-          {spotlightConfigs.map((spotlight) => (
+      {showStrongSpotlights ? (
+        <div className="public-background__spotlights is-strong">
+          {visibleSpotlights.map((spotlight) => (
             <span
               key={spotlight.className}
               className={spotlight.className}

@@ -1,25 +1,35 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 type PublicIntroOverlayProps = {
   active: boolean;
+  platform: "mobile" | "desktop";
   onComplete: () => void;
 };
 
-const INTRO_DURATION_MS = 7000;
-const INTRO_ZOOM_SCALE = 1.1;
 const INTRO_VIDEO_SRC = "/brand/intro-premiere.mp4";
 const INTRO_FALLBACK_POSTER = "/video/hero-loop-poster.jpg";
-const INTRO_PLAYBACK_RATE = 0.92;
-const INTRO_WATERMARK_SRC = "/brand/arsgratia-icon-black.png";
+const INTRO_PLAYBACK_RATE = 0.5;
 
-export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayProps) {
+const introConfig = {
+  mobile: {
+    durationMs: 5600,
+    zoomScale: 1.05,
+  },
+  desktop: {
+    durationMs: 7000,
+    zoomScale: 1.1,
+  },
+} as const;
+
+export function PublicIntroOverlay({ active, platform, onComplete }: PublicIntroOverlayProps) {
   const prefersReducedMotion = useReducedMotionSafe();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoReady, setVideoReady] = useState(false);
+  const config = useMemo(() => introConfig[platform], [platform]);
 
   useEffect(() => {
     if (!active || prefersReducedMotion) {
@@ -35,15 +45,24 @@ export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayPro
 
     const timeout = window.setTimeout(() => {
       onComplete();
-    }, INTRO_DURATION_MS);
+    }, config.durationMs);
 
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [active, onComplete, prefersReducedMotion]);
+  }, [active, config.durationMs, onComplete, prefersReducedMotion]);
 
   return (
-    <div className="public-intro-overlay" aria-hidden="true" data-active={active ? "true" : "false"} style={{ ["--intro-zoom-scale" as string]: INTRO_ZOOM_SCALE }}>
+    <div
+      className="public-intro-overlay"
+      aria-hidden="true"
+      data-active={active ? "true" : "false"}
+      data-platform={platform}
+      style={{
+        ["--intro-zoom-scale" as string]: config.zoomScale,
+        ["--intro-duration" as string]: `${config.durationMs}ms`,
+      }}
+    >
       <div className="public-intro-overlay__veil" />
       <div className="public-intro-overlay__media">
         <div className="public-intro-overlay__fallback" style={{ backgroundImage: `url(${INTRO_FALLBACK_POSTER})` }} />
@@ -70,7 +89,6 @@ export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayPro
         <span className="public-intro-overlay__spotlight public-intro-overlay__spotlight--right" />
       </div>
       <div className="public-intro-overlay__glow" />
-      <div className="public-intro-overlay__watermark" style={{ backgroundImage: `url(${INTRO_WATERMARK_SRC})` }} />
     </div>
   );
 }
