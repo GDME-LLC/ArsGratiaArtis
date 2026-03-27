@@ -77,8 +77,8 @@ export default async function FilmPage({ params }: FilmPageProps) {
   const filmUrl = `${siteUrl}/film/${data.slug}`;
 
   return (
-    <section className="container-shell py-12 sm:py-16">
-      <div className="surface-panel cinema-frame overflow-hidden">
+    <section className="container-shell py-12 sm:py-16" data-reveal="page">
+      <div className="surface-panel cinema-frame overflow-hidden" data-reveal="film-frame">
         {data.isOwner && data.moderationStatus !== "active" ? (
           <div className="border-b border-amber-500/25 bg-amber-500/10 px-6 py-4 text-sm text-amber-100 sm:px-10">
             <p className="display-kicker text-amber-100/90">{moderationLabel}</p>
@@ -175,7 +175,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
           {hasAnyProcessMaterial ? (
             <div className="mt-7 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
+                <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5" data-reveal="panel">
                   <p className="display-kicker">Process</p>
                   <p className="mt-4 text-sm text-muted-foreground">{processSummary}</p>
                   <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
@@ -208,7 +208,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                   ) : null}
                 </article>
 
-                <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
+                <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5" data-reveal="panel">
                   <p className="display-kicker">Production Notes</p>
                   <p className="body-sm mt-4">{data.creation.processNotes || "No process notes were shared for this release."}</p>
                   {hasTools ? (
@@ -260,3 +260,4 @@ export default async function FilmPage({ params }: FilmPageProps) {
     </section>
   );
 }
+

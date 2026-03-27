@@ -32,8 +32,8 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
   }
 
   return (
-    <section className="container-shell py-16">
-      <div className="surface-panel cinema-frame overflow-hidden">
+    <section className="container-shell py-16" data-reveal="page">
+      <div className="surface-panel cinema-frame overflow-hidden" data-reveal="series-frame">
         <div
           className="h-64 w-full bg-cover bg-center"
           style={
@@ -77,7 +77,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
                 {data.episodes.map((episode) => (
                   <article
                     key={episode.id}
-                    className="rounded-[24px] border border-white/10 bg-white/5 p-5"
+                    className="rounded-[24px] border border-white/10 bg-white/5 p-5" data-reveal="panel"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="max-w-3xl">
@@ -109,3 +109,4 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
     </section>
   );
 }
+

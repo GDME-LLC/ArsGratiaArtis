@@ -137,7 +137,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   });
 
   return (
-    <section className={cn("relative overflow-hidden py-8 sm:py-12 sm:pb-14", preset.pageBackgroundClass)}>
+    <section className={cn("relative overflow-hidden py-8 sm:py-12 sm:pb-14", preset.pageBackgroundClass)} data-reveal="page">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_32%)] opacity-70" />
       <div className="container-shell relative z-10">
         {profile.isCurrentUser ? (
@@ -154,7 +154,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
           </div>
         ) : null}
 
-        <div className={cn("cinema-frame overflow-hidden border", preset.panelClass, preset.borderClass)}>
+        <div className={cn("cinema-frame overflow-hidden border", preset.panelClass, preset.borderClass)} data-reveal="hero-card">
           <div className="relative overflow-hidden">
             <div
               className={cn(
@@ -245,7 +245,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               {visibleSections.map((sectionId) => {
                 if (sectionId === "about") {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
                       <p className={cn("display-kicker", preset.eyebrowClass)}>About</p>
                       <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">
                         {profile.bio || "This Theatre is open. A fuller note will appear here as releases and context accumulate around the work."}
@@ -256,7 +256,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "creative_stack") {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
                       <p className={cn("display-kicker", preset.eyebrowClass)}>Creative Stack</p>
                       {theatreSettings.creativeProcessSummary ? (
                         <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">{theatreSettings.creativeProcessSummary}</p>
@@ -288,7 +288,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "featured_work" && featuredFilm) {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
                       <div className="flex flex-col gap-5 sm:gap-6 lg:flex-row lg:items-center">
                         <div className="w-full max-w-[200px] shrink-0 sm:max-w-[220px]">
                           <FilmArtwork artworkUrl={featuredFilm.posterUrl} title={featuredFilm.title} className="rounded-[24px]" />
@@ -310,7 +310,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "releases") {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
                       <div className="flex flex-col gap-3.5 sm:gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className={cn("display-kicker", preset.eyebrowClass)}>Theatre Presentation</p>
@@ -331,7 +331,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "links" && profile.websiteUrl) {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)}>
+                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
                       <p className={cn("display-kicker", preset.eyebrowClass)}>Links</p>
                       <div className="mt-4 flex flex-col gap-3 text-sm text-foreground">
                         <a href={profile.websiteUrl} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 break-all underline decoration-white/20 underline-offset-4">
@@ -360,3 +360,4 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
     </section>
   );
 }
+
