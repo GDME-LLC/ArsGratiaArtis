@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -55,6 +56,31 @@ export const metadata: Metadata = {
   },
 };
 
+const publicEntryBootstrap = `
+(function () {
+  try {
+    var pathname = window.location.pathname || "/";
+    var isPublic = pathname === "/" || pathname === "/feed" || pathname === "/filmmakers" || pathname === "/beyond-cinema" || pathname === "/manifesto" || pathname === "/resources" || pathname === "/report" || pathname === "/privacy" || pathname === "/terms" || pathname.indexOf("/creator/") === 0 || pathname.indexOf("/film/") === 0 || pathname.indexOf("/series/") === 0 || pathname.indexOf("/resources/") === 0;
+    var root = document.documentElement;
+    root.dataset.publicRoute = isPublic ? "true" : "false";
+
+    if (!isPublic) {
+      root.dataset.publicEntry = "ready";
+      return;
+    }
+
+    var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var introSeen = false;
+    try {
+      introSeen = window.sessionStorage.getItem("arsgratia-public-intro-seen") === "true";
+    } catch (error) {}
+
+    root.dataset.publicEntry = !prefersReducedMotion && !introSeen ? "playing" : "ready";
+  } catch (error) {
+    document.documentElement.dataset.publicEntry = "ready";
+  }
+})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -65,6 +91,9 @@ export default function RootLayout({
       <body
         className={`${displayFont.variable} ${bodyFont.variable} bg-background text-foreground antialiased`}
       >
+        <Script id="public-entry-bootstrap" strategy="beforeInteractive">
+          {publicEntryBootstrap}
+        </Script>
         <div className="relative min-h-screen overflow-x-clip bg-[linear-gradient(180deg,#07070b_0%,#0a0a10_44%,#050507_100%)]">
           <PublicExperienceRoot>
             <div className="relative flex min-h-screen flex-col">

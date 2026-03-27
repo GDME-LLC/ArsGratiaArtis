@@ -14,6 +14,7 @@ const INTRO_ZOOM_SCALE = 1.1;
 const INTRO_VIDEO_SRC = "/brand/intro-premiere.mp4";
 const INTRO_FALLBACK_POSTER = "/video/hero-loop-poster.jpg";
 const INTRO_PLAYBACK_RATE = 0.92;
+const INTRO_WATERMARK_SRC = "/brand/arsgratia-icon-black.png";
 
 export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayProps) {
   const prefersReducedMotion = useReducedMotionSafe();
@@ -41,12 +42,8 @@ export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayPro
     };
   }, [active, onComplete, prefersReducedMotion]);
 
-  if (!active || prefersReducedMotion) {
-    return null;
-  }
-
   return (
-    <div className="public-intro-overlay" aria-hidden="true" style={{ ["--intro-zoom-scale" as string]: INTRO_ZOOM_SCALE }}>
+    <div className="public-intro-overlay" aria-hidden="true" data-active={active ? "true" : "false"} style={{ ["--intro-zoom-scale" as string]: INTRO_ZOOM_SCALE }}>
       <div className="public-intro-overlay__veil" />
       <div className="public-intro-overlay__media">
         <div className="public-intro-overlay__fallback" style={{ backgroundImage: `url(${INTRO_FALLBACK_POSTER})` }} />
@@ -56,7 +53,7 @@ export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayPro
           muted
           playsInline
           preload="auto"
-          autoPlay
+          autoPlay={active}
           loop
           poster={INTRO_FALLBACK_POSTER}
           onCanPlay={() => setVideoReady(true)}
@@ -73,12 +70,7 @@ export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayPro
         <span className="public-intro-overlay__spotlight public-intro-overlay__spotlight--right" />
       </div>
       <div className="public-intro-overlay__glow" />
-      <div className="public-intro-overlay__mark">
-        <p className="eyebrow text-primary/80">ArsGratia</p>
-        <p className="mt-3 max-w-xs font-serif text-[1.9rem] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:max-w-xl sm:text-[2.7rem]">
-          Entering a premiere theatre in the cosmos.
-        </p>
-      </div>
+      <div className="public-intro-overlay__watermark" style={{ backgroundImage: `url(${INTRO_WATERMARK_SRC})` }} />
     </div>
   );
 }

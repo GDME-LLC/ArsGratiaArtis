@@ -22,6 +22,8 @@ const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen";
 const PUBLIC_INTRO_ENABLED = true;
 const MAX_REVEAL_STAGGER_MS = 40;
 
+type PublicEntryState = "playing" | "ready";
+
 function isPublicRoute(pathname: string) {
   if (PUBLIC_STATIC_ROUTES.has(pathname)) {
     return true;
@@ -58,26 +60,33 @@ function resolveVariant(pathname: string): PublicExperienceVariant {
   return "default";
 }
 
+function resolveInitialEntryState() {
+  if (typeof document === "undefined") {
+    return "ready" as PublicEntryState;
+  }
+
+  return document.documentElement.dataset.publicEntry === "playing" ? "playing" : "ready";
+}
+
 export function PublicExperienceRoot({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [showIntro, setShowIntro] = useState(false);
+  const [entryState, setEntryState] = useState<PublicEntryState>(resolveInitialEntryState);
   const isPublic = isPublicRoute(pathname);
   const variant = useMemo(() => resolveVariant(pathname), [pathname]);
 
   useEffect(() => {
     if (!isPublic || !PUBLIC_INTRO_ENABLED) {
-      setShowIntro(false);
-      return;
-    }
-
-    if (typeof window === "undefined") {
+      document.documentElement.dataset.publicEntry = "ready";
+      setEntryState("ready");
       return;
     }
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const introSeen = window.sessionStorage.getItem(PUBLIC_INTRO_STORAGE_KEY) === "true";
+    const nextState: PublicEntryState = !prefersReducedMotion && !introSeen ? "playing" : "ready";
 
-    setShowIntro(!prefersReducedMotion && !introSeen);
+    document.documentElement.dataset.publicEntry = nextState;
+    setEntryState(nextState);
   }, [isPublic, pathname]);
 
   useEffect(() => {
@@ -85,10 +94,10 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       return;
     }
 
-    if (showIntro && pathname === "/") {
+    if (entryState === "playing" && pathname === "/") {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
-  }, [showIntro, pathname]);
+  }, [entryState, pathname]);
 
   useEffect(() => {
     if (!isPublic || typeof window === "undefined") {
@@ -126,22 +135,22 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="public-experience relative min-h-screen" data-public-variant={variant} data-intro-active={showIntro ? "true" : "false"}>
+    <div className="public-experience relative min-h-screen" data-public-variant={variant} data-intro-active={entryState === "playing" ? "true" : "false"} data-entry-state={entryState}>
       <CinematicBackground variant={variant} />
       <PublicIntroOverlay
-        active={showIntro}
+        active={entryState === "playing"}
         onComplete={() => {
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
+            document.documentElement.dataset.publicEntry = "ready";
             if (pathname === "/") {
               window.scrollTo({ top: 0, left: 0, behavior: "auto" });
             }
           }
-          setShowIntro(false);
+          setEntryState("ready");
         }}
       />
       <div className="public-experience__content relative z-10">{children}</div>
     </div>
   );
 }
-

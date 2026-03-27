@@ -52,6 +52,10 @@
       linear-gradient(180deg, #07070b 0%, #0a0a10 44%, #050507 100%);
   }
 
+  html[data-public-route="true"][data-public-entry="playing"] body {
+    background: #000;
+  }
+
   h1,
   h2,
   h3,
@@ -175,6 +179,12 @@
 
   .public-experience__content {
     position: relative;
+    opacity: 1;
+  }
+
+  html[data-public-route="true"][data-public-entry="playing"] .public-experience__content {
+    opacity: 0;
+    animation: public-entry-content-reveal 7s ease forwards;
   }
 
   .public-experience .surface-panel,
@@ -199,7 +209,7 @@
   .public-experience[data-intro-active="true"][data-public-variant="home"] .public-home-hero-copy,
   .public-experience[data-intro-active="true"][data-public-variant="home"] .public-home-hero-actions {
     opacity: 0;
-    animation: public-home-hero-arrive 900ms ease-out 6.1s forwards;
+    animation: public-home-hero-arrive 900ms ease-out 6.05s forwards;
   }
 
   .public-background {
@@ -344,8 +354,16 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 1.2s ease, visibility 1.2s ease;
     background: radial-gradient(circle at 50% 12%, rgba(12, 12, 20, 0.4), rgba(3, 4, 7, 0.98) 62%);
-    animation: public-intro-fade 7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  html[data-public-route="true"][data-public-entry="playing"] .public-intro-overlay,
+  .public-intro-overlay[data-active="true"] {
+    visibility: visible;
+    opacity: 1;
   }
 
   .public-intro-overlay__veil,
@@ -354,7 +372,8 @@
   .public-intro-overlay__event-horizon,
   .public-intro-overlay__proscenium,
   .public-intro-overlay__glow,
-  .public-intro-overlay__spotlights {
+  .public-intro-overlay__spotlights,
+  .public-intro-overlay__watermark {
     position: absolute;
     inset: 0;
   }
@@ -464,10 +483,17 @@
     animation: public-intro-glow 7s ease-out forwards;
   }
 
-  .public-intro-overlay__mark {
-    position: relative;
-    text-align: center;
-    animation: public-intro-mark 7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  .public-intro-overlay__watermark {
+    inset: 50% auto auto 50%;
+    width: min(18vw, 11rem);
+    height: min(18vw, 11rem);
+    transform: translate(-50%, -50%) scale(0.96);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0;
+    mix-blend-mode: multiply;
+    animation: public-intro-watermark 7s ease-out forwards;
   }
 
   .public-experience[data-public-variant="home"] .public-background__spotlights,
@@ -585,6 +611,7 @@
     .public-home-hero-actions,
     .public-background__haze,
     .public-background__spotlight,
+    .public-intro-overlay,
     .public-intro-overlay__media,
     .public-intro-overlay__fallback,
     .public-intro-overlay__video,
@@ -593,7 +620,7 @@
     .public-intro-overlay__proscenium,
     .public-intro-overlay__spotlight,
     .public-intro-overlay__glow,
-    .public-intro-overlay__mark {
+    .public-intro-overlay__watermark {
       animation: none;
       transform: none;
       opacity: 1;
@@ -633,15 +660,14 @@
   }
 }
 
-@keyframes public-intro-fade {
+@keyframes public-entry-content-reveal {
   0%,
-  90% {
-    opacity: 1;
+  76% {
+    opacity: 0;
   }
 
   100% {
-    opacity: 0;
-    visibility: hidden;
+    opacity: 1;
   }
 }
 
@@ -650,11 +676,11 @@
     opacity: 0;
   }
 
-  20% {
-    opacity: 0.16;
+  18% {
+    opacity: 0.12;
   }
 
-  64% {
+  60% {
     opacity: 0.42;
   }
 
@@ -773,26 +799,26 @@
   }
 }
 
-@keyframes public-intro-mark {
+@keyframes public-intro-watermark {
   0%,
   34% {
     opacity: 0;
-    transform: translate3d(0, 18px, 0);
+    transform: translate(-50%, -50%) scale(0.96);
   }
 
-  52% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+  56% {
+    opacity: 0.16;
+    transform: translate(-50%, -50%) scale(1.01);
   }
 
-  86% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+  84% {
+    opacity: 0.22;
+    transform: translate(-50%, -50%) scale(1.06);
   }
 
   100% {
-    opacity: 0;
-    transform: translate3d(0, -8px, 0);
+    opacity: 0.08;
+    transform: translate(-50%, -50%) scale(1.1);
   }
 }
 
