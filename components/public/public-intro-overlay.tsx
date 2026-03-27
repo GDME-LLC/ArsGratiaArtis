@@ -16,12 +16,12 @@ const INTRO_PLAYBACK_RATE = 0.5;
 
 const introConfig = {
   mobile: {
-    durationMs: 5600,
-    zoomScale: 1.05,
+    durationMs: 8400,
+    zoomScale: 1.065,
   },
   desktop: {
-    durationMs: 7000,
-    zoomScale: 1.1,
+    durationMs: 10800,
+    zoomScale: 1.12,
   },
 } as const;
 
@@ -60,7 +60,6 @@ export function PublicIntroOverlay({ active, platform, onComplete }: PublicIntro
       data-platform={platform}
       style={{
         ["--intro-zoom-scale" as string]: config.zoomScale,
-        ["--intro-duration" as string]: `${config.durationMs}ms`,
       }}
     >
       <div className="public-intro-overlay__veil" />
@@ -92,3 +91,4 @@ export function PublicIntroOverlay({ active, platform, onComplete }: PublicIntro
     </div>
   );
 }
+

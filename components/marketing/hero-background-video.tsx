@@ -38,13 +38,13 @@ export function HeroBackgroundVideo() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div
-        className="absolute inset-0 scale-[1.08] bg-cover bg-[center_42%] bg-no-repeat opacity-36 sm:scale-[1.06]"
+        className="absolute inset-0 scale-[1.08] bg-cover bg-[center_42%] bg-no-repeat opacity-32 sm:scale-[1.06]"
         style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
       />
       {shouldAnimate ? (
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full scale-[1.08] object-cover object-[center_42%] opacity-[0.18] sm:scale-[1.06]"
+          className="absolute inset-0 h-full w-full scale-[1.08] object-cover object-[center_42%] opacity-[0.22] sm:scale-[1.06]"
           autoPlay
           muted
           loop
@@ -62,3 +62,4 @@ export function HeroBackgroundVideo() {
     </div>
   );
 }
+

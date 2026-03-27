@@ -171,11 +171,17 @@
   .public-experience__content {
     position: relative;
     opacity: 1;
+    transition: opacity 1600ms ease;
   }
 
-  html[data-public-route="true"][data-public-entry="playing"] .public-experience__content {
+  .public-experience[data-content-visible="false"] .public-experience__content {
     opacity: 0;
-    animation: public-entry-content-reveal var(--intro-duration, 7s) ease forwards;
+    pointer-events: none;
+  }
+
+  .public-experience[data-content-visible="true"] .public-experience__content {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .public-experience .surface-panel,
@@ -197,11 +203,7 @@
     background: linear-gradient(180deg, rgba(8, 9, 16, 0.82), rgba(8, 9, 16, 0.58));
   }
 
-  .public-experience[data-intro-active="true"] .public-home-hero-copy,
-  .public-experience[data-intro-active="true"] .public-home-hero-actions {
-    opacity: 0;
-    animation: public-home-hero-arrive 900ms ease-out calc(var(--intro-duration, 7s) - 0.95s) forwards;
-  }
+
 
   .public-background {
     position: fixed;
@@ -232,7 +234,7 @@
     background-size: 240px 240px, 360px 360px;
     background-position: 0 0, 60px 90px;
     background-repeat: repeat;
-    opacity: 0.18;
+    opacity: 0.22;
   }
 
   .public-background__nebula {
@@ -263,22 +265,22 @@
   .public-background__spotlights {
     inset: -6% -2% -10%;
     mix-blend-mode: screen;
-    opacity: 0.82;
-    filter: blur(10px);
+    opacity: 0.9;
+    filter: blur(12px);
   }
 
   .public-background__spotlight {
     position: absolute;
     bottom: -22%;
-    width: 36vw;
+    width: 38vw;
     min-width: 16rem;
     max-width: 30rem;
     height: 104vh;
-    opacity: 0.18;
+    opacity: 0.22;
     transform-origin: 50% 100%;
     border-radius: 999px 999px 0 0;
     background: linear-gradient(180deg, rgba(255, 247, 225, 0) 0%, rgba(255, 241, 208, 0.07) 24%, rgba(255, 235, 195, 0.24) 62%, rgba(255, 227, 176, 0.44) 100%);
-    clip-path: polygon(46% 0%, 54% 0%, 100% 100%, 0% 100%);
+    clip-path: polygon(0% 0%, 100% 0%, 58% 100%, 42% 100%);
     animation: public-spotlight-sweep 96s ease-in-out infinite;
   }
 
@@ -323,7 +325,7 @@
     height: min(50vh, 30rem);
     border-radius: 36px;
     overflow: hidden;
-    opacity: 0.14;
+    opacity: 0.2;
     mask-image: radial-gradient(circle at center, black 48%, transparent 100%);
     filter: saturate(0.7);
   }
@@ -349,7 +351,7 @@
     pointer-events: none;
     visibility: hidden;
     opacity: 0;
-    transition: opacity 1.2s ease, visibility 1.2s ease;
+    transition: opacity 1.9s ease, visibility 1.9s ease;
     background: radial-gradient(circle at 50% 12%, rgba(12, 12, 20, 0.4), rgba(3, 4, 7, 0.98) 62%);
   }
 
@@ -406,7 +408,7 @@
   }
 
   .public-intro-overlay__video.is-ready {
-    opacity: 0.42;
+    opacity: 0.5;
   }
 
   .public-intro-overlay__stars {
@@ -444,7 +446,7 @@
     min-width: 14rem;
     max-width: 28rem;
     height: 96vh;
-    clip-path: polygon(46% 0%, 54% 0%, 100% 100%, 0% 100%);
+    clip-path: polygon(0% 0%, 100% 0%, 58% 100%, 42% 100%);
     background: linear-gradient(180deg, rgba(255, 247, 225, 0) 0%, rgba(255, 241, 208, 0.09) 24%, rgba(255, 232, 187, 0.34) 66%, rgba(255, 226, 170, 0.62) 100%);
     mix-blend-mode: screen;
     filter: blur(18px);
@@ -508,7 +510,7 @@
     width: 40vw;
     min-width: 10rem;
     height: 72vh;
-    opacity: 0.14;
+    opacity: 0.2;
   }
 
   html[data-platform="mobile"] .public-background__hero-video,
@@ -589,7 +591,7 @@
   }
 
   68% {
-    opacity: 0.18;
+    opacity: 0.22;
     transform: rotate(8deg);
   }
 
@@ -599,16 +601,6 @@
   }
 }
 
-@keyframes public-entry-content-reveal {
-  0%,
-  76% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
 
 @keyframes public-intro-media-reveal {
   0% {
@@ -620,7 +612,7 @@
   }
 
   60% {
-    opacity: 0.42;
+    opacity: 0.5;
   }
 
   100% {
@@ -648,7 +640,7 @@
   }
 
   62% {
-    opacity: 0.18;
+    opacity: 0.22;
   }
 
   100% {
@@ -673,7 +665,7 @@
   }
 
   100% {
-    opacity: 0.82;
+    opacity: 0.9;
     transform: translate3d(0, 0, 0);
   }
 }
@@ -685,7 +677,7 @@
   }
 
   54% {
-    opacity: 0.42;
+    opacity: 0.5;
   }
 
   100% {
@@ -730,7 +722,7 @@
   }
 
   76% {
-    opacity: 0.42;
+    opacity: 0.5;
   }
 
   100% {
@@ -738,12 +730,8 @@
   }
 }
 
-@keyframes public-home-hero-arrive {
-  0% {
-    opacity: 0;
-  }
 
-  100% {
-    opacity: 1;
-  }
-}
+
+
+
+

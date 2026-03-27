@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { CinematicBackground } from "@/components/public/cinematic-background";
@@ -8,6 +8,17 @@ import { PublicIntroOverlay } from "@/components/public/public-intro-overlay";
 
 const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen";
 const PUBLIC_INTRO_ENABLED = true;
+
+const entryConfig = {
+  mobile: {
+    introDurationMs: 8400,
+    revealLeadMs: 1400,
+  },
+  desktop: {
+    introDurationMs: 10800,
+    revealLeadMs: 1600,
+  },
+} as const;
 
 type PublicEntryState = "playing" | "ready";
 type ExperiencePlatform = "mobile" | "desktop";
@@ -32,7 +43,9 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const [entryState, setEntryState] = useState<PublicEntryState>(resolveInitialEntryState);
   const [platform, setPlatform] = useState<ExperiencePlatform>(resolveInitialPlatform);
+  const [contentVisible, setContentVisible] = useState(resolveInitialEntryState() === "ready");
   const isHome = pathname === "/";
+  const config = useMemo(() => entryConfig[platform], [platform]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 820px), (pointer: coarse)");
@@ -55,6 +68,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       document.documentElement.dataset.publicEntry = "ready";
       document.documentElement.dataset.publicRoute = "false";
       setEntryState("ready");
+      setContentVisible(true);
       return;
     }
 
@@ -66,6 +80,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
 
     document.documentElement.dataset.publicEntry = nextState;
     setEntryState(nextState);
+    setContentVisible(nextState === "ready");
   }, [isHome, pathname]);
 
   useEffect(() => {
@@ -78,12 +93,35 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     }
   }, [entryState, isHome]);
 
+  useEffect(() => {
+    if (entryState !== "playing") {
+      return;
+    }
+
+    const revealDelay = Math.max(0, config.introDurationMs - config.revealLeadMs);
+    const timeout = window.setTimeout(() => {
+      setContentVisible(true);
+    }, revealDelay);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [config.introDurationMs, config.revealLeadMs, entryState]);
+
   if (!isHome) {
     return <>{children}</>;
   }
 
   return (
-    <div className="public-experience relative min-h-screen" data-public-variant="home" data-intro-active={entryState === "playing" ? "true" : "false"} data-entry-state={entryState} data-platform={platform}>
+    <div
+      className="public-experience relative min-h-screen"
+      data-public-variant="home"
+      data-intro-active={entryState === "playing" ? "true" : "false"}
+      data-entry-state={entryState}
+      data-platform={platform}
+      data-content-visible={contentVisible ? "true" : "false"}
+      style={{ ["--intro-duration" as string]: `${config.introDurationMs}ms` }}
+    >
       <CinematicBackground variant="home" platform={platform} />
       <PublicIntroOverlay
         active={entryState === "playing"}
@@ -94,6 +132,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
             document.documentElement.dataset.publicEntry = "ready";
             window.scrollTo({ top: 0, left: 0, behavior: "auto" });
           }
+          setContentVisible(true);
           setEntryState("ready");
         }}
       />
@@ -101,3 +140,4 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     </div>
   );
 }
+

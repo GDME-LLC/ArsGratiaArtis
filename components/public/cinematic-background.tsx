@@ -22,10 +22,10 @@ const variantClassMap: Record<PublicExperienceVariant, string> = {
 };
 
 const spotlightConfigs = [
-  { className: "public-background__spotlight public-background__spotlight--left", duration: "68s", delay: "-12s", mobile: true },
-  { className: "public-background__spotlight public-background__spotlight--center", duration: "78s", delay: "-26s", mobile: true },
-  { className: "public-background__spotlight public-background__spotlight--right", duration: "88s", delay: "-18s", mobile: true },
-  { className: "public-background__spotlight public-background__spotlight--far-right", duration: "96s", delay: "-38s", mobile: false },
+  { className: "public-background__spotlight public-background__spotlight--left", duration: "38s", delay: "-6s", mobile: true },
+  { className: "public-background__spotlight public-background__spotlight--center", duration: "46s", delay: "-18s", mobile: true },
+  { className: "public-background__spotlight public-background__spotlight--right", duration: "54s", delay: "-12s", mobile: true },
+  { className: "public-background__spotlight public-background__spotlight--far-right", duration: "62s", delay: "-28s", mobile: false },
 ];
 
 export function CinematicBackground({ variant, platform = "desktop" }: CinematicBackgroundProps) {
@@ -60,3 +60,4 @@ export function CinematicBackground({ variant, platform = "desktop" }: Cinematic
     </div>
   );
 }
+
