@@ -81,6 +81,16 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
   }, [isPublic, pathname]);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (showIntro && pathname === "/") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+  }, [showIntro, pathname]);
+
+  useEffect(() => {
     if (!isPublic || typeof window === "undefined") {
       return;
     }
@@ -123,6 +133,9 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
         onComplete={() => {
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
+            if (pathname === "/") {
+              window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+            }
           }
           setShowIntro(false);
         }}
