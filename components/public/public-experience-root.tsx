@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { CinematicBackground, type PublicExperienceVariant } from "@/components/public/cinematic-background";
@@ -20,6 +20,7 @@ const PUBLIC_STATIC_ROUTES = new Set([
 
 const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen";
 const PUBLIC_INTRO_ENABLED = true;
+const MAX_REVEAL_STAGGER_MS = 40;
 
 function isPublicRoute(pathname: string) {
   if (PUBLIC_STATIC_ROUTES.has(pathname)) {
@@ -38,7 +39,11 @@ function resolveVariant(pathname: string): PublicExperienceVariant {
     return "film";
   }
 
-  if (pathname.startsWith("/creator/") || pathname.startsWith("/series/") || pathname === "/filmmakers") {
+  if (pathname.startsWith("/series/") || pathname === "/beyond-cinema") {
+    return "theatre";
+  }
+
+  if (pathname.startsWith("/creator/") || pathname === "/filmmakers") {
     return "creator";
   }
 
@@ -50,17 +55,12 @@ function resolveVariant(pathname: string): PublicExperienceVariant {
     return "resource";
   }
 
-  if (pathname === "/beyond-cinema") {
-    return "theatre";
-  }
-
   return "default";
 }
 
 export function PublicExperienceRoot({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [showIntro, setShowIntro] = useState(false);
-  const frameRef = useRef<number | null>(null);
   const isPublic = isPublicRoute(pathname);
   const variant = useMemo(() => resolveVariant(pathname), [pathname]);
 
@@ -95,14 +95,14 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
         });
       },
       {
-        threshold: 0.12,
-        rootMargin: "0px 0px -10% 0px",
+        threshold: 0.16,
+        rootMargin: "0px 0px -12% 0px",
       },
     );
 
     const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
     nodes.forEach((node, index) => {
-      node.style.setProperty("--reveal-delay", `${Math.min(index % 6, 5) * 70}ms`);
+      node.style.setProperty("--reveal-delay", `${Math.min(index % 2, 1) * MAX_REVEAL_STAGGER_MS}ms`);
       observer.observe(node);
     });
 
@@ -110,33 +110,6 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       observer.disconnect();
     };
   }, [isPublic, pathname]);
-
-  useEffect(() => {
-    if (!isPublic || typeof window === "undefined") {
-      return;
-    }
-
-    const onScroll = () => {
-      if (frameRef.current !== null) {
-        return;
-      }
-
-      frameRef.current = window.requestAnimationFrame(() => {
-        document.documentElement.style.setProperty("--public-scroll-y", `${window.scrollY.toFixed(1)}px`);
-        frameRef.current = null;
-      });
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    return () => {
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current);
-      }
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, [isPublic]);
 
   if (!isPublic) {
     return <>{children}</>;
@@ -158,4 +131,3 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     </div>
   );
 }
-

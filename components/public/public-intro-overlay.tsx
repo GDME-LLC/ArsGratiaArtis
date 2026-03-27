@@ -9,6 +9,8 @@ type PublicIntroOverlayProps = {
   onComplete: () => void;
 };
 
+const INTRO_DURATION_MS = 5000;
+
 export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayProps) {
   const prefersReducedMotion = useReducedMotionSafe();
 
@@ -19,7 +21,7 @@ export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayPro
 
     const timeout = window.setTimeout(() => {
       onComplete();
-    }, 2100);
+    }, INTRO_DURATION_MS);
 
     return () => {
       window.clearTimeout(timeout);
@@ -34,11 +36,15 @@ export function PublicIntroOverlay({ active, onComplete }: PublicIntroOverlayPro
     <div className="public-intro-overlay" aria-hidden="true">
       <div className="public-intro-overlay__veil" />
       <div className="public-intro-overlay__stars" />
+      <div className="public-intro-overlay__spotlights">
+        <span className="public-intro-overlay__spotlight public-intro-overlay__spotlight--left" />
+        <span className="public-intro-overlay__spotlight public-intro-overlay__spotlight--right" />
+      </div>
       <div className="public-intro-overlay__glow" />
       <div className="public-intro-overlay__mark">
         <p className="eyebrow text-primary/80">ArsGratia</p>
-        <p className="mt-3 max-w-xs font-serif text-[1.8rem] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:text-[2.3rem]">
-          A theatre in the cosmos.
+        <p className="mt-3 max-w-xs font-serif text-[1.8rem] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:max-w-md sm:text-[2.45rem]">
+          A celestial theatre coming into view.
         </p>
       </div>
     </div>

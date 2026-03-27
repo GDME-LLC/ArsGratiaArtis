@@ -21,26 +21,28 @@ const variantClassMap: Record<PublicExperienceVariant, string> = {
 };
 
 const spotlightConfigs = [
-  { className: "public-background__spotlight public-background__spotlight--left", duration: "36s", delay: "-6s" },
-  { className: "public-background__spotlight public-background__spotlight--center", duration: "42s", delay: "-14s" },
-  { className: "public-background__spotlight public-background__spotlight--right", duration: "48s", delay: "-9s" },
-  { className: "public-background__spotlight public-background__spotlight--far-right", duration: "54s", delay: "-20s" },
+  { className: "public-background__spotlight public-background__spotlight--left", duration: "68s", delay: "-12s" },
+  { className: "public-background__spotlight public-background__spotlight--center", duration: "78s", delay: "-26s" },
+  { className: "public-background__spotlight public-background__spotlight--right", duration: "88s", delay: "-18s" },
+  { className: "public-background__spotlight public-background__spotlight--far-right", duration: "96s", delay: "-38s" },
 ];
 
 export function CinematicBackground({ variant }: CinematicBackgroundProps) {
-  const canShowSpotlights = ENABLE_SKY_SPOTLIGHTS && (variant === "home" || variant === "film" || variant === "theatre");
-  const canShowSubtleSpotlights = ENABLE_SKY_SPOTLIGHTS && (variant === "creator" || variant === "editorial" || variant === "resource");
+  const showStrongSpotlights = ENABLE_SKY_SPOTLIGHTS && (variant === "home" || variant === "theatre");
+  const showMediumSpotlights = ENABLE_SKY_SPOTLIGHTS && variant === "film";
+  const showSubtleSpotlights = ENABLE_SKY_SPOTLIGHTS && (variant === "creator" || variant === "editorial" || variant === "resource");
 
   return (
     <div className={`public-background ${variantClassMap[variant]}`} aria-hidden="true">
       <div className="public-background__base" />
-      <div className="public-background__starfield public-background__drift-slow" />
-      <div className="public-background__starfield public-background__starfield--secondary public-background__drift-medium" />
-      <div className="public-background__nebula public-background__parallax-far" />
-      <div className="public-background__haze public-background__parallax-mid" />
-      <div className="public-background__light public-background__drift-slower" />
-      {(canShowSpotlights || canShowSubtleSpotlights) ? (
-        <div className={`public-background__spotlights ${canShowSpotlights ? "is-strong" : "is-subtle"}`}>
+      <div className="public-background__starfield" />
+      <div className="public-background__nebula" />
+      <div className="public-background__haze public-background__drift-slower" />
+      <div className="public-background__light" />
+      {(showStrongSpotlights || showMediumSpotlights || showSubtleSpotlights) ? (
+        <div
+          className={`public-background__spotlights ${showStrongSpotlights ? "is-strong" : showMediumSpotlights ? "is-medium" : "is-subtle"}`}
+        >
           {spotlightConfigs.map((spotlight) => (
             <span
               key={spotlight.className}
@@ -52,7 +54,7 @@ export function CinematicBackground({ variant }: CinematicBackgroundProps) {
       ) : null}
       <div className="public-background__grain" />
       {variant === "home" ? (
-        <div className="public-background__hero-video public-background__parallax-near">
+        <div className="public-background__hero-video">
           <HeroBackgroundVideo />
         </div>
       ) : null}
