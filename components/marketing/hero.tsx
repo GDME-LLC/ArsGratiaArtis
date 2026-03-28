@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/constants/site";
 import { resolveCreatorName } from "@/lib/utils";
@@ -22,9 +21,8 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
   return (
     <section className="container-shell pt-4 sm:pt-6 lg:pt-7" data-reveal="hero">
       <div className="surface-panel cinema-frame relative overflow-hidden px-5 py-6 sm:px-8 sm:py-8 lg:px-11 lg:py-10">
-        <HeroBackgroundVideo />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,7,12,0.9)_0%,rgba(6,7,12,0.62)_42%,rgba(6,7,12,0.72)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_20%,rgba(214,188,136,0.08),transparent_20%),linear-gradient(180deg,rgba(4,4,8,0.08),rgba(4,4,8,0.26))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,7,12,0.78)_0%,rgba(6,7,12,0.46)_42%,rgba(6,7,12,0.62)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_20%,rgba(214,188,136,0.08),transparent_20%),linear-gradient(180deg,rgba(4,4,8,0.08),rgba(4,4,8,0.24))]" />
         <div className="absolute inset-x-8 top-6 h-px bg-gradient-to-r from-transparent via-white/16 to-transparent" />
         <div className="absolute inset-y-0 right-0 hidden w-[34%] bg-[linear-gradient(270deg,rgba(255,255,255,0.04),transparent)] lg:block" />
         <div className="absolute inset-y-8 right-5 hidden w-[29%] rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,12,18,0.86),rgba(7,8,12,0.72))] p-3 shadow-[0_30px_100px_rgba(0,0,0,0.42)] backdrop-blur-sm lg:block">
@@ -63,7 +61,7 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
         </div>
 
         <div className="public-home-hero-copy relative max-w-3xl lg:max-w-[58%]">
-          <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(7,8,14,0.88),rgba(7,8,14,0.72))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-[3px] sm:p-5">
+          <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(7,8,14,0.84),rgba(7,8,14,0.7))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-[3px] sm:p-5">
             <p className="display-kicker">{siteConfig.motto}</p>
             <p className="eyebrow mt-1.5 text-foreground/84">Art, for art's sake</p>
             <h1 className="hero-title mt-4 max-w-3xl text-balance">{siteConfig.heroTitle}</h1>
@@ -107,4 +105,3 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
     </section>
   );
 }
-

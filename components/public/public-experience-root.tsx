@@ -11,12 +11,12 @@ const PUBLIC_INTRO_ENABLED = true;
 
 const entryConfig = {
   mobile: {
-    introDurationMs: 8400,
-    revealLeadMs: 1400,
+    introDurationMs: 7200,
+    revealLeadMs: 2200,
   },
   desktop: {
-    introDurationMs: 10800,
-    revealLeadMs: 1600,
+    introDurationMs: 9000,
+    revealLeadMs: 2800,
   },
 } as const;
 
@@ -140,4 +140,3 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     </div>
   );
 }
-

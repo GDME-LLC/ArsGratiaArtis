@@ -312,7 +312,7 @@
 
   .public-background__grain {
     inset: 0;
-    opacity: 0.1;
+    opacity: 0.14;
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
@@ -325,7 +325,7 @@
     height: min(50vh, 30rem);
     border-radius: 36px;
     overflow: hidden;
-    opacity: 0.2;
+    opacity: 0.24;
     mask-image: radial-gradient(circle at center, black 48%, transparent 100%);
     filter: saturate(0.7);
   }
@@ -351,8 +351,8 @@
     pointer-events: none;
     visibility: hidden;
     opacity: 0;
-    transition: opacity 1.9s ease, visibility 1.9s ease;
-    background: radial-gradient(circle at 50% 12%, rgba(12, 12, 20, 0.4), rgba(3, 4, 7, 0.98) 62%);
+    transition: opacity 1.6s ease, visibility 1.6s ease;
+    background: transparent;
   }
 
   html[data-public-route="true"][data-public-entry="playing"] .public-intro-overlay,
@@ -373,7 +373,8 @@
   }
 
   .public-intro-overlay__veil {
-    background: linear-gradient(180deg, rgba(2, 3, 6, 0.9), rgba(2, 3, 6, 0.98));
+    background: radial-gradient(circle at 50% 14%, rgba(10, 10, 18, 0.72), rgba(2, 3, 6, 0.98) 62%);
+    animation: public-intro-veil var(--intro-duration, 8s) ease-out forwards;
   }
 
   .public-intro-overlay__media {
@@ -510,7 +511,7 @@
     width: 40vw;
     min-width: 10rem;
     height: 72vh;
-    opacity: 0.2;
+    opacity: 0.24;
   }
 
   html[data-platform="mobile"] .public-background__hero-video,
@@ -518,7 +519,7 @@
     inset: 5.5rem 1rem auto;
     height: 15rem;
     border-radius: 28px;
-    opacity: 0.1;
+    opacity: 0.14;
   }
 
   html[data-platform="mobile"] .public-intro-overlay__proscenium,
@@ -534,7 +535,7 @@
 
   html[data-platform="mobile"] .public-intro-overlay__video.is-ready,
   .public-intro-overlay[data-platform="mobile"] .public-intro-overlay__video.is-ready {
-    opacity: 0.34;
+    opacity: 0.4;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -602,6 +603,24 @@
 }
 
 
+@keyframes public-intro-veil {
+  0% {
+    opacity: 1;
+  }
+
+  22% {
+    opacity: 0.94;
+  }
+
+  68% {
+    opacity: 0.42;
+  }
+
+  100% {
+    opacity: 0.24;
+  }
+}
+
 @keyframes public-intro-media-reveal {
   0% {
     opacity: 0;
@@ -655,7 +674,7 @@
   }
 
   30% {
-    opacity: 0.34;
+    opacity: 0.4;
     transform: translate3d(0, 0.5rem, 0);
   }
 
@@ -697,7 +716,7 @@
   }
 
   48% {
-    opacity: 0.2;
+    opacity: 0.24;
     transform: rotate(-4deg);
   }
 
@@ -729,6 +748,9 @@
     opacity: 0.22;
   }
 }
+
+
+
 
 
 
