@@ -68,6 +68,8 @@ const publicEntryBootstrap = `
 
     if (!isHome) {
       root.dataset.publicEntry = "ready";
+      root.dataset.publicLoopVisible = "true";
+      root.dataset.publicContentVisible = "true";
       return;
     }
 
@@ -77,9 +79,21 @@ const publicEntryBootstrap = `
       introSeen = window.sessionStorage.getItem("arsgratia-public-intro-seen") === "true";
     } catch (error) {}
 
-    root.dataset.publicEntry = !prefersReducedMotion && !introSeen ? "playing" : "ready";
+    if (!prefersReducedMotion && !introSeen) {
+      root.dataset.publicEntry = "intro";
+      root.dataset.publicLoopVisible = "false";
+      root.dataset.publicContentVisible = "false";
+      return;
+    }
+
+    root.dataset.publicEntry = "ready";
+    root.dataset.publicLoopVisible = "true";
+    root.dataset.publicContentVisible = "true";
   } catch (error) {
-    document.documentElement.dataset.publicEntry = "ready";
+    var root = document.documentElement;
+    root.dataset.publicEntry = "ready";
+    root.dataset.publicLoopVisible = "true";
+    root.dataset.publicContentVisible = "true";
   }
 })();`;
 

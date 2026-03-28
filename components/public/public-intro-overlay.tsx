@@ -1,65 +1,51 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 type PublicIntroOverlayProps = {
-  active: boolean;
-  platform: "mobile" | "desktop";
-  onComplete: () => void;
+  phase: "intro" | "blend" | "ready";
 };
 
 const INTRO_OPENING_VIDEO_SRC = "/brand/firefly-opening.mp4";
-const INTRO_PLAYBACK_RATE = 0.7;
+const INTRO_PLAYBACK_RATE = 0.5;
 
-const introConfig = {
-  mobile: {
-    durationMs: 7000,
-    zoomScale: 1.05,
-  },
-  desktop: {
-    durationMs: 8600,
-    zoomScale: 1.1,
-  },
-} as const;
-
-export function PublicIntroOverlay({ active, platform, onComplete }: PublicIntroOverlayProps) {
+export function PublicIntroOverlay({ phase }: PublicIntroOverlayProps) {
   const prefersReducedMotion = useReducedMotionSafe();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoReady, setVideoReady] = useState(false);
-  const config = useMemo(() => introConfig[platform], [platform]);
+  const active = phase !== "ready" && !prefersReducedMotion;
 
   useEffect(() => {
-    if (!active || prefersReducedMotion) {
+    const video = videoRef.current;
+
+    if (!video) {
       return;
     }
 
-    const video = videoRef.current;
-    if (video) {
+    if (phase === "intro") {
       video.currentTime = 0;
       video.playbackRate = INTRO_PLAYBACK_RATE;
       video.play().catch(() => undefined);
+      return;
     }
 
-    const timeout = window.setTimeout(() => {
-      onComplete();
-    }, config.durationMs);
+    if (phase === "blend") {
+      video.playbackRate = INTRO_PLAYBACK_RATE;
+      video.play().catch(() => undefined);
+      return;
+    }
 
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [active, config.durationMs, onComplete, prefersReducedMotion]);
+    video.pause();
+  }, [phase]);
+
+  if (prefersReducedMotion) {
+    return null;
+  }
 
   return (
-    <div
-      className="public-intro-overlay"
-      aria-hidden="true"
-      data-active={active ? "true" : "false"}
-      data-platform={platform}
-      style={{ ["--intro-zoom-scale" as string]: config.zoomScale }}
-    >
-      <div className="public-intro-overlay__veil" />
+    <div className="public-intro-overlay" aria-hidden="true" data-phase={phase} data-active={active ? "true" : "false"}>
       <div className="public-intro-overlay__media">
         <div className="public-intro-overlay__fallback" />
         <video
@@ -75,15 +61,6 @@ export function PublicIntroOverlay({ active, platform, onComplete }: PublicIntro
           <source src={INTRO_OPENING_VIDEO_SRC} type="video/mp4" />
         </video>
       </div>
-      <div className="public-intro-overlay__stars" />
-      <div className="public-intro-overlay__event-horizon" />
-      <div className="public-intro-overlay__proscenium" />
-      <div className="public-intro-overlay__spotlights">
-        <span className="public-intro-overlay__spotlight public-intro-overlay__spotlight--left" />
-        <span className="public-intro-overlay__spotlight public-intro-overlay__spotlight--center" />
-        <span className="public-intro-overlay__spotlight public-intro-overlay__spotlight--right" />
-      </div>
-      <div className="public-intro-overlay__glow" />
     </div>
   );
 }

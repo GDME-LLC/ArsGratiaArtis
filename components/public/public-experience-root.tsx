@@ -11,24 +11,27 @@ const PUBLIC_INTRO_ENABLED = true;
 
 const entryConfig = {
   mobile: {
-    introDurationMs: 7000,
-    revealLeadMs: 2200,
+    introDurationMs: 5000,
+    blendDurationMs: 950,
+    contentRevealDelayMs: 550,
   },
   desktop: {
-    introDurationMs: 8600,
-    revealLeadMs: 3000,
+    introDurationMs: 5000,
+    blendDurationMs: 950,
+    contentRevealDelayMs: 550,
   },
 } as const;
 
-type PublicEntryState = "playing" | "ready";
+type PublicEntryPhase = "intro" | "blend" | "ready";
 type ExperiencePlatform = "mobile" | "desktop";
 
-function resolveInitialEntryState() {
+function resolveInitialPhase() {
   if (typeof document === "undefined") {
-    return "ready" as PublicEntryState;
+    return "ready" as PublicEntryPhase;
   }
 
-  return document.documentElement.dataset.publicEntry === "playing" ? "playing" : "ready";
+  const phase = document.documentElement.dataset.publicEntry;
+  return phase === "intro" || phase === "blend" ? phase : "ready";
 }
 
 function resolveInitialPlatform() {
@@ -39,11 +42,27 @@ function resolveInitialPlatform() {
   return document.documentElement.dataset.platform === "mobile" ? "mobile" : "desktop";
 }
 
+function resolveInitialBoolean(name: string, fallback: boolean) {
+  if (typeof document === "undefined") {
+    return fallback;
+  }
+
+  const value = document.documentElement.dataset[name];
+  if (value === "true") {
+    return true;
+  }
+  if (value === "false") {
+    return false;
+  }
+  return fallback;
+}
+
 export function PublicExperienceRoot({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [entryState, setEntryState] = useState<PublicEntryState>(resolveInitialEntryState);
+  const [phase, setPhase] = useState<PublicEntryPhase>(resolveInitialPhase);
   const [platform, setPlatform] = useState<ExperiencePlatform>(resolveInitialPlatform);
-  const [contentVisible, setContentVisible] = useState(resolveInitialEntryState() === "ready");
+  const [loopVisible, setLoopVisible] = useState(resolveInitialBoolean("publicLoopVisible", true));
+  const [contentVisible, setContentVisible] = useState(resolveInitialBoolean("publicContentVisible", true));
   const isHome = pathname === "/";
   const config = useMemo(() => entryConfig[platform], [platform]);
 
@@ -65,10 +84,13 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (!isHome || !PUBLIC_INTRO_ENABLED) {
-      document.documentElement.dataset.publicEntry = "ready";
-      document.documentElement.dataset.publicRoute = "false";
-      setEntryState("ready");
+      setPhase("ready");
+      setLoopVisible(true);
       setContentVisible(true);
+      document.documentElement.dataset.publicRoute = "false";
+      document.documentElement.dataset.publicEntry = "ready";
+      document.documentElement.dataset.publicLoopVisible = "true";
+      document.documentElement.dataset.publicContentVisible = "true";
       return;
     }
 
@@ -76,37 +98,55 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const introSeen = window.sessionStorage.getItem(PUBLIC_INTRO_STORAGE_KEY) === "true";
-    const nextState: PublicEntryState = !prefersReducedMotion && !introSeen ? "playing" : "ready";
+    const shouldPlayIntro = !prefersReducedMotion && !introSeen;
 
-    document.documentElement.dataset.publicEntry = nextState;
-    setEntryState(nextState);
-    setContentVisible(nextState === "ready");
+    setPhase(shouldPlayIntro ? "intro" : "ready");
+    setLoopVisible(!shouldPlayIntro);
+    setContentVisible(!shouldPlayIntro);
   }, [isHome, pathname]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    if (entryState === "playing" && isHome) {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    }
-  }, [entryState, isHome]);
+    document.documentElement.dataset.publicEntry = phase;
+    document.documentElement.dataset.publicLoopVisible = loopVisible ? "true" : "false";
+    document.documentElement.dataset.publicContentVisible = contentVisible ? "true" : "false";
+  }, [contentVisible, loopVisible, phase]);
 
   useEffect(() => {
-    if (entryState !== "playing") {
+    if (!isHome || typeof window === "undefined") {
       return;
     }
 
-    const revealDelay = Math.max(0, config.introDurationMs - config.revealLeadMs);
-    const timeout = window.setTimeout(() => {
-      setContentVisible(true);
-    }, revealDelay);
+    if (phase === "intro") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      const toBlend = window.setTimeout(() => {
+        setLoopVisible(true);
+        setPhase("blend");
+      }, config.introDurationMs);
 
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [config.introDurationMs, config.revealLeadMs, entryState]);
+      return () => {
+        window.clearTimeout(toBlend);
+      };
+    }
+
+    if (phase === "blend") {
+      const revealContent = window.setTimeout(() => {
+        setContentVisible(true);
+      }, config.contentRevealDelayMs);
+
+      const finishBlend = window.setTimeout(() => {
+        window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        setContentVisible(true);
+        setLoopVisible(true);
+        setPhase("ready");
+      }, config.blendDurationMs);
+
+      return () => {
+        window.clearTimeout(revealContent);
+        window.clearTimeout(finishBlend);
+      };
+    }
+  }, [config.blendDurationMs, config.contentRevealDelayMs, config.introDurationMs, isHome, phase]);
 
   if (!isHome) {
     return <>{children}</>;
@@ -116,26 +156,13 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     <div
       className="public-experience relative min-h-screen"
       data-public-variant="home"
-      data-intro-active={entryState === "playing" ? "true" : "false"}
-      data-entry-state={entryState}
+      data-entry-state={phase}
       data-platform={platform}
+      data-loop-visible={loopVisible ? "true" : "false"}
       data-content-visible={contentVisible ? "true" : "false"}
-      style={{ ["--intro-duration" as string]: `${config.introDurationMs}ms` }}
     >
       <CinematicBackground variant="home" platform={platform} />
-      <PublicIntroOverlay
-        active={entryState === "playing"}
-        platform={platform}
-        onComplete={() => {
-          if (typeof window !== "undefined") {
-            window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
-            document.documentElement.dataset.publicEntry = "ready";
-            window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-          }
-          setContentVisible(true);
-          setEntryState("ready");
-        }}
-      />
+      <PublicIntroOverlay phase={phase} />
       <div className="public-experience__content relative z-10">{children}</div>
     </div>
   );

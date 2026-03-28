@@ -52,7 +52,8 @@
       linear-gradient(180deg, #07070b 0%, #0a0a10 44%, #050507 100%);
   }
 
-  html[data-public-route="true"][data-public-entry="playing"] body {
+  html[data-public-route="true"][data-public-entry="intro"] body,
+  html[data-public-route="true"][data-public-entry="blend"] body {
     background: #000;
   }
 
@@ -191,8 +192,9 @@
     opacity: 1;
     transform: translate3d(0, 0, 0);
     transition:
-      opacity 1200ms ease,
-      transform 1200ms cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 1100ms ease,
+      transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
   }
 
   .public-home-hero-copy {
@@ -277,7 +279,7 @@
       radial-gradient(circle at 24% 28%, rgba(106, 74, 164, 0.12), transparent 22%),
       radial-gradient(circle at 74% 20%, rgba(199, 166, 106, 0.09), transparent 20%),
       radial-gradient(circle at 68% 66%, rgba(121, 47, 74, 0.1), transparent 24%);
-    filter: blur(18px);
+    filter: blur(12px);
     opacity: 0.5;
   }
 
@@ -301,7 +303,7 @@
     inset: -6% -2% -10%;
     mix-blend-mode: screen;
     opacity: 0.9;
-    filter: blur(12px);
+    filter: blur(9px);
   }
 
   .public-background__spotlight {
@@ -370,42 +372,31 @@
     position: fixed;
     inset: 0;
     z-index: 60;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     pointer-events: none;
     visibility: hidden;
     opacity: 0;
-    transition: opacity 1.8s ease, visibility 1.8s ease;
-    background: radial-gradient(circle at 50% 12%, rgba(5, 6, 10, 0.18), rgba(2, 3, 6, 0.7) 70%);
+    background: #000;
+    transition: opacity 950ms ease, visibility 950ms ease;
   }
 
-  html[data-public-route="true"][data-public-entry="playing"] .public-intro-overlay,
-  .public-intro-overlay[data-active="true"] {
+  .public-intro-overlay[data-phase="intro"],
+  .public-intro-overlay[data-phase="blend"] {
     visibility: visible;
+  }
+
+  .public-intro-overlay[data-phase="intro"] {
     opacity: 1;
   }
 
-  .public-intro-overlay__veil,
-  .public-intro-overlay__media,
-  .public-intro-overlay__stars,
-  .public-intro-overlay__event-horizon,
-  .public-intro-overlay__proscenium,
-  .public-intro-overlay__glow,
-  .public-intro-overlay__spotlights {
-    position: absolute;
-    inset: 0;
-  }
-
-  .public-intro-overlay__veil {
-    background: radial-gradient(circle at 50% 14%, rgba(10, 10, 18, 0.72), rgba(2, 3, 6, 0.98) 62%);
-    animation: public-intro-veil var(--intro-duration, 8.6s) ease-out forwards;
+  .public-intro-overlay[data-phase="blend"] {
+    opacity: 0;
   }
 
   .public-intro-overlay__media {
+    position: absolute;
+    inset: 0;
     overflow: hidden;
-    opacity: 0;
-    animation: public-intro-media-reveal var(--intro-duration, 8.6s) ease-out forwards;
+    background: #000;
   }
 
   .public-intro-overlay__fallback,
@@ -416,25 +407,19 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
-    transform: scale(1);
-    animation: public-intro-video-zoom var(--intro-duration, 8.6s) linear forwards;
   }
 
   .public-intro-overlay__fallback {
-    background-position: center;
-    background-size: cover;
-    opacity: 0.22;
-    filter: brightness(0.24) saturate(0.58);
+    background: #000;
   }
 
   .public-intro-overlay__video {
     opacity: 0;
-    filter: brightness(0.38) saturate(0.72);
-    transition: opacity 480ms ease-out;
+    transition: opacity 320ms ease-out;
   }
 
   .public-intro-overlay__video.is-ready {
-    opacity: 0.74;
+    opacity: 1;
   }
 
   .public-intro-overlay__stars {
@@ -475,7 +460,7 @@
     clip-path: polygon(0% 0%, 100% 0%, 58% 100%, 42% 100%);
     background: linear-gradient(180deg, rgba(255, 247, 225, 0) 0%, rgba(255, 241, 208, 0.09) 24%, rgba(255, 232, 187, 0.34) 66%, rgba(255, 226, 170, 0.62) 100%);
     mix-blend-mode: screen;
-    filter: blur(18px);
+    filter: blur(12px);
     opacity: 0;
     transform-origin: 50% 100%;
     animation: public-intro-spotlight var(--intro-duration, 8.6s) ease-in-out forwards;
@@ -499,7 +484,7 @@
     background:
       radial-gradient(circle at 50% 38%, rgba(229, 211, 169, 0.16), transparent 22%),
       radial-gradient(circle at 50% 54%, rgba(255, 255, 255, 0.06), transparent 30%);
-    filter: blur(28px);
+    filter: blur(18px);
     animation: public-intro-glow var(--intro-duration, 8.6s) ease-out forwards;
   }
 
@@ -518,7 +503,7 @@
   html[data-platform="mobile"] .public-background__spotlights,
   .public-experience[data-platform="mobile"] .public-background__spotlights {
     opacity: 0.56;
-    filter: blur(12px);
+    filter: blur(9px);
   }
 
   html[data-platform="mobile"] .public-background__spotlight,
@@ -542,7 +527,7 @@
 
   html[data-platform="mobile"] .public-intro-overlay__video.is-ready,
   .public-intro-overlay[data-platform="mobile"] .public-intro-overlay__video.is-ready {
-    opacity: 0.4;
+    opacity: 1;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -681,7 +666,7 @@
   }
 
   30% {
-    opacity: 0.4;
+    opacity: 0.34;
     transform: translate3d(0, 0.5rem, 0);
   }
 
@@ -755,6 +740,9 @@
     opacity: 0.16;
   }
 }
+
+
+
 
 
 
