@@ -38,13 +38,13 @@ export function HeroBackgroundVideo() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div
-        className="absolute inset-0 scale-[1.08] bg-cover bg-[center_42%] bg-no-repeat opacity-28 sm:scale-[1.06]"
+        className="absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat opacity-72 sm:scale-[1.1] lg:scale-[1.07]"
         style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
       />
       {shouldAnimate ? (
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full scale-[1.08] object-cover object-[center_42%] opacity-[0.26] sm:scale-[1.06]"
+          className="absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] opacity-38 sm:scale-[1.1] lg:scale-[1.07]"
           autoPlay
           muted
           loop
@@ -56,9 +56,10 @@ export function HeroBackgroundVideo() {
           <source src={HERO_LOOP_FALLBACK_VIDEO} type="video/mp4" />
         </video>
       ) : null}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,4,8,0.92)_0%,rgba(4,4,8,0.74)_34%,rgba(4,4,8,0.88)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(2,2,4,0.8)_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(255,255,255,0.018),transparent_22%,transparent_78%,rgba(255,255,255,0.018))] opacity-24" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,3,6,0.82)_0%,rgba(3,3,6,0.34)_30%,rgba(3,3,6,0.72)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_22%,rgba(2,2,4,0.64)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(199,166,106,0.18),transparent_34%)] mix-blend-screen opacity-70" />
+      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.05),transparent_24%,transparent_66%,rgba(255,255,255,0.04))] opacity-36" />
     </div>
   );
 }

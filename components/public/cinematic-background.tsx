@@ -1,7 +1,5 @@
 "use client";
 
-import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
-
 export type PublicExperienceVariant = "home" | "creator" | "film" | "theatre" | "editorial" | "resource" | "default";
 
 type CinematicBackgroundProps = {
@@ -51,13 +49,7 @@ export function CinematicBackground({ variant, platform = "desktop" }: Cinematic
         </div>
       ) : null}
       <div className="public-background__grain" />
-      {variant === "home" ? (
-        <div className="public-background__hero-video">
-          <HeroBackgroundVideo />
-        </div>
-      ) : null}
       <div className="public-background__vignette" />
     </div>
   );
 }
-

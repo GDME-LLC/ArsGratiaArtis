@@ -171,7 +171,7 @@
   .public-experience__content {
     position: relative;
     opacity: 1;
-    transition: opacity 1600ms ease;
+    transition: opacity 1400ms ease;
   }
 
   .public-experience[data-content-visible="false"] .public-experience__content {
@@ -182,6 +182,41 @@
   .public-experience[data-content-visible="true"] .public-experience__content {
     opacity: 1;
     pointer-events: auto;
+  }
+
+  .public-home-hero-copy,
+  .public-home-hero-actions,
+  .public-home-hero-feature,
+  .public-home-hero-panels {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition:
+      opacity 1200ms ease,
+      transform 1200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .public-home-hero-copy {
+    transition-delay: 120ms;
+  }
+
+  .public-home-hero-actions {
+    transition-delay: 240ms;
+  }
+
+  .public-home-hero-feature {
+    transition-delay: 320ms;
+  }
+
+  .public-home-hero-panels {
+    transition-delay: 400ms;
+  }
+
+  .public-experience[data-content-visible="false"] .public-home-hero-copy,
+  .public-experience[data-content-visible="false"] .public-home-hero-actions,
+  .public-experience[data-content-visible="false"] .public-home-hero-feature,
+  .public-experience[data-content-visible="false"] .public-home-hero-panels {
+    opacity: 0;
+    transform: translate3d(0, 2rem, 0);
   }
 
   .public-experience .surface-panel,
@@ -320,16 +355,6 @@
     mask-image: radial-gradient(circle at center, black, transparent 92%);
   }
 
-  .public-background__hero-video {
-    inset: 5.5rem 9vw auto;
-    height: min(50vh, 30rem);
-    border-radius: 36px;
-    overflow: hidden;
-    opacity: 0.24;
-    mask-image: radial-gradient(circle at center, black 48%, transparent 100%);
-    filter: saturate(0.7);
-  }
-
   .public-background__vignette {
     inset: 0;
     background:
@@ -351,8 +376,8 @@
     pointer-events: none;
     visibility: hidden;
     opacity: 0;
-    transition: opacity 1.6s ease, visibility 1.6s ease;
-    background: transparent;
+    transition: opacity 1.8s ease, visibility 1.8s ease;
+    background: radial-gradient(circle at 50% 12%, rgba(5, 6, 10, 0.18), rgba(2, 3, 6, 0.7) 70%);
   }
 
   html[data-public-route="true"][data-public-entry="playing"] .public-intro-overlay,
@@ -374,13 +399,13 @@
 
   .public-intro-overlay__veil {
     background: radial-gradient(circle at 50% 14%, rgba(10, 10, 18, 0.72), rgba(2, 3, 6, 0.98) 62%);
-    animation: public-intro-veil var(--intro-duration, 8s) ease-out forwards;
+    animation: public-intro-veil var(--intro-duration, 8.6s) ease-out forwards;
   }
 
   .public-intro-overlay__media {
     overflow: hidden;
     opacity: 0;
-    animation: public-intro-media-reveal var(--intro-duration, 7s) ease-out forwards;
+    animation: public-intro-media-reveal var(--intro-duration, 8.6s) ease-out forwards;
   }
 
   .public-intro-overlay__fallback,
@@ -392,24 +417,24 @@
     object-fit: cover;
     object-position: center;
     transform: scale(1);
-    animation: public-intro-video-zoom var(--intro-duration, 7s) linear forwards;
+    animation: public-intro-video-zoom var(--intro-duration, 8.6s) linear forwards;
   }
 
   .public-intro-overlay__fallback {
     background-position: center;
     background-size: cover;
     opacity: 0.22;
-    filter: brightness(0.34) saturate(0.7);
+    filter: brightness(0.24) saturate(0.58);
   }
 
   .public-intro-overlay__video {
     opacity: 0;
-    filter: brightness(0.42) saturate(0.86);
+    filter: brightness(0.38) saturate(0.72);
     transition: opacity 480ms ease-out;
   }
 
   .public-intro-overlay__video.is-ready {
-    opacity: 0.5;
+    opacity: 0.74;
   }
 
   .public-intro-overlay__stars {
@@ -419,7 +444,7 @@
     background-size: 220px 220px, 360px 360px;
     background-position: 0 0, 70px 40px;
     opacity: 0.16;
-    animation: public-intro-stars var(--intro-duration, 7s) ease-out forwards;
+    animation: public-intro-stars var(--intro-duration, 8.6s) ease-out forwards;
   }
 
   .public-intro-overlay__event-horizon {
@@ -428,7 +453,7 @@
     background:
       radial-gradient(circle at 50% 86%, rgba(255, 220, 156, 0.24), transparent 22%),
       linear-gradient(180deg, rgba(255, 214, 140, 0) 0%, rgba(255, 214, 140, 0.1) 38%, rgba(9, 9, 14, 0.76) 100%);
-    animation: public-intro-horizon var(--intro-duration, 7s) ease-out forwards;
+    animation: public-intro-horizon var(--intro-duration, 8.6s) ease-out forwards;
   }
 
   .public-intro-overlay__proscenium {
@@ -437,7 +462,7 @@
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 40px 120px rgba(0, 0, 0, 0.4);
     opacity: 0;
-    animation: public-intro-proscenium var(--intro-duration, 7s) ease-out forwards;
+    animation: public-intro-proscenium var(--intro-duration, 8.6s) ease-out forwards;
   }
 
   .public-intro-overlay__spotlight {
@@ -453,7 +478,7 @@
     filter: blur(18px);
     opacity: 0;
     transform-origin: 50% 100%;
-    animation: public-intro-spotlight var(--intro-duration, 7s) ease-in-out forwards;
+    animation: public-intro-spotlight var(--intro-duration, 8.6s) ease-in-out forwards;
   }
 
   .public-intro-overlay__spotlight--left {
@@ -475,21 +500,11 @@
       radial-gradient(circle at 50% 38%, rgba(229, 211, 169, 0.16), transparent 22%),
       radial-gradient(circle at 50% 54%, rgba(255, 255, 255, 0.06), transparent 30%);
     filter: blur(28px);
-    animation: public-intro-glow var(--intro-duration, 7s) ease-out forwards;
+    animation: public-intro-glow var(--intro-duration, 8.6s) ease-out forwards;
   }
 
   .public-experience .container-shell {
     position: relative;
-  }
-
-  .public-experience .container-shell::before {
-    content: "";
-    position: absolute;
-    inset: 0.75rem 0.75rem auto;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-    opacity: 0.45;
-    pointer-events: none;
   }
 
   .public-experience .surface-panel .surface-panel,
@@ -512,14 +527,6 @@
     min-width: 10rem;
     height: 72vh;
     opacity: 0.24;
-  }
-
-  html[data-platform="mobile"] .public-background__hero-video,
-  .public-experience[data-platform="mobile"] .public-background__hero-video {
-    inset: 5.5rem 1rem auto;
-    height: 15rem;
-    border-radius: 28px;
-    opacity: 0.14;
   }
 
   html[data-platform="mobile"] .public-intro-overlay__proscenium,
@@ -630,12 +637,12 @@
     opacity: 0.12;
   }
 
-  60% {
-    opacity: 0.5;
+  58% {
+    opacity: 0.68;
   }
 
   100% {
-    opacity: 0.36;
+    opacity: 0.08;
   }
 }
 
@@ -696,7 +703,7 @@
   }
 
   54% {
-    opacity: 0.5;
+    opacity: 0.44;
   }
 
   100% {
@@ -737,17 +744,25 @@
   }
 
   34% {
-    opacity: 0.28;
+    opacity: 0.22;
   }
 
   76% {
-    opacity: 0.5;
+    opacity: 0.42;
   }
 
   100% {
-    opacity: 0.22;
+    opacity: 0.16;
   }
 }
+
+
+
+
+
+
+
+
 
 
 

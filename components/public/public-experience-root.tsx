@@ -11,12 +11,12 @@ const PUBLIC_INTRO_ENABLED = true;
 
 const entryConfig = {
   mobile: {
-    introDurationMs: 7200,
+    introDurationMs: 7000,
     revealLeadMs: 2200,
   },
   desktop: {
-    introDurationMs: 9000,
-    revealLeadMs: 2800,
+    introDurationMs: 8600,
+    revealLeadMs: 3000,
   },
 } as const;
 
