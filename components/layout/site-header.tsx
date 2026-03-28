@@ -68,7 +68,7 @@ export async function SiteHeader() {
             {user ? (
               <>
                 <Button asChild className="h-9 rounded-full px-3.5 text-[0.72rem] tracking-[0.08em] sm:px-4">
-                  <Link href="/upload">Start a Release</Link>
+                  <Link href="/dashboard">Dashboard</Link>
                 </Button>
                 <LogoutButton />
               </>
