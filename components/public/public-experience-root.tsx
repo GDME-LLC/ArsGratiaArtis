@@ -12,14 +12,16 @@ const PUBLIC_INTRO_ENABLED = true;
 const entryConfig = {
   mobile: {
     introDurationMs: 4700,
+    loopLeadInMs: 220,
     blendDurationMs: 1050,
-    contentRevealDelayMs: 140,
+    contentRevealDelayMs: 240,
     heroRevealDelayMs: 720,
   },
   desktop: {
     introDurationMs: 4700,
+    loopLeadInMs: 300,
     blendDurationMs: 1050,
-    contentRevealDelayMs: 140,
+    contentRevealDelayMs: 300,
     heroRevealDelayMs: 720,
   },
 } as const;
@@ -128,12 +130,17 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     }
 
     if (phase === "intro") {
+      const prewarmLoop = window.setTimeout(() => {
+        setLoopVisible(true);
+      }, Math.max(config.introDurationMs - config.loopLeadInMs, 0));
+
       const toBlend = window.setTimeout(() => {
         setLoopVisible(true);
         setPhase("blend");
       }, config.introDurationMs);
 
       return () => {
+        window.clearTimeout(prewarmLoop);
         window.clearTimeout(toBlend);
       };
     }
@@ -162,7 +169,15 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
         window.clearTimeout(finishBlend);
       };
     }
-  }, [config.blendDurationMs, config.contentRevealDelayMs, config.heroRevealDelayMs, config.introDurationMs, isHome, phase]);
+  }, [
+    config.blendDurationMs,
+    config.contentRevealDelayMs,
+    config.heroRevealDelayMs,
+    config.introDurationMs,
+    config.loopLeadInMs,
+    isHome,
+    phase,
+  ]);
 
   if (!isHome) {
     return <>{children}</>;

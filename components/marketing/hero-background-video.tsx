@@ -5,9 +5,6 @@ import { useEffect, useRef, useState } from "react";
 const HERO_LOOP_PRIMARY_VIDEO = "/hero-loop.mp4";
 const HERO_LOOP_FALLBACK_VIDEO = "/video/hero-loop.mp4";
 const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
-const HERO_LOOP_FORWARD_DURATION_SECONDS = 7;
-const HERO_LOOP_RESTART_BLEND_MS = 640;
-const HERO_LOOP_RESTART_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.65;
 
 function resolveInitialLoopState() {
   if (typeof document === "undefined") {
@@ -29,29 +26,8 @@ export function HeroBackgroundVideo() {
     return document.visibilityState === "visible";
   });
   const [isInViewport, setIsInViewport] = useState(true);
-  const [isRestartBlending, setIsRestartBlending] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const shouldPlayRef = useRef(false);
-  const restartResetTimeoutRef = useRef<number | null>(null);
-  const restartFinishTimeoutRef = useRef<number | null>(null);
-  const restartInFlightRef = useRef(false);
-  const clearRestartBlendRef = useRef<() => void>(() => undefined);
-
-  clearRestartBlendRef.current = () => {
-    if (restartResetTimeoutRef.current !== null) {
-      window.clearTimeout(restartResetTimeoutRef.current);
-      restartResetTimeoutRef.current = null;
-    }
-
-    if (restartFinishTimeoutRef.current !== null) {
-      window.clearTimeout(restartFinishTimeoutRef.current);
-      restartFinishTimeoutRef.current = null;
-    }
-
-    restartInFlightRef.current = false;
-    setIsRestartBlending(false);
-  };
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -111,12 +87,6 @@ export function HeroBackgroundVideo() {
     };
   }, []);
 
-  const shouldPlayLoop = loopVisible && isInViewport && isPageVisible && !prefersReducedMotion;
-
-  useEffect(() => {
-    shouldPlayRef.current = shouldPlayLoop;
-  }, [shouldPlayLoop]);
-
   useEffect(() => {
     const video = videoRef.current;
 
@@ -124,73 +94,13 @@ export function HeroBackgroundVideo() {
       return;
     }
 
-    if (!shouldPlayLoop) {
-      clearRestartBlendRef.current();
+    if (prefersReducedMotion || !loopVisible || !isInViewport || !isPageVisible) {
       video.pause();
       return;
     }
 
-    if (video.currentTime >= HERO_LOOP_FORWARD_DURATION_SECONDS) {
-      video.currentTime = 0;
-    }
-
     video.play().catch(() => undefined);
-  }, [shouldPlayLoop]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video || prefersReducedMotion) {
-      return;
-    }
-
-    const queueRestartBlend = () => {
-      if (restartInFlightRef.current || !shouldPlayRef.current) {
-        return;
-      }
-
-      restartInFlightRef.current = true;
-      setIsRestartBlending(true);
-
-      restartResetTimeoutRef.current = window.setTimeout(() => {
-        const currentVideo = videoRef.current;
-
-        if (!currentVideo) {
-          return;
-        }
-
-        currentVideo.currentTime = 0;
-
-        if (shouldPlayRef.current) {
-          currentVideo.play().catch(() => undefined);
-        }
-      }, Math.round(HERO_LOOP_RESTART_BLEND_MS * 0.5));
-
-      restartFinishTimeoutRef.current = window.setTimeout(() => {
-        restartInFlightRef.current = false;
-        setIsRestartBlending(false);
-      }, HERO_LOOP_RESTART_BLEND_MS);
-    };
-
-    const handleTimeUpdate = () => {
-      if (video.currentTime >= HERO_LOOP_RESTART_THRESHOLD_SECONDS) {
-        queueRestartBlend();
-      }
-    };
-
-    const handleEnded = () => {
-      queueRestartBlend();
-    };
-
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    video.addEventListener("ended", handleEnded);
-
-    return () => {
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("ended", handleEnded);
-      clearRestartBlendRef.current();
-    };
-  }, [prefersReducedMotion]);
+  }, [isInViewport, isPageVisible, loopVisible, prefersReducedMotion]);
 
   const layerVisible = loopVisible || prefersReducedMotion;
 
@@ -200,15 +110,16 @@ export function HeroBackgroundVideo() {
         className={`absolute inset-0 transition-opacity duration-[720ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
       >
         <div
-          className={`absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${videoReady && !prefersReducedMotion ? (isRestartBlending ? "opacity-30" : "opacity-10") : "opacity-64"}`}
+          className={`absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${videoReady && !prefersReducedMotion ? "opacity-10" : "opacity-64"}`}
           style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
         />
         {!prefersReducedMotion ? (
           <video
             ref={videoRef}
-            className={`absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${loopVisible ? (isRestartBlending ? "opacity-40" : "opacity-58") : "opacity-0"}`}
+            className={`absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${loopVisible ? "opacity-58" : "opacity-0"}`}
             autoPlay={false}
             muted
+            loop
             playsInline
             preload="metadata"
             poster={HERO_LOOP_POSTER}
