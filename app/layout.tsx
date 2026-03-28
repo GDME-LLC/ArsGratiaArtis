@@ -71,6 +71,7 @@ const publicEntryBootstrap = `
       root.dataset.publicEntry = "ready";
       root.dataset.publicLoopVisible = "true";
       root.dataset.publicContentVisible = "true";
+      root.dataset.publicHeroVisible = "true";
       return;
     }
 
@@ -84,17 +85,20 @@ const publicEntryBootstrap = `
       root.dataset.publicEntry = "intro";
       root.dataset.publicLoopVisible = "false";
       root.dataset.publicContentVisible = "false";
+      root.dataset.publicHeroVisible = "false";
       return;
     }
 
     root.dataset.publicEntry = "ready";
     root.dataset.publicLoopVisible = "true";
     root.dataset.publicContentVisible = "true";
+    root.dataset.publicHeroVisible = "true";
   } catch (error) {
     var root = document.documentElement;
     root.dataset.publicEntry = "ready";
     root.dataset.publicLoopVisible = "true";
     root.dataset.publicContentVisible = "true";
+    root.dataset.publicHeroVisible = "true";
   }
 })();`;
 

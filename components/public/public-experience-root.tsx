@@ -13,12 +13,14 @@ const entryConfig = {
   mobile: {
     introDurationMs: 5000,
     blendDurationMs: 1400,
-    contentRevealDelayMs: 980,
+    contentRevealDelayMs: 180,
+    heroRevealDelayMs: 920,
   },
   desktop: {
     introDurationMs: 5000,
     blendDurationMs: 1400,
-    contentRevealDelayMs: 980,
+    contentRevealDelayMs: 180,
+    heroRevealDelayMs: 920,
   },
 } as const;
 
@@ -64,6 +66,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
   const [platform, setPlatform] = useState<ExperiencePlatform>(resolveInitialPlatform);
   const [loopVisible, setLoopVisible] = useState(resolveInitialBoolean("publicLoopVisible", false));
   const [contentVisible, setContentVisible] = useState(resolveInitialBoolean("publicContentVisible", false));
+  const [heroVisible, setHeroVisible] = useState(resolveInitialBoolean("publicHeroVisible", false));
   const config = useMemo(() => entryConfig[platform], [platform]);
 
   useEffect(() => {
@@ -87,10 +90,12 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       setPhase("ready");
       setLoopVisible(true);
       setContentVisible(true);
+      setHeroVisible(true);
       document.documentElement.dataset.publicRoute = "false";
       document.documentElement.dataset.publicEntry = "ready";
       document.documentElement.dataset.publicLoopVisible = "true";
       document.documentElement.dataset.publicContentVisible = "true";
+      document.documentElement.dataset.publicHeroVisible = "true";
       return;
     }
 
@@ -107,13 +112,15 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     setPhase(shouldPlayIntro ? "intro" : "ready");
     setLoopVisible(!shouldPlayIntro);
     setContentVisible(!shouldPlayIntro);
+    setHeroVisible(!shouldPlayIntro);
   }, [isHome, pathname]);
 
   useEffect(() => {
     document.documentElement.dataset.publicEntry = phase;
     document.documentElement.dataset.publicLoopVisible = loopVisible ? "true" : "false";
     document.documentElement.dataset.publicContentVisible = contentVisible ? "true" : "false";
-  }, [contentVisible, loopVisible, phase]);
+    document.documentElement.dataset.publicHeroVisible = heroVisible ? "true" : "false";
+  }, [contentVisible, heroVisible, loopVisible, phase]);
 
   useEffect(() => {
     if (!isHome || typeof window === "undefined") {
@@ -136,20 +143,26 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
         setContentVisible(true);
       }, config.contentRevealDelayMs);
 
+      const revealHero = window.setTimeout(() => {
+        setHeroVisible(true);
+      }, config.heroRevealDelayMs);
+
       const finishBlend = window.setTimeout(() => {
         window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
         window.scrollTo({ top: 0, left: 0, behavior: "auto" });
         setContentVisible(true);
+        setHeroVisible(true);
         setLoopVisible(true);
         setPhase("ready");
       }, config.blendDurationMs);
 
       return () => {
         window.clearTimeout(revealContent);
+        window.clearTimeout(revealHero);
         window.clearTimeout(finishBlend);
       };
     }
-  }, [config.blendDurationMs, config.contentRevealDelayMs, config.introDurationMs, isHome, phase]);
+  }, [config.blendDurationMs, config.contentRevealDelayMs, config.heroRevealDelayMs, config.introDurationMs, isHome, phase]);
 
   if (!isHome) {
     return <>{children}</>;
@@ -163,6 +176,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       data-platform={platform}
       data-loop-visible={loopVisible ? "true" : "false"}
       data-content-visible={contentVisible ? "true" : "false"}
+      data-hero-visible={heroVisible ? "true" : "false"}
     >
       <CinematicBackground variant="home" platform={platform} />
       <PublicIntroOverlay phase={phase} />
