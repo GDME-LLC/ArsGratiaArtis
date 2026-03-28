@@ -15,7 +15,6 @@ export function PublicIntroOverlay({ phase }: PublicIntroOverlayProps) {
   const prefersReducedMotion = useReducedMotionSafe();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoReady, setVideoReady] = useState(false);
-  const active = phase !== "ready" && !prefersReducedMotion;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -44,8 +43,16 @@ export function PublicIntroOverlay({ phase }: PublicIntroOverlayProps) {
     return null;
   }
 
+  const visible = phase === "intro" || phase === "blend";
+  const opacity = phase === "intro" ? 1 : phase === "blend" ? 0 : 0;
+
   return (
-    <div className="public-intro-overlay" aria-hidden="true" data-phase={phase} data-active={active ? "true" : "false"}>
+    <div
+      className="public-intro-overlay"
+      aria-hidden="true"
+      data-phase={phase}
+      style={{ opacity, visibility: visible ? "visible" : "hidden" }}
+    >
       <div className="public-intro-overlay__media">
         <div className="public-intro-overlay__fallback" />
         <video
@@ -54,7 +61,7 @@ export function PublicIntroOverlay({ phase }: PublicIntroOverlayProps) {
           muted
           playsInline
           preload="auto"
-          autoPlay={active}
+          autoPlay={visible}
           loop
           onCanPlay={() => setVideoReady(true)}
         >

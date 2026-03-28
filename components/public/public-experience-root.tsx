@@ -6,19 +6,19 @@ import { usePathname } from "next/navigation";
 import { CinematicBackground } from "@/components/public/cinematic-background";
 import { PublicIntroOverlay } from "@/components/public/public-intro-overlay";
 
-const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen";
+const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen-v4";
 const PUBLIC_INTRO_ENABLED = true;
 
 const entryConfig = {
   mobile: {
     introDurationMs: 5000,
-    blendDurationMs: 950,
-    contentRevealDelayMs: 550,
+    blendDurationMs: 1400,
+    contentRevealDelayMs: 980,
   },
   desktop: {
     introDurationMs: 5000,
-    blendDurationMs: 950,
-    contentRevealDelayMs: 550,
+    blendDurationMs: 1400,
+    contentRevealDelayMs: 980,
   },
 } as const;
 
@@ -27,7 +27,7 @@ type ExperiencePlatform = "mobile" | "desktop";
 
 function resolveInitialPhase() {
   if (typeof document === "undefined") {
-    return "ready" as PublicEntryPhase;
+    return "intro" as PublicEntryPhase;
   }
 
   const phase = document.documentElement.dataset.publicEntry;
@@ -59,11 +59,11 @@ function resolveInitialBoolean(name: string, fallback: boolean) {
 
 export function PublicExperienceRoot({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isHome = pathname === "/";
   const [phase, setPhase] = useState<PublicEntryPhase>(resolveInitialPhase);
   const [platform, setPlatform] = useState<ExperiencePlatform>(resolveInitialPlatform);
-  const [loopVisible, setLoopVisible] = useState(resolveInitialBoolean("publicLoopVisible", true));
-  const [contentVisible, setContentVisible] = useState(resolveInitialBoolean("publicContentVisible", true));
-  const isHome = pathname === "/";
+  const [loopVisible, setLoopVisible] = useState(resolveInitialBoolean("publicLoopVisible", false));
+  const [contentVisible, setContentVisible] = useState(resolveInitialBoolean("publicContentVisible", false));
   const config = useMemo(() => entryConfig[platform], [platform]);
 
   useEffect(() => {
@@ -100,6 +100,10 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     const introSeen = window.sessionStorage.getItem(PUBLIC_INTRO_STORAGE_KEY) === "true";
     const shouldPlayIntro = !prefersReducedMotion && !introSeen;
 
+    if (shouldPlayIntro) {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+
     setPhase(shouldPlayIntro ? "intro" : "ready");
     setLoopVisible(!shouldPlayIntro);
     setContentVisible(!shouldPlayIntro);
@@ -117,7 +121,6 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     }
 
     if (phase === "intro") {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       const toBlend = window.setTimeout(() => {
         setLoopVisible(true);
         setPhase("blend");
@@ -163,7 +166,16 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     >
       <CinematicBackground variant="home" platform={platform} />
       <PublicIntroOverlay phase={phase} />
-      <div className="public-experience__content relative z-10">{children}</div>
+      <div
+        className="public-experience__content relative z-10"
+        style={{
+          opacity: contentVisible ? 1 : 0,
+          visibility: contentVisible ? "visible" : "hidden",
+          pointerEvents: contentVisible ? "auto" : "none",
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }

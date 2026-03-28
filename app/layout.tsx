@@ -20,6 +20,7 @@ const bodyFont = Inter({
 });
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
+const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen-v4";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -76,7 +77,7 @@ const publicEntryBootstrap = `
     var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var introSeen = false;
     try {
-      introSeen = window.sessionStorage.getItem("arsgratia-public-intro-seen") === "true";
+      introSeen = window.sessionStorage.getItem("${PUBLIC_INTRO_STORAGE_KEY}") === "true";
     } catch (error) {}
 
     if (!prefersReducedMotion && !introSeen) {
