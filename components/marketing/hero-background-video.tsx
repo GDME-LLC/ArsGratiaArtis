@@ -62,7 +62,6 @@ export function HeroBackgroundVideo() {
 
     if (!loopVisible) {
       video.pause();
-      video.currentTime = 0;
       return;
     }
 
@@ -74,21 +73,21 @@ export function HeroBackgroundVideo() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div
-        className={`absolute inset-0 transition-opacity duration-[1100ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 transition-opacity duration-[720ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
       >
         <div
-          className={`absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat transition-opacity duration-[900ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${videoReady && !prefersReducedMotion ? "opacity-12" : "opacity-70"}`}
+          className={`absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${videoReady && !prefersReducedMotion ? "opacity-10" : "opacity-64"}`}
           style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
         />
         {!prefersReducedMotion ? (
           <video
             ref={videoRef}
-            className={`absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] transition-opacity duration-[1100ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${loopVisible ? "opacity-54" : "opacity-0"}`}
+            className={`absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${loopVisible ? "opacity-58" : "opacity-0"}`}
             autoPlay={false}
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             poster={HERO_LOOP_POSTER}
             onCanPlay={() => setVideoReady(true)}
           >

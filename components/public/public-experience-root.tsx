@@ -11,16 +11,16 @@ const PUBLIC_INTRO_ENABLED = true;
 
 const entryConfig = {
   mobile: {
-    introDurationMs: 5000,
-    blendDurationMs: 1400,
-    contentRevealDelayMs: 180,
-    heroRevealDelayMs: 920,
+    introDurationMs: 4700,
+    blendDurationMs: 1050,
+    contentRevealDelayMs: 140,
+    heroRevealDelayMs: 720,
   },
   desktop: {
-    introDurationMs: 5000,
-    blendDurationMs: 1400,
-    contentRevealDelayMs: 180,
-    heroRevealDelayMs: 920,
+    introDurationMs: 4700,
+    blendDurationMs: 1050,
+    contentRevealDelayMs: 140,
+    heroRevealDelayMs: 720,
   },
 } as const;
 
