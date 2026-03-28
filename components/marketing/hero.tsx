@@ -11,6 +11,24 @@ type HeroProps = {
   spotlightLabel?: string;
 };
 
+const heroHighlights = [
+  {
+    kicker: "Films",
+    title: "Release work with gravity",
+    description: "Publish films inside a frame that feels deliberate, watchable, and worthy of the premiere.",
+  },
+  {
+    kicker: "Creators",
+    title: "Build a theatre around authorship",
+    description: "Give each filmmaker a public presence that reads like a body of work instead of a profile stub.",
+  },
+  {
+    kicker: "Resources",
+    title: "Stay close to the wider field",
+    description: "Keep the best tools, research, and communities nearby without letting them overwhelm the films themselves.",
+  },
+] as const;
+
 export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroProps) {
   const spotlightCreatorName = spotlightFilm
     ? resolveCreatorName({
@@ -42,26 +60,21 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
                 <Link href="/signup">Become a Creator</Link>
               </Button>
               <Button asChild size="lg" variant="ghost" className="w-full sm:w-auto">
-                <Link href="/resources">Explore Resources</Link>
+                <Link href="/manifesto">Read the Manifesto</Link>
               </Button>
             </div>
 
-            <div className="public-home-hero-panels mt-10 grid gap-6 sm:grid-cols-3">
-              <div className="space-y-2">
-                <p className="display-kicker">Films</p>
-                <p className="title-md text-foreground">Present the work cinematically</p>
-                <p className="body-sm text-foreground/78">Upload, stream, and publish films in a frame that feels intentional.</p>
-              </div>
-              <div className="space-y-2">
-                <p className="display-kicker">Creators</p>
-                <p className="title-md text-foreground">Own your profile and voice</p>
-                <p className="body-sm text-foreground/78">Give each creator a home with authorship instead of generic platform chrome.</p>
-              </div>
-              <div className="space-y-2">
-                <p className="display-kicker">Resources</p>
-                <p className="title-md text-foreground">Tie process to finished work</p>
-                <p className="body-sm text-foreground/78">Discover tools, education, and communities that support the wider AI cinema ecosystem.</p>
-              </div>
+            <div className="public-home-hero-panels mt-10 grid gap-4 sm:grid-cols-3 sm:gap-5">
+              {heroHighlights.map((item) => (
+                <div
+                  key={item.kicker}
+                  className="rounded-[24px] border border-white/8 bg-black px-5 py-5 shadow-[0_20px_60px_rgba(0,0,0,0.34)]"
+                >
+                  <p className="display-kicker">{item.kicker}</p>
+                  <p className="title-md mt-3 text-foreground">{item.title}</p>
+                  <p className="body-sm mt-3 text-foreground/76">{item.description}</p>
+                </div>
+              ))}
             </div>
           </div>
 

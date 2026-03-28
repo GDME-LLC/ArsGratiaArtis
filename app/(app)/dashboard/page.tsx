@@ -81,9 +81,6 @@ export default async function DashboardPage() {
               <Button asChild variant="ghost" size="lg">
                 <Link href={`/creator/${profile.handle}`}>My Theatre</Link>
               </Button>
-              <Button asChild variant="ghost" size="lg">
-                <Link href="/resources">Explore Resources</Link>
-              </Button>
               {isAdmin ? (
                 <Button asChild variant="ghost" size="lg">
                   <Link href="/admin">Admin Tools</Link>
@@ -102,10 +99,10 @@ export default async function DashboardPage() {
             </article>
 
             <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">Resources</p>
-              <p className="title-md mt-3 text-foreground">Curated ecosystem guide</p>
+              <p className="display-kicker">Ecosystem</p>
+              <p className="title-md mt-3 text-foreground">A concise guide beyond the platform</p>
               <p className="body-sm mt-3">
-                Discover popular tools, educational hubs, communities, and references without turning ArsGratia into a creation suite.
+                Keep tools, educational hubs, and communities within reach without turning your workspace into another production suite.
               </p>
             </article>
 
@@ -254,4 +251,3 @@ export default async function DashboardPage() {
     );
   }
 }
-

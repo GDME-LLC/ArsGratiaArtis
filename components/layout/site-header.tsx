@@ -61,6 +61,9 @@ export async function SiteHeader() {
                 <Button asChild variant="ghost" className="hidden sm:inline-flex">
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
+                <Button asChild variant="ghost" className="hidden sm:inline-flex">
+                  <Link href="/settings">Creator Studio</Link>
+                </Button>
                 <NotificationBell notifications={notifications} initialUnreadCount={unreadCount} />
                 <LogoutButton />
               </>
@@ -69,11 +72,11 @@ export async function SiteHeader() {
                 <Button asChild variant="ghost" className="hidden sm:inline-flex">
                   <Link href="/login">Login</Link>
                 </Button>
-                <Button asChild className="sm:hidden">
-                  <Link href="/login">Login</Link>
-                </Button>
                 <Button asChild className="hidden sm:inline-flex">
                   <Link href="/signup">Become a Creator</Link>
+                </Button>
+                <Button asChild className="sm:hidden">
+                  <Link href="/login">Login</Link>
                 </Button>
               </>
             )}
@@ -94,16 +97,23 @@ export async function SiteHeader() {
               </Button>
             </>
           ) : (
-            navItems.map((item) => (
-              <Button key={item.href} asChild variant="ghost" className="min-w-0 flex-1 sm:flex-none">
-                <Link href={item.href}>{item.label}</Link>
+            <>
+              <Button asChild variant="ghost" className="min-w-0 flex-1 sm:flex-none">
+                <Link href="/manifesto">Manifesto</Link>
               </Button>
-            ))
+              <Button asChild variant="ghost" className="min-w-0 flex-1 sm:flex-none">
+                <Link href="/beyond-cinema">Beyond Cinema</Link>
+              </Button>
+              <Button asChild variant="ghost" className="min-w-0 flex-1 sm:flex-none">
+                <Link href="/resources">Resources</Link>
+              </Button>
+              <Button asChild className="min-w-0 flex-1 sm:flex-none">
+                <Link href="/signup">Become a Creator</Link>
+              </Button>
+            </>
           )}
         </div>
       </div>
     </header>
   );
 }
-
-
