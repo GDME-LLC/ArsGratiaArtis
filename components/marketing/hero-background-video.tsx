@@ -6,8 +6,8 @@ const HERO_LOOP_PRIMARY_VIDEO = "/hero-loop.mp4";
 const HERO_LOOP_FALLBACK_VIDEO = "/video/hero-loop.mp4";
 const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
 const HERO_LOOP_FORWARD_DURATION_SECONDS = 7;
-const HERO_LOOP_RESTART_BLEND_MS = 440;
-const HERO_LOOP_RESTART_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.65;
+const HERO_LOOP_OVERLAP_BLEND_MS = 820;
+const HERO_LOOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.95;
 
 function resolveInitialLoopState() {
   if (typeof document === "undefined") {
@@ -17,10 +17,15 @@ function resolveInitialLoopState() {
   return document.documentElement.dataset.publicLoopVisible === "true";
 }
 
+function getVideoRef(index: 0 | 1, first: React.RefObject<HTMLVideoElement | null>, second: React.RefObject<HTMLVideoElement | null>) {
+  return index === 0 ? first : second;
+}
+
 export function HeroBackgroundVideo() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [loopVisible, setLoopVisible] = useState(resolveInitialLoopState);
-  const [videoReady, setVideoReady] = useState(false);
+  const [videoAReady, setVideoAReady] = useState(false);
+  const [videoBReady, setVideoBReady] = useState(false);
   const [isPageVisible, setIsPageVisible] = useState(() => {
     if (typeof document === "undefined") {
       return true;
@@ -29,13 +34,19 @@ export function HeroBackgroundVideo() {
     return document.visibilityState === "visible";
   });
   const [isInViewport, setIsInViewport] = useState(true);
-  const [isRestartBlending, setIsRestartBlending] = useState(false);
+  const [activeLayer, setActiveLayer] = useState<0 | 1>(0);
+  const [isCrossfading, setIsCrossfading] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoARef = useRef<HTMLVideoElement | null>(null);
+  const videoBRef = useRef<HTMLVideoElement | null>(null);
+  const activeLayerRef = useRef<0 | 1>(0);
   const shouldPlayRef = useRef(false);
-  const restartResetTimeoutRef = useRef<number | null>(null);
-  const restartFinishTimeoutRef = useRef<number | null>(null);
-  const restartInFlightRef = useRef(false);
+  const handoffFinishTimeoutRef = useRef<number | null>(null);
+  const handoffInFlightRef = useRef(false);
+
+  useEffect(() => {
+    activeLayerRef.current = activeLayer;
+  }, [activeLayer]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -96,113 +107,149 @@ export function HeroBackgroundVideo() {
   }, []);
 
   const shouldPlayLoop = loopVisible && isInViewport && isPageVisible && !prefersReducedMotion;
+  const hasReadyVideo = videoAReady || videoBReady;
 
   useEffect(() => {
     shouldPlayRef.current = shouldPlayLoop;
   }, [shouldPlayLoop]);
 
   useEffect(() => {
-    const video = videoRef.current;
+    const clearHandoff = () => {
+      if (handoffFinishTimeoutRef.current !== null) {
+        window.clearTimeout(handoffFinishTimeoutRef.current);
+        handoffFinishTimeoutRef.current = null;
+      }
 
-    if (!video) {
+      handoffInFlightRef.current = false;
+      setIsCrossfading(false);
+    };
+
+    const activeVideo = getVideoRef(activeLayerRef.current, videoARef, videoBRef).current;
+    const inactiveVideo = getVideoRef(activeLayerRef.current === 0 ? 1 : 0, videoARef, videoBRef).current;
+
+    if (!activeVideo || !inactiveVideo) {
       return;
     }
 
     if (!shouldPlayLoop) {
-      if (restartResetTimeoutRef.current !== null) {
-        window.clearTimeout(restartResetTimeoutRef.current);
-        restartResetTimeoutRef.current = null;
-      }
-
-      if (restartFinishTimeoutRef.current !== null) {
-        window.clearTimeout(restartFinishTimeoutRef.current);
-        restartFinishTimeoutRef.current = null;
-      }
-
-      restartInFlightRef.current = false;
-      setIsRestartBlending(false);
-      video.pause();
+      clearHandoff();
+      activeVideo.pause();
+      inactiveVideo.pause();
+      inactiveVideo.currentTime = 0;
       return;
     }
 
-    if (video.currentTime >= HERO_LOOP_FORWARD_DURATION_SECONDS) {
-      video.currentTime = 0;
+    if (activeVideo.currentTime >= HERO_LOOP_FORWARD_DURATION_SECONDS) {
+      activeVideo.currentTime = 0;
     }
 
-    video.play().catch(() => undefined);
-  }, [shouldPlayLoop]);
+    activeVideo.play().catch(() => undefined);
+
+    if (handoffInFlightRef.current) {
+      inactiveVideo.play().catch(() => undefined);
+    }
+
+    return () => {
+      clearHandoff();
+    };
+  }, [activeLayer, shouldPlayLoop]);
 
   useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video || prefersReducedMotion) {
-      return;
-    }
-
-    const clearRestartBlend = () => {
-      if (restartResetTimeoutRef.current !== null) {
-        window.clearTimeout(restartResetTimeoutRef.current);
-        restartResetTimeoutRef.current = null;
+    const clearHandoff = () => {
+      if (handoffFinishTimeoutRef.current !== null) {
+        window.clearTimeout(handoffFinishTimeoutRef.current);
+        handoffFinishTimeoutRef.current = null;
       }
 
-      if (restartFinishTimeoutRef.current !== null) {
-        window.clearTimeout(restartFinishTimeoutRef.current);
-        restartFinishTimeoutRef.current = null;
-      }
-
-      restartInFlightRef.current = false;
-      setIsRestartBlending(false);
+      handoffInFlightRef.current = false;
+      setIsCrossfading(false);
     };
 
-    const queueRestartBlend = () => {
-      if (restartInFlightRef.current || !shouldPlayRef.current) {
+    const queueHandoff = () => {
+      if (handoffInFlightRef.current || !shouldPlayRef.current) {
         return;
       }
 
-      restartInFlightRef.current = true;
-      setIsRestartBlending(true);
+      const currentIndex = activeLayerRef.current;
+      const nextIndex: 0 | 1 = currentIndex === 0 ? 1 : 0;
+      const currentVideo = getVideoRef(currentIndex, videoARef, videoBRef).current;
+      const nextVideo = getVideoRef(nextIndex, videoARef, videoBRef).current;
 
-      restartResetTimeoutRef.current = window.setTimeout(() => {
-        const currentVideo = videoRef.current;
+      if (!currentVideo || !nextVideo) {
+        return;
+      }
 
-        if (!currentVideo) {
+      handoffInFlightRef.current = true;
+      setIsCrossfading(true);
+      nextVideo.currentTime = 0;
+      nextVideo.play().catch(() => undefined);
+
+      handoffFinishTimeoutRef.current = window.setTimeout(() => {
+        currentVideo.pause();
+        currentVideo.currentTime = 0;
+        activeLayerRef.current = nextIndex;
+        setActiveLayer(nextIndex);
+        handoffInFlightRef.current = false;
+        setIsCrossfading(false);
+      }, HERO_LOOP_OVERLAP_BLEND_MS);
+    };
+
+    const attachListeners = (index: 0 | 1, element: HTMLVideoElement | null) => {
+      if (!element) {
+        return () => undefined;
+      }
+
+      const handleTimeUpdate = () => {
+        if (index !== activeLayerRef.current || handoffInFlightRef.current) {
           return;
         }
 
-        currentVideo.currentTime = 0;
-
-        if (shouldPlayRef.current) {
-          currentVideo.play().catch(() => undefined);
+        if (element.currentTime >= HERO_LOOP_OVERLAP_THRESHOLD_SECONDS) {
+          queueHandoff();
         }
-      }, Math.round(HERO_LOOP_RESTART_BLEND_MS * 0.5));
+      };
 
-      restartFinishTimeoutRef.current = window.setTimeout(() => {
-        restartInFlightRef.current = false;
-        setIsRestartBlending(false);
-      }, HERO_LOOP_RESTART_BLEND_MS);
+      const handleEnded = () => {
+        if (index === activeLayerRef.current) {
+          queueHandoff();
+        }
+      };
+
+      element.addEventListener("timeupdate", handleTimeUpdate);
+      element.addEventListener("ended", handleEnded);
+
+      return () => {
+        element.removeEventListener("timeupdate", handleTimeUpdate);
+        element.removeEventListener("ended", handleEnded);
+      };
     };
 
-    const handleTimeUpdate = () => {
-      if (video.currentTime >= HERO_LOOP_RESTART_THRESHOLD_SECONDS) {
-        queueRestartBlend();
-      }
-    };
-
-    const handleEnded = () => {
-      queueRestartBlend();
-    };
-
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    video.addEventListener("ended", handleEnded);
+    const detachA = attachListeners(0, videoARef.current);
+    const detachB = attachListeners(1, videoBRef.current);
 
     return () => {
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("ended", handleEnded);
-      clearRestartBlend();
+      detachA();
+      detachB();
+      clearHandoff();
     };
   }, [prefersReducedMotion]);
 
   const layerVisible = loopVisible || prefersReducedMotion;
+  const videoBaseClass = "absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08]";
+  const videoAClass = activeLayer === 0
+    ? isCrossfading
+      ? `${videoBaseClass} z-10 opacity-24`
+      : `${videoBaseClass} z-10 opacity-58`
+    : isCrossfading
+      ? `${videoBaseClass} z-20 opacity-58`
+      : `${videoBaseClass} z-0 opacity-0`;
+  const videoBClass = activeLayer === 1
+    ? isCrossfading
+      ? `${videoBaseClass} z-10 opacity-24`
+      : `${videoBaseClass} z-10 opacity-58`
+    : isCrossfading
+      ? `${videoBaseClass} z-20 opacity-58`
+      : `${videoBaseClass} z-0 opacity-0`;
 
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -210,25 +257,42 @@ export function HeroBackgroundVideo() {
         className={`absolute inset-0 transition-opacity duration-[720ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
       >
         <div
-          className={`absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${videoReady && !prefersReducedMotion ? (isRestartBlending ? "opacity-30" : "opacity-10") : "opacity-64"}`}
+          className={`absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${hasReadyVideo && !prefersReducedMotion ? "opacity-10" : "opacity-64"}`}
           style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
         />
         {!prefersReducedMotion ? (
-          <video
-            ref={videoRef}
-            className={`absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${loopVisible ? (isRestartBlending ? "opacity-40" : "opacity-58") : "opacity-0"}`}
-            autoPlay={false}
-            muted
-            playsInline
-            preload="metadata"
-            poster={HERO_LOOP_POSTER}
-            disablePictureInPicture
-            disableRemotePlayback
-            onCanPlay={() => setVideoReady(true)}
-          >
-            <source src={HERO_LOOP_PRIMARY_VIDEO} type="video/mp4" />
-            <source src={HERO_LOOP_FALLBACK_VIDEO} type="video/mp4" />
-          </video>
+          <>
+            <video
+              ref={videoARef}
+              className={videoAClass}
+              autoPlay={false}
+              muted
+              playsInline
+              preload="metadata"
+              poster={HERO_LOOP_POSTER}
+              disablePictureInPicture
+              disableRemotePlayback
+              onCanPlay={() => setVideoAReady(true)}
+            >
+              <source src={HERO_LOOP_PRIMARY_VIDEO} type="video/mp4" />
+              <source src={HERO_LOOP_FALLBACK_VIDEO} type="video/mp4" />
+            </video>
+            <video
+              ref={videoBRef}
+              className={videoBClass}
+              autoPlay={false}
+              muted
+              playsInline
+              preload="metadata"
+              poster={HERO_LOOP_POSTER}
+              disablePictureInPicture
+              disableRemotePlayback
+              onCanPlay={() => setVideoBReady(true)}
+            >
+              <source src={HERO_LOOP_PRIMARY_VIDEO} type="video/mp4" />
+              <source src={HERO_LOOP_FALLBACK_VIDEO} type="video/mp4" />
+            </video>
+          </>
         ) : null}
       </div>
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,3,6,0.78)_0%,rgba(3,3,6,0.24)_34%,rgba(3,3,6,0.62)_100%)]" />
