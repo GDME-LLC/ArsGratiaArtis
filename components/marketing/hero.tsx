@@ -9,6 +9,9 @@ import type { PublicFilmCard } from "@/types";
 type HeroProps = {
   spotlightFilm?: PublicFilmCard | null;
   spotlightLabel?: string;
+  motto?: string;
+  title?: string;
+  description?: string;
 };
 
 const heroHighlights = [
@@ -29,7 +32,13 @@ const heroHighlights = [
   },
 ] as const;
 
-export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroProps) {
+export function Hero({
+  spotlightFilm,
+  spotlightLabel = "Latest Release",
+  motto = siteConfig.motto,
+  title = siteConfig.heroTitle,
+  description = siteConfig.heroDescription,
+}: HeroProps) {
   const spotlightCreatorName = spotlightFilm
     ? resolveCreatorName({
         handle: spotlightFilm.creator.handle,
@@ -44,10 +53,10 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
 
         <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-end">
           <div className="public-home-hero-copy max-w-3xl drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
-            <p className="display-kicker">{siteConfig.motto}</p>
+            <p className="display-kicker">{motto}</p>
             <p className="eyebrow mt-2 text-foreground/88">Art, for art&apos;s sake</p>
-            <h1 className="hero-title mt-4 max-w-3xl text-balance">{siteConfig.heroTitle}</h1>
-            <p className="mt-4 max-w-2xl body-lg text-foreground/88">{siteConfig.heroDescription}</p>
+            <h1 className="hero-title mt-4 max-w-3xl text-balance">{title}</h1>
+            <p className="mt-4 max-w-2xl body-lg text-foreground/88">{description}</p>
 
             <div className="public-home-hero-actions mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button asChild size="xl" className="w-full sm:w-auto">

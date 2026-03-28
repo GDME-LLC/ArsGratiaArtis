@@ -822,6 +822,51 @@ export async function listStaffPickFilms(limit = 8): Promise<PublicFilmCard[]> {
   }
 }
 
+export async function getPublicFilmCardById(filmId: string): Promise<PublicFilmCard | null> {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const runQuery = async (selectClause: string) => {
+    const { data, error } = await supabase
+      .from("films")
+      .select(selectClause)
+      .eq("id", filmId)
+      .eq("publish_status", "published")
+      .eq("visibility", "public")
+      .eq("moderation_status", "active")
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return data ? normalizePublicFilmRows([((data as unknown) as PublicFilmRow)])[0] ?? null : null;
+  };
+
+  try {
+    const row = await runQuery(FILM_CARD_SELECT_WITH_STAFF_PICK);
+
+    if (!row) {
+      return null;
+    }
+
+    const films = await hydratePublicFilmCards(supabase, [row]);
+    return films[0] ?? null;
+  } catch {
+    const row = await runQuery(FILM_CARD_SELECT_BASE);
+
+    if (!row) {
+      return null;
+    }
+
+    const films = await hydratePublicFilmCards(supabase, [row]);
+    return films[0] ?? null;
+  }
+}
+
 export async function listPublishedFilms(input?: {
   page?: number;
   pageSize?: number;
@@ -953,3 +998,5 @@ export async function getPublicSeriesBySlug(
     })),
   };
 }
+
+

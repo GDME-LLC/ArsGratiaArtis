@@ -2,7 +2,8 @@ import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { PageIntro } from "@/components/shared/page-intro";
 import { StatePanel } from "@/components/shared/state-panel";
-import { BEYOND_CINEMA_CATEGORIES, FILM_CATEGORY_LABELS } from "@/lib/films/categories";
+import { FILM_CATEGORY_LABELS } from "@/lib/films/categories";
+import { getDefaultPlatformSettings, getPlatformSettings } from "@/lib/platform-settings";
 import { listPublishedFilms } from "@/lib/services/films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
@@ -18,10 +19,12 @@ export default async function BeyondCinemaPage() {
     );
   }
 
+  const platformSettings = await getPlatformSettings().catch(() => getDefaultPlatformSettings());
+  const beyondCinemaCategories = platformSettings.beyondCinemaCategories;
   const { films } = await listPublishedFilms({
     page: 1,
     pageSize: 24,
-    categories: BEYOND_CINEMA_CATEGORIES,
+    categories: beyondCinemaCategories,
   });
 
   return (
@@ -33,7 +36,7 @@ export default async function BeyondCinemaPage() {
       />
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {BEYOND_CINEMA_CATEGORIES.map((category) => (
+        {beyondCinemaCategories.map((category) => (
           <span
             key={category}
             className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.16em] text-muted-foreground"

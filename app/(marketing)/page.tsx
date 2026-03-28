@@ -7,10 +7,10 @@ import { Hero } from "@/components/marketing/hero";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { Button } from "@/components/ui/button";
-import { BEYOND_CINEMA_CATEGORIES } from "@/lib/films/categories";
+import { getDefaultPlatformSettings, getPlatformSettings, resolveHomepageSpotlight } from "@/lib/platform-settings";
 import { listFeaturedFoundingCreators } from "@/lib/founding-creators";
 import { listCreatorsToWatch } from "@/lib/profiles";
-import { listPublishedFilms, listStaffPickFilms } from "@/lib/services/films";
+import { getPublicFilmCardById, listPublishedFilms, listStaffPickFilms } from "@/lib/services/films";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { formatCountLabel, formatFollowerCount } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
@@ -57,8 +57,10 @@ function ReleaseSection({ eyebrow, title, description, films, href, ctaLabel }: 
 
 export default async function HomePage() {
   const canLoad = hasSupabaseServerEnv();
+  const platformSettings = canLoad ? await getPlatformSettings() : getDefaultPlatformSettings();
+  const beyondCinemaCategories = platformSettings.beyondCinemaCategories;
 
-  const [foundingCreators, staffPickFilms, featuredFilmResponse, featuredBeyondResponse, newReleaseResponse, newExperimentsResponse, creatorsToWatch] = canLoad
+  const [foundingCreators, staffPickFilms, featuredFilmResponse, featuredBeyondResponse, newReleaseResponse, newExperimentsResponse, creatorsToWatch, manualSpotlightFilm] = canLoad
     ? await Promise.all([
         listFeaturedFoundingCreators(20),
         listStaffPickFilms(8),
@@ -66,17 +68,18 @@ export default async function HomePage() {
         listPublishedFilms({
           page: 1,
           pageSize: 24,
-          categories: BEYOND_CINEMA_CATEGORIES,
+          categories: beyondCinemaCategories,
           sortBy: "likes",
         }),
         listPublishedFilms({ page: 1, pageSize: 24, sortBy: "created_at" }),
         listPublishedFilms({
           page: 1,
           pageSize: 24,
-          categories: BEYOND_CINEMA_CATEGORIES,
+          categories: beyondCinemaCategories,
           sortBy: "created_at",
         }),
         listCreatorsToWatch(8),
+        platformSettings.homepageSpotlightFilmId ? getPublicFilmCardById(platformSettings.homepageSpotlightFilmId) : Promise.resolve(null),
       ])
     : [
         [],
@@ -86,6 +89,7 @@ export default async function HomePage() {
         { films: [], hasMore: false },
         { films: [], hasMore: false },
         [],
+        null,
       ];
 
   const usedFilmIds = new Set<string>();
@@ -103,12 +107,24 @@ export default async function HomePage() {
 
   const newExperiments = filterDistinct(newExperimentsResponse.films, usedFilmIds, 12);
 
-  const spotlightFilm = staffPicks[0] ?? featuredFilms[0] ?? newReleases[0] ?? featuredBeyondCinema[0] ?? newExperiments[0] ?? null;
-  const spotlightLabel = staffPicks.length > 0 ? "Staff Pick" : featuredFilms.length > 0 ? "Featured Film" : "Latest Release";
+  const automaticSpotlightFilm = staffPicks[0] ?? featuredFilms[0] ?? newReleases[0] ?? featuredBeyondCinema[0] ?? newExperiments[0] ?? null;
+  const automaticSpotlightLabel = staffPicks.length > 0 ? "Staff Pick" : featuredFilms.length > 0 ? "Featured Film" : "Latest Release";
+  const { spotlightFilm, spotlightLabel } = resolveHomepageSpotlight(
+    platformSettings,
+    manualSpotlightFilm,
+    automaticSpotlightFilm,
+    automaticSpotlightLabel,
+  );
 
   return (
     <div className="pb-20">
-      <Hero spotlightFilm={spotlightFilm} spotlightLabel={spotlightLabel} />
+      <Hero
+        spotlightFilm={spotlightFilm}
+        spotlightLabel={spotlightLabel}
+        motto={platformSettings.heroMotto}
+        title={platformSettings.heroTitle}
+        description={platformSettings.heroDescription}
+      />
 
       {foundingCreators.length > 0 ? (
         <SectionShell className="mt-6 sm:mt-7">
@@ -294,6 +310,8 @@ export default async function HomePage() {
     </div>
   );
 }
+
+
 
 
 
