@@ -17,6 +17,7 @@ import {
 import { moderateTextFields } from "@/lib/security/moderation";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { isAdminProfileId } from "@/lib/admin";
 
 export {
   getDefaultPlatformSettings,
@@ -48,6 +49,8 @@ type PlatformFilmOptionRow = {
   created_at: string;
   staff_pick?: boolean | null;
 };
+
+type PlatformSettingsMutationClient = NonNullable<Awaited<ReturnType<typeof createServerSupabaseClient>>> | NonNullable<ReturnType<typeof createServiceRoleSupabaseClient>>;
 
 function normalizeBeyondCinemaCategories(value: unknown): FilmCategory[] {
   const source = Array.isArray(value) ? value : [];
@@ -85,6 +88,66 @@ function normalizePlatformSettingsRow(row: Partial<PlatformSettingsRow> | null |
         : defaults.heroDescription,
     beyondCinemaCategories: normalizeBeyondCinemaCategories(row?.beyond_cinema_categories),
   };
+}
+
+function isPlatformSettingsRlsError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  return message.includes("row-level security") || message.includes("violates rls") || message.includes("violates row-level security policy");
+}
+
+async function validateSpotlightFilm(client: PlatformSettingsMutationClient, filmId: string) {
+  const { data, error } = await client
+    .from("films")
+    .select("id")
+    .eq("id", filmId)
+    .eq("publish_status", "published")
+    .eq("visibility", "public")
+    .eq("moderation_status", "active")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Selected spotlight film is not available for the public homepage.");
+  }
+}
+
+async function persistPlatformSettings(client: PlatformSettingsMutationClient, values: {
+  homepageSpotlightFilmId: string | null;
+  homepageSpotlightLabel: string | null;
+  heroMotto: string;
+  heroTitle: string;
+  heroDescription: string;
+  beyondCinemaCategories: FilmCategory[];
+}) {
+  const { data, error } = await client
+    .from("platform_settings")
+    .upsert(
+      {
+        id: true,
+        homepage_spotlight_film_id: values.homepageSpotlightFilmId,
+        homepage_spotlight_label: values.homepageSpotlightLabel,
+        hero_motto: values.heroMotto,
+        hero_title: values.heroTitle,
+        hero_description: values.heroDescription,
+        beyond_cinema_categories: values.beyondCinemaCategories,
+      },
+      { onConflict: "id" },
+    )
+    .select("homepage_spotlight_film_id, homepage_spotlight_label, hero_motto, hero_title, hero_description, beyond_cinema_categories")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return normalizePlatformSettingsRow(data as PlatformSettingsRow);
 }
 
 export async function getPlatformSettings(): Promise<PlatformSettings> {
@@ -176,18 +239,25 @@ export function resolveHomepageSpotlight(
   };
 }
 
-export async function updatePlatformSettings(input: {
-  homepageSpotlightFilmId?: string | null;
-  homepageSpotlightLabel?: string | null;
-  heroMotto?: string;
-  heroTitle?: string;
-  heroDescription?: string;
-  beyondCinemaCategories?: string[];
-}) {
-  const supabase = createServiceRoleSupabaseClient();
+export async function updatePlatformSettings(
+  input: {
+    homepageSpotlightFilmId?: string | null;
+    homepageSpotlightLabel?: string | null;
+    heroMotto?: string;
+    heroTitle?: string;
+    heroDescription?: string;
+    beyondCinemaCategories?: string[];
+  },
+  options?: {
+    actorUserId?: string | null;
+  },
+) {
+  const serviceSupabase = createServiceRoleSupabaseClient();
+  const serverSupabase = await createServerSupabaseClient();
+  const readableSupabase = serviceSupabase ?? serverSupabase;
 
-  if (!supabase) {
-    throw new Error("Supabase service role is not configured.");
+  if (!readableSupabase) {
+    throw new Error("Supabase is not configured.");
   }
 
   const current = await getPlatformSettings();
@@ -244,45 +314,51 @@ export async function updatePlatformSettings(input: {
   }
 
   if (homepageSpotlightFilmId) {
-    const { data, error } = await supabase
-      .from("films")
-      .select("id")
-      .eq("id", homepageSpotlightFilmId)
-      .eq("publish_status", "published")
-      .eq("visibility", "public")
-      .eq("moderation_status", "active")
-      .maybeSingle();
+    await validateSpotlightFilm(readableSupabase, homepageSpotlightFilmId);
+  }
 
-    if (error) {
-      throw new Error(error.message);
-    }
+  const values = {
+    homepageSpotlightFilmId,
+    homepageSpotlightLabel,
+    heroMotto,
+    heroTitle,
+    heroDescription,
+    beyondCinemaCategories,
+  };
 
-    if (!data) {
-      throw new Error("Selected spotlight film is not available for the public homepage.");
+  let serviceRoleError: Error | null = null;
+
+  if (serviceSupabase) {
+    try {
+      return await persistPlatformSettings(serviceSupabase, values);
+    } catch (error) {
+      serviceRoleError = error instanceof Error ? error : new Error("Platform settings could not be updated.");
+
+      if (!serverSupabase || !isPlatformSettingsRlsError(serviceRoleError)) {
+        throw serviceRoleError;
+      }
     }
   }
 
-  const { data, error } = await supabase
-    .from("platform_settings")
-    .upsert(
-      {
-        id: true,
-        homepage_spotlight_film_id: homepageSpotlightFilmId,
-        homepage_spotlight_label: homepageSpotlightLabel,
-        hero_motto: heroMotto,
-        hero_title: heroTitle,
-        hero_description: heroDescription,
-        beyond_cinema_categories: beyondCinemaCategories,
-      },
-      { onConflict: "id" },
-    )
-    .select("homepage_spotlight_film_id, homepage_spotlight_label, hero_motto, hero_title, hero_description, beyond_cinema_categories")
-    .single();
-
-  if (error) {
-    throw new Error(error.message);
+  if (!serverSupabase) {
+    throw serviceRoleError ?? new Error("Supabase is not configured.");
   }
 
-  return normalizePlatformSettingsRow(data as PlatformSettingsRow);
+  try {
+    return await persistPlatformSettings(serverSupabase, values);
+  } catch (error) {
+    const serverError = error instanceof Error ? error : new Error("Platform settings could not be updated.");
+
+    if (isPlatformSettingsRlsError(serverError) && options?.actorUserId) {
+      const hasDatabaseAdminAccess = await isAdminProfileId(options.actorUserId);
+
+      if (!hasDatabaseAdminAccess) {
+        throw new Error(
+          "Your account can open admin tools, but saving platform settings requires your profile in public.admin_users or a valid SUPABASE_SERVICE_ROLE_KEY.",
+        );
+      }
+    }
+
+    throw serviceRoleError ?? serverError;
+  }
 }
-

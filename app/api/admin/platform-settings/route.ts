@@ -18,7 +18,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    await requireAdminUser();
+    const adminUser = await requireAdminUser();
 
     const payload = (await request.json()) as {
       homepageSpotlightFilmId?: string | null;
@@ -29,7 +29,7 @@ export async function PUT(request: Request) {
       beyondCinemaCategories?: string[];
     };
 
-    const settings = await updatePlatformSettings(payload);
+    const settings = await updatePlatformSettings(payload, { actorUserId: adminUser.id });
     return NextResponse.json({ settings });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Platform settings could not be updated.";

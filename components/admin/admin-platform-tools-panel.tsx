@@ -121,7 +121,7 @@ export function AdminPlatformToolsPanel({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] xl:items-start">
+    <form onSubmit={handleSubmit} className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] xl:items-start">
       <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
           <div className="w-full max-w-[220px] shrink-0">
@@ -301,4 +301,5 @@ export function AdminPlatformToolsPanel({
     </form>
   );
 }
+
 
