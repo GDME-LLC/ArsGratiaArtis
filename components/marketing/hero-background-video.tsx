@@ -6,8 +6,8 @@ const HERO_LOOP_PRIMARY_VIDEO = "/hero-loop.mp4";
 const HERO_LOOP_FALLBACK_VIDEO = "/video/hero-loop.mp4";
 const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
 const HERO_LOOP_FORWARD_DURATION_SECONDS = 7;
-const HERO_LOOP_OVERLAP_BLEND_MS = 420;
-const HERO_LOOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.95;
+const HERO_LOOP_OVERLAP_BLEND_MS = 860;
+const HERO_LOOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 1.15;
 
 function resolveInitialLoopState() {
   if (typeof document === "undefined") {
@@ -238,21 +238,21 @@ export function HeroBackgroundVideo() {
   const videoBaseClass = "absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08]";
   const videoAClass = activeLayer === 0
     ? isCrossfading
-      ? `${videoBaseClass} z-10 opacity-24`
+      ? `${videoBaseClass} z-10 opacity-34`
       : `${videoBaseClass} z-10 opacity-58`
     : isCrossfading
       ? `${videoBaseClass} z-20 opacity-58`
       : `${videoBaseClass} z-0 opacity-0`;
   const videoBClass = activeLayer === 1
     ? isCrossfading
-      ? `${videoBaseClass} z-10 opacity-24`
+      ? `${videoBaseClass} z-10 opacity-34`
       : `${videoBaseClass} z-10 opacity-58`
     : isCrossfading
       ? `${videoBaseClass} z-20 opacity-58`
       : `${videoBaseClass} z-0 opacity-0`;
 
   return (
-    <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div ref={containerRef} className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
       <div
         className={`absolute inset-0 transition-opacity duration-[720ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
       >
