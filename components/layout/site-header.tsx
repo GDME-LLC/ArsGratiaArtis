@@ -13,14 +13,25 @@ const navItems = [
 
 function HeaderNavButtons() {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-1.5">
       {navItems.map((item) =>
         item.href ? (
-          <Button key={item.label} asChild variant="ghost" size="default" className="h-10 px-4">
+          <Button
+            key={item.label}
+            asChild
+            variant="ghost"
+            className="h-8 rounded-full px-3 text-[0.72rem] tracking-[0.08em] text-foreground/78 hover:text-foreground"
+          >
             <Link href={item.href}>{item.label}</Link>
           </Button>
         ) : (
-          <Button key={item.label} type="button" variant="ghost" size="default" className="h-10 px-4 opacity-100" disabled>
+          <Button
+            key={item.label}
+            type="button"
+            variant="ghost"
+            className="h-8 rounded-full px-3 text-[0.72rem] tracking-[0.08em] text-foreground/78 opacity-100"
+            disabled
+          >
             {item.label}
           </Button>
         ),
@@ -33,10 +44,10 @@ export async function SiteHeader() {
   const user = await getUser();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-xl">
-      <div className="container-shell py-3 sm:py-4">
-        <div className="flex min-h-[4.5rem] items-center justify-between gap-4 sm:min-h-20 sm:gap-6">
-          <div className="flex min-w-0 items-center pr-2 sm:pr-0">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/16 backdrop-blur-xl">
+      <div className="container-shell py-2 sm:py-2.5">
+        <div className="flex min-h-[3.5rem] items-center justify-between gap-3 sm:min-h-[3.75rem] sm:gap-4">
+          <div className="flex min-w-0 items-center gap-3 pr-2 sm:pr-0 lg:gap-5">
             <Link href="/" className="group flex min-w-0 items-center">
               <Image
                 src="/brand/arsgratia-logo.png"
@@ -44,26 +55,33 @@ export async function SiteHeader() {
                 width={320}
                 height={80}
                 style={{ width: "auto" }}
-                className="h-12 w-auto object-contain sm:h-[62px] lg:h-[68px]"
+                className="h-9 w-auto object-contain sm:h-11 lg:h-[50px]"
                 priority
               />
             </Link>
+            <div className="hidden md:flex">
+              <HeaderNavButtons />
+            </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {user ? (
               <>
-                <Button asChild className="h-10 px-4 sm:h-11 sm:px-5">
+                <Button asChild className="h-9 rounded-full px-3.5 text-[0.72rem] tracking-[0.08em] sm:px-4">
                   <Link href="/upload">Start a Release</Link>
                 </Button>
                 <LogoutButton />
               </>
             ) : (
               <>
-                <Button asChild className="h-10 px-4 sm:h-11 sm:px-5">
+                <Button asChild className="h-9 rounded-full px-3.5 text-[0.72rem] tracking-[0.08em] sm:px-4">
                   <Link href="/signup">Become a Creator</Link>
                 </Button>
-                <Button asChild variant="ghost" className="h-10 px-4 sm:h-11 sm:px-5">
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="h-9 rounded-full px-3 text-[0.72rem] tracking-[0.08em] sm:px-3.5"
+                >
                   <Link href="/login">Login</Link>
                 </Button>
               </>
@@ -71,7 +89,7 @@ export async function SiteHeader() {
           </div>
         </div>
 
-        <div className="mt-3 flex justify-start sm:mt-2 sm:justify-center lg:justify-end">
+        <div className="mt-1.5 flex justify-center md:hidden">
           <HeaderNavButtons />
         </div>
       </div>

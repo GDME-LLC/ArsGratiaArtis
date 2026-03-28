@@ -38,12 +38,12 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
     : null;
 
   return (
-    <section className="container-shell pt-4 sm:pt-6 lg:pt-7">
-      <div className="relative min-h-[72vh] overflow-hidden py-8 sm:py-10 lg:py-12">
+    <section className="container-shell pt-2 sm:pt-3 lg:pt-4">
+      <div className="relative min-h-[68vh] overflow-hidden py-6 sm:py-7 lg:py-8">
         <HeroBackgroundVideo />
 
-        <div className="relative z-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
-          <div className="public-home-hero-copy max-w-3xl">
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-end">
+          <div className="public-home-hero-copy max-w-3xl drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
             <p className="display-kicker">{siteConfig.motto}</p>
             <p className="eyebrow mt-2 text-foreground/88">Art, for art&apos;s sake</p>
             <h1 className="hero-title mt-4 max-w-3xl text-balance">{siteConfig.heroTitle}</h1>
@@ -61,21 +61,18 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
               </Button>
             </div>
 
-            <div className="public-home-hero-panels mt-10 grid gap-4 sm:grid-cols-3 sm:gap-5">
+            <div className="public-home-hero-panels mt-8 grid gap-5 sm:grid-cols-3 sm:gap-6">
               {heroHighlights.map((item) => (
-                <div
-                  key={item.kicker}
-                  className="rounded-[24px] border border-white/8 bg-black px-5 py-5 shadow-[0_20px_60px_rgba(0,0,0,0.34)]"
-                >
-                  <p className="display-kicker">{item.kicker}</p>
-                  <p className="title-md mt-3 text-foreground">{item.title}</p>
-                  <p className="body-sm mt-3 text-foreground/76">{item.description}</p>
+                <div key={item.kicker} className="px-1 text-center drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)] sm:px-3">
+                  <p className="display-kicker text-center">{item.kicker}</p>
+                  <p className="title-md mt-3 text-center text-foreground">{item.title}</p>
+                  <p className="body-sm mt-3 text-center text-foreground/82">{item.description}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="public-home-hero-feature hidden lg:block lg:justify-self-end lg:text-right">
+          <div className="public-home-hero-feature hidden lg:block lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
             <p className="display-kicker">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
               <>
