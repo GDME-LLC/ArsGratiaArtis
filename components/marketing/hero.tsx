@@ -20,10 +20,9 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
 
   return (
     <section className="container-shell pt-4 sm:pt-6 lg:pt-7" data-reveal="hero">
-      <div className="surface-panel cinema-frame relative overflow-hidden px-5 py-6 sm:px-8 sm:py-8 lg:px-11 lg:py-10">
+      <div className="relative overflow-hidden bg-transparent px-5 py-6 sm:px-8 sm:py-8 lg:px-11 lg:py-10">
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,7,12,0.78)_0%,rgba(6,7,12,0.46)_42%,rgba(6,7,12,0.62)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_20%,rgba(214,188,136,0.08),transparent_20%),linear-gradient(180deg,rgba(4,4,8,0.08),rgba(4,4,8,0.24))]" />
-        <div className="absolute inset-x-8 top-6 h-px bg-gradient-to-r from-transparent via-white/16 to-transparent" />
         <div className="absolute inset-y-0 right-0 hidden w-[34%] bg-[linear-gradient(270deg,rgba(255,255,255,0.04),transparent)] lg:block" />
         <div className="absolute inset-y-8 right-5 hidden w-[29%] rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,12,18,0.86),rgba(7,8,12,0.72))] p-3 shadow-[0_30px_100px_rgba(0,0,0,0.42)] backdrop-blur-sm lg:block">
           {spotlightFilm ? (
@@ -105,3 +104,6 @@ export function Hero({ spotlightFilm, spotlightLabel = "Latest Release" }: HeroP
     </section>
   );
 }
+
+
+
