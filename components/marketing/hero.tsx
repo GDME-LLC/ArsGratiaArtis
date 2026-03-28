@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { getFilmArtworkUrl } from "@/lib/films/artwork";
 import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/constants/site";
@@ -45,13 +46,19 @@ export function Hero({
         displayName: spotlightFilm.creator.displayName,
       })
     : null;
+  const spotlightArtworkUrl = spotlightFilm
+    ? getFilmArtworkUrl({
+        posterUrl: spotlightFilm.posterUrl,
+        muxPlaybackId: spotlightFilm.muxPlaybackId,
+      })
+    : null;
 
   return (
     <section className="container-shell pt-2 sm:pt-3 lg:pt-4">
       <div className="relative min-h-[68vh] overflow-hidden py-6 sm:py-7 lg:py-8">
         <HeroBackgroundVideo />
 
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-end">
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
           <div className="public-home-hero-copy max-w-3xl drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
             <p className="display-kicker">{motto}</p>
             <p className="eyebrow mt-2 text-foreground/88">Art, for art&apos;s sake</p>
@@ -85,7 +92,26 @@ export function Hero({
             <p className="display-kicker">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
               <>
-                <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
+                <Link
+                  href={`/film/${spotlightFilm.slug}`}
+                  className="mt-4 block overflow-hidden rounded-[24px] border border-white/12 bg-black/30 shadow-[0_18px_42px_rgba(0,0,0,0.32)] transition hover:-translate-y-0.5"
+                >
+                  {spotlightArtworkUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={spotlightArtworkUrl}
+                      alt={`${spotlightFilm.title} poster`}
+                      loading="lazy"
+                      decoding="async"
+                      className="aspect-[2/3] w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex aspect-[2/3] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01)),radial-gradient(circle_at_top,rgba(199,166,106,0.18),transparent_38%)] p-4 text-left">
+                      <p className="text-xs uppercase tracking-[0.22em] text-foreground/70">Spotlight release</p>
+                    </div>
+                  )}
+                </Link>
+                <p className="mt-3 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
                   {spotlightFilm.title}
                 </p>
                 <p className="mt-3 text-sm text-foreground/72">by {spotlightCreatorName}</p>
