@@ -6,7 +6,7 @@ const HERO_LOOP_PRIMARY_VIDEO = "/hero-loop.mp4";
 const HERO_LOOP_FALLBACK_VIDEO = "/video/hero-loop.mp4";
 const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
 const HERO_LOOP_FORWARD_DURATION_SECONDS = 7;
-const HERO_LOOP_OVERLAP_BLEND_MS = 820;
+const HERO_LOOP_OVERLAP_BLEND_MS = 420;
 const HERO_LOOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.95;
 
 function resolveInitialLoopState() {
