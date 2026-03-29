@@ -6,10 +6,8 @@ const HERO_LOOP_PRIMARY_VIDEO = "/hero-loop.mp4";
 const HERO_LOOP_FALLBACK_VIDEO = "/video/hero-loop.mp4";
 const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
 const HERO_LOOP_FORWARD_DURATION_SECONDS = 7;
-const HERO_LOOP_MOBILE_BLEND_MS = 860;
-const HERO_LOOP_DESKTOP_BLEND_MS = 520;
-const HERO_LOOP_MOBILE_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 1.15;
-const HERO_LOOP_DESKTOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.86;
+const HERO_LOOP_OVERLAP_BLEND_MS = 820;
+const HERO_LOOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.95;
 
 function resolveInitialLoopState() {
   if (typeof document === "undefined") {
@@ -17,14 +15,6 @@ function resolveInitialLoopState() {
   }
 
   return document.documentElement.dataset.publicLoopVisible === "true";
-}
-
-function resolveInitialDesktopPlatform() {
-  if (typeof document === "undefined") {
-    return true;
-  }
-
-  return document.documentElement.dataset.platform !== "mobile";
 }
 
 function getVideoRef(index: 0 | 1, first: React.RefObject<HTMLVideoElement | null>, second: React.RefObject<HTMLVideoElement | null>) {
@@ -44,7 +34,6 @@ export function HeroBackgroundVideo() {
     return document.visibilityState === "visible";
   });
   const [isInViewport, setIsInViewport] = useState(true);
-  const [isDesktopPlatform, setIsDesktopPlatform] = useState(resolveInitialDesktopPlatform);
   const [activeLayer, setActiveLayer] = useState<0 | 1>(0);
   const [isCrossfading, setIsCrossfading] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -55,25 +44,15 @@ export function HeroBackgroundVideo() {
   const handoffFinishTimeoutRef = useRef<number | null>(null);
   const handoffInFlightRef = useRef(false);
 
-  const overlapBlendMs = isDesktopPlatform ? HERO_LOOP_DESKTOP_BLEND_MS : HERO_LOOP_MOBILE_BLEND_MS;
-  const overlapThresholdSeconds = isDesktopPlatform
-    ? HERO_LOOP_DESKTOP_OVERLAP_THRESHOLD_SECONDS
-    : HERO_LOOP_MOBILE_OVERLAP_THRESHOLD_SECONDS;
-
   useEffect(() => {
     activeLayerRef.current = activeLayer;
   }, [activeLayer]);
 
   useEffect(() => {
-    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const platformQuery = window.matchMedia("(max-width: 820px), (pointer: coarse)");
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const updateMotion = () => {
-      setPrefersReducedMotion(reducedMotionQuery.matches);
-    };
-
-    const updatePlatform = () => {
-      setIsDesktopPlatform(!platformQuery.matches);
+      setPrefersReducedMotion(mediaQuery.matches);
     };
 
     const updateLoopVisibility = () => {
@@ -85,26 +64,20 @@ export function HeroBackgroundVideo() {
     };
 
     updateMotion();
-    updatePlatform();
     updateLoopVisibility();
     updatePageVisibility();
 
-    reducedMotionQuery.addEventListener("change", updateMotion);
-    platformQuery.addEventListener("change", updatePlatform);
+    mediaQuery.addEventListener("change", updateMotion);
     document.addEventListener("visibilitychange", updatePageVisibility);
 
-    const observer = new MutationObserver(() => {
-      updateLoopVisibility();
-      setIsDesktopPlatform(resolveInitialDesktopPlatform());
-    });
+    const observer = new MutationObserver(updateLoopVisibility);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["data-public-loop-visible", "data-platform"],
+      attributeFilter: ["data-public-loop-visible"],
     });
 
     return () => {
-      reducedMotionQuery.removeEventListener("change", updateMotion);
-      platformQuery.removeEventListener("change", updatePlatform);
+      mediaQuery.removeEventListener("change", updateMotion);
       document.removeEventListener("visibilitychange", updatePageVisibility);
       observer.disconnect();
     };
@@ -211,9 +184,6 @@ export function HeroBackgroundVideo() {
       nextVideo.currentTime = 0;
       nextVideo.play().catch(() => undefined);
 
-      const remainingHandoffMs = Math.max(0, ((HERO_LOOP_FORWARD_DURATION_SECONDS - currentVideo.currentTime) * 1000) - 90);
-      const handoffDurationMs = remainingHandoffMs > 0 ? Math.min(overlapBlendMs, remainingHandoffMs) : 0;
-
       handoffFinishTimeoutRef.current = window.setTimeout(() => {
         currentVideo.pause();
         currentVideo.currentTime = 0;
@@ -221,7 +191,7 @@ export function HeroBackgroundVideo() {
         setActiveLayer(nextIndex);
         handoffInFlightRef.current = false;
         setIsCrossfading(false);
-      }, handoffDurationMs);
+      }, HERO_LOOP_OVERLAP_BLEND_MS);
     };
 
     const attachListeners = (index: 0 | 1, element: HTMLVideoElement | null) => {
@@ -234,7 +204,7 @@ export function HeroBackgroundVideo() {
           return;
         }
 
-        if (element.currentTime >= overlapThresholdSeconds) {
+        if (element.currentTime >= HERO_LOOP_OVERLAP_THRESHOLD_SECONDS) {
           queueHandoff();
         }
       };
@@ -262,37 +232,33 @@ export function HeroBackgroundVideo() {
       detachB();
       clearHandoff();
     };
-  }, [overlapBlendMs, overlapThresholdSeconds, prefersReducedMotion]);
+  }, [prefersReducedMotion]);
 
   const layerVisible = loopVisible || prefersReducedMotion;
-  const opacityDurationClass = isDesktopPlatform ? "duration-[460ms]" : "duration-[720ms]";
-  const videoScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.01] sm:scale-[1.0] lg:scale-[0.98]";
-  const posterScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.01] sm:scale-[1.0] lg:scale-[0.98]";
-  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_-18%]" : "object-[center_-10%]";
-  const posterBackgroundPosition = isDesktopPlatform ? "center -18%" : "center -10%";
-  const videoBaseClass = `absolute inset-0 h-full w-full ${videoScaleClass} ${videoObjectPositionClass} object-cover transition-opacity ${opacityDurationClass} ease-out will-change-[opacity]`;
-  const inactiveLayerClass = `${videoBaseClass} hidden`;
+  const videoBaseClass = "absolute inset-0 h-full w-full scale-[1.12] object-cover object-[center_42%] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08]";
   const videoAClass = activeLayer === 0
     ? isCrossfading
-      ? `${videoBaseClass} z-10 opacity-10`
-      : `${videoBaseClass} z-10 opacity-24`
+      ? `${videoBaseClass} z-10 opacity-24`
+      : `${videoBaseClass} z-10 opacity-58`
     : isCrossfading
-      ? `${videoBaseClass} z-20 opacity-24`
-      : inactiveLayerClass;
+      ? `${videoBaseClass} z-20 opacity-58`
+      : `${videoBaseClass} z-0 opacity-0`;
   const videoBClass = activeLayer === 1
     ? isCrossfading
-      ? `${videoBaseClass} z-10 opacity-10`
-      : `${videoBaseClass} z-10 opacity-24`
+      ? `${videoBaseClass} z-10 opacity-24`
+      : `${videoBaseClass} z-10 opacity-58`
     : isCrossfading
-      ? `${videoBaseClass} z-20 opacity-24`
-      : inactiveLayerClass;
+      ? `${videoBaseClass} z-20 opacity-58`
+      : `${videoBaseClass} z-0 opacity-0`;
 
   return (
-    <div ref={containerRef} className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-      <div className={`absolute inset-0 transition-opacity ${opacityDurationClass} ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}>
+    <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div
+        className={`absolute inset-0 transition-opacity duration-[720ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
+      >
         <div
-          className={`absolute inset-0 ${posterScaleClass} bg-cover bg-[center_42%] bg-no-repeat transition-opacity ${isDesktopPlatform ? "duration-[420ms]" : "duration-[560ms]"} ease-out ${hasReadyVideo && !prefersReducedMotion ? "opacity-2" : "opacity-24"}`}
-          style={{ backgroundImage: `url(${HERO_LOOP_POSTER})`, backgroundPosition: posterBackgroundPosition }}
+          className={`absolute inset-0 scale-[1.12] bg-cover bg-[center_42%] bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${hasReadyVideo && !prefersReducedMotion ? "opacity-10" : "opacity-64"}`}
+          style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
         />
         {!prefersReducedMotion ? (
           <>

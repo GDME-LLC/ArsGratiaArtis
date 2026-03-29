@@ -76,12 +76,14 @@ const publicEntryBootstrap = `
     }
 
     var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var navEntries = typeof performance !== "undefined" && performance.getEntriesByType ? performance.getEntriesByType("navigation") : [];
+    var isReload = !!(navEntries && navEntries.length && navEntries[0] && navEntries[0].type === "reload");
     var introSeen = false;
     try {
       introSeen = window.sessionStorage.getItem("${PUBLIC_INTRO_STORAGE_KEY}") === "true";
     } catch (error) {}
 
-    if (!prefersReducedMotion && !introSeen) {
+    if (!prefersReducedMotion && !introSeen && !isReload) {
       root.dataset.publicEntry = "intro";
       root.dataset.publicLoopVisible = "false";
       root.dataset.publicContentVisible = "false";

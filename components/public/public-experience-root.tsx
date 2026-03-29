@@ -104,8 +104,11 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     document.documentElement.dataset.publicRoute = "true";
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const navigationEntries = typeof performance !== "undefined" && performance.getEntriesByType ? performance.getEntriesByType("navigation") : [];
+    const navigationEntry = navigationEntries[0] as PerformanceNavigationTiming | undefined;
+    const isReload = navigationEntry?.type === "reload";
     const introSeen = window.sessionStorage.getItem(PUBLIC_INTRO_STORAGE_KEY) === "true";
-    const shouldPlayIntro = !prefersReducedMotion && !introSeen;
+    const shouldPlayIntro = !prefersReducedMotion && !introSeen && !isReload;
 
     if (shouldPlayIntro) {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
