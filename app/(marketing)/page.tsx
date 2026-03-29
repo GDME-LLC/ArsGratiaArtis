@@ -121,9 +121,7 @@ export default async function HomePage() {
       <Hero
         spotlightFilm={spotlightFilm}
         spotlightLabel={spotlightLabel}
-        motto={platformSettings.heroMotto}
-        title={platformSettings.heroTitle}
-        description={platformSettings.heroDescription}
+        heroContent={platformSettings.heroContent}
       />
 
       {foundingCreators.length > 0 ? (
@@ -310,6 +308,9 @@ export default async function HomePage() {
     </div>
   );
 }
+
+
+
 
 
 

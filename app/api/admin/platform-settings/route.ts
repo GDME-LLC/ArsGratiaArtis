@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { requireAdminUser } from "@/lib/admin";
-import { getPlatformSettings, updatePlatformSettings } from "@/lib/platform-settings";
+import { type HeroContentSettings, getPlatformSettings, updatePlatformSettings } from "@/lib/platform-settings";
 
 export async function GET() {
   try {
@@ -23,9 +23,7 @@ export async function PUT(request: Request) {
     const payload = (await request.json()) as {
       homepageSpotlightFilmId?: string | null;
       homepageSpotlightLabel?: string | null;
-      heroMotto?: string;
-      heroTitle?: string;
-      heroDescription?: string;
+      heroContent?: HeroContentSettings;
       beyondCinemaCategories?: string[];
     };
 

@@ -1,44 +1,96 @@
 import Link from "next/link";
 
 import { getFilmArtworkUrl } from "@/lib/films/artwork";
+import {
+  getDefaultHeroContentSettings,
+  HERO_PANEL_ORDER,
+  type HeroContentSettings,
+  type HeroCopyColor,
+  type HeroCopySize,
+} from "@/lib/platform-settings-shared";
 import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/lib/constants/site";
-import { resolveCreatorName } from "@/lib/utils";
+import { cn, resolveCreatorName } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
 
 type HeroProps = {
   spotlightFilm?: PublicFilmCard | null;
   spotlightLabel?: string;
-  motto?: string;
-  title?: string;
-  description?: string;
+  heroContent?: HeroContentSettings;
 };
 
-const heroHighlights = [
-  {
-    kicker: "Films",
-    title: "Release work with gravity",
-    description: "Publish films inside a frame that feels deliberate, watchable, and worthy of the premiere.",
+const toneClassMap: Record<HeroCopyColor, string> = {
+  gold: "text-primary/85",
+  ivory: "text-foreground",
+  soft: "text-foreground/88",
+  muted: "text-muted-foreground",
+  rose: "text-accent/90",
+  slate: "text-foreground/72",
+};
+
+const aboveFoldSizeClassMap = {
+  motto: {
+    sm: "text-[0.62rem] tracking-[0.24em] sm:text-[0.66rem] sm:tracking-[0.3em]",
+    md: "text-[0.68rem] tracking-[0.28em] sm:text-[0.72rem] sm:tracking-[0.36em]",
+    lg: "text-[0.78rem] tracking-[0.3em] sm:text-[0.84rem] sm:tracking-[0.4em]",
   },
-  {
-    kicker: "Creators",
-    title: "Build a theatre around authorship",
-    description: "Give each filmmaker a public presence that reads like a body of work instead of a profile stub.",
+  submotto: {
+    sm: "text-[0.72rem] tracking-[0.18em] sm:text-[0.78rem] sm:tracking-[0.22em]",
+    md: "text-[0.78rem] tracking-[0.2em] sm:text-[0.84rem] sm:tracking-[0.26em]",
+    lg: "text-[0.86rem] tracking-[0.22em] sm:text-[0.92rem] sm:tracking-[0.28em]",
   },
-  {
-    kicker: "Resources",
-    title: "Stay close to the wider field",
-    description: "Keep the best tools, research, and communities nearby without letting them overwhelm the films themselves.",
+  title: {
+    sm: "text-[2.15rem] leading-[0.98] tracking-[-0.04em] sm:text-[3rem] lg:text-[3.3rem]",
+    md: "text-[2.5rem] leading-[0.98] tracking-[-0.045em] sm:text-5xl lg:text-[3.5rem]",
+    lg: "text-[2.9rem] leading-[0.96] tracking-[-0.05em] sm:text-[4.05rem] lg:text-[4.6rem]",
   },
-] as const;
+  description: {
+    sm: "text-[0.94rem] leading-6 sm:text-[1rem] sm:leading-7",
+    md: "text-[0.98rem] leading-7 sm:text-[1.05rem]",
+    lg: "text-[1.06rem] leading-7 sm:text-[1.14rem] sm:leading-8",
+  },
+} as const;
+
+const panelSizeClassMap = {
+  kicker: {
+    sm: "text-[0.62rem] tracking-[0.22em]",
+    md: "text-[0.68rem] tracking-[0.28em]",
+    lg: "text-[0.76rem] tracking-[0.32em]",
+  },
+  title: {
+    sm: "text-[1rem] tracking-[-0.02em]",
+    md: "text-[1.08rem] tracking-[-0.03em] sm:text-xl",
+    lg: "text-[1.18rem] tracking-[-0.035em] sm:text-[1.4rem]",
+  },
+  description: {
+    sm: "text-[0.82rem] leading-5",
+    md: "text-sm leading-6",
+    lg: "text-[0.98rem] leading-7",
+  },
+} as const;
+
+function getAboveFoldLineClass(slot: keyof typeof aboveFoldSizeClassMap, color: HeroCopyColor, size: HeroCopySize) {
+  return cn(
+    slot === "title" ? "font-serif font-semibold text-balance" : "font-sans font-medium",
+    slot === "motto" || slot === "submotto" ? "uppercase" : "",
+    toneClassMap[color],
+    aboveFoldSizeClassMap[slot][size],
+  );
+}
+
+function getPanelLineClass(slot: keyof typeof panelSizeClassMap, color: HeroCopyColor, size: HeroCopySize) {
+  return cn(
+    slot === "title" ? "font-serif font-semibold" : "font-sans",
+    slot === "kicker" ? "uppercase font-medium" : slot === "description" ? "font-normal" : "",
+    toneClassMap[color],
+    panelSizeClassMap[slot][size],
+  );
+}
 
 export function Hero({
   spotlightFilm,
   spotlightLabel = "Latest Release",
-  motto = siteConfig.motto,
-  title = siteConfig.heroTitle,
-  description = siteConfig.heroDescription,
+  heroContent = getDefaultHeroContentSettings(),
 }: HeroProps) {
   const spotlightCreatorName = spotlightFilm
     ? resolveCreatorName({
@@ -60,10 +112,24 @@ export function Hero({
 
         <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
           <div className="public-home-hero-copy max-w-3xl drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
-            <p className="display-kicker">{motto}</p>
-            <p className="eyebrow mt-2 text-foreground/88">Art, for art&apos;s sake</p>
-            <h1 className="hero-title mt-4 max-w-3xl text-balance">{title}</h1>
-            <p className="mt-4 max-w-2xl body-lg text-foreground/88">{description}</p>
+            {heroContent.motto.text.trim() ? (
+              <p className={getAboveFoldLineClass("motto", heroContent.motto.color, heroContent.motto.size)}>{heroContent.motto.text}</p>
+            ) : null}
+            {heroContent.submotto.text.trim() ? (
+              <p className={cn("mt-2", getAboveFoldLineClass("submotto", heroContent.submotto.color, heroContent.submotto.size))}>
+                {heroContent.submotto.text}
+              </p>
+            ) : null}
+            {heroContent.title.text.trim() ? (
+              <h1 className={cn("mt-4 max-w-3xl", getAboveFoldLineClass("title", heroContent.title.color, heroContent.title.size))}>
+                {heroContent.title.text}
+              </h1>
+            ) : null}
+            {heroContent.description.text.trim() ? (
+              <p className={cn("mt-4 max-w-2xl", getAboveFoldLineClass("description", heroContent.description.color, heroContent.description.size))}>
+                {heroContent.description.text}
+              </p>
+            ) : null}
 
             <div className="public-home-hero-actions mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button asChild size="xl" className="w-full sm:w-auto">
@@ -78,13 +144,25 @@ export function Hero({
             </div>
 
             <div className="public-home-hero-panels mt-8 grid gap-5 sm:grid-cols-3 sm:gap-6">
-              {heroHighlights.map((item) => (
-                <div key={item.kicker} className="px-1 text-center drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)] sm:px-3">
-                  <p className="display-kicker text-center">{item.kicker}</p>
-                  <p className="title-md mt-3 text-center text-foreground">{item.title}</p>
-                  <p className="body-sm mt-3 text-center text-foreground/82">{item.description}</p>
-                </div>
-              ))}
+              {HERO_PANEL_ORDER.map((panelKey) => {
+                const panel = heroContent.panels[panelKey];
+
+                return (
+                  <div key={panelKey} className="px-1 text-center drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)] sm:px-3">
+                    {panel.kicker.text.trim() ? (
+                      <p className={cn("text-center", getPanelLineClass("kicker", panel.kicker.color, panel.kicker.size))}>{panel.kicker.text}</p>
+                    ) : null}
+                    {panel.title.text.trim() ? (
+                      <p className={cn("mt-3 text-center", getPanelLineClass("title", panel.title.color, panel.title.size))}>{panel.title.text}</p>
+                    ) : null}
+                    {panel.description.text.trim() ? (
+                      <p className={cn("mt-3 text-center", getPanelLineClass("description", panel.description.color, panel.description.size))}>
+                        {panel.description.text}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

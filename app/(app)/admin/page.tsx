@@ -56,6 +56,7 @@ export default async function AdminDashboardPage() {
             slug: manualSpotlightFilm.slug,
             synopsis: manualSpotlightFilm.synopsis,
             posterUrl: manualSpotlightFilm.posterUrl,
+            muxPlaybackId: manualSpotlightFilm.muxPlaybackId,
             category: manualSpotlightFilm.category,
             categoryLabel: FILM_CATEGORY_LABELS[manualSpotlightFilm.category],
             publishedAt: manualSpotlightFilm.publishedAt,
@@ -74,7 +75,7 @@ export default async function AdminDashboardPage() {
         <p className="display-kicker">Admin Tools</p>
         <h1 className="headline-xl mt-3">Platform management</h1>
         <p className="body-lg mt-3 text-muted-foreground">
-          Control the homepage spotlight, hero copy, and Beyond Cinema category inputs directly from the admin dashboard.
+          Control the homepage spotlight, full hero copy, and Beyond Cinema category inputs directly from the admin dashboard.
         </p>
       </div>
 
