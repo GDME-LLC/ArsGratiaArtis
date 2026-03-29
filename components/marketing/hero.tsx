@@ -110,7 +110,7 @@ export function Hero({
       <div className="relative min-h-[68vh] overflow-hidden py-6 sm:py-7 lg:py-8">
         <HeroBackgroundVideo />
 
-        <div className="relative z-10 grid gap-8 lg:-translate-y-10 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
+        <div className="relative z-10 grid gap-8 lg:-translate-y-14 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
           <div className="public-home-hero-copy max-w-3xl drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
             {heroContent.motto.text.trim() ? (
               <p className={getAboveFoldLineClass("motto", heroContent.motto.color, heroContent.motto.size)}>{heroContent.motto.text}</p>
