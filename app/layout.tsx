@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/brand/arsgratia-og.png",
+        url: "/icon.png",
         width: 1200,
         height: 630,
         alt: "ArsGratia",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ArsGratia",
     description: "Cinema belongs to creators again.",
-    images: ["/brand/arsgratia-og.png"],
+    images: ["/icon.png"],
   },
   icons: {
     icon: "/icon.png",

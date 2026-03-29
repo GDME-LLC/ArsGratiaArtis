@@ -50,7 +50,7 @@ export async function SiteHeader() {
           <div className="flex min-w-0 items-center gap-3 pr-2 sm:pr-0 lg:gap-5">
             <Link href="/" className="group flex min-w-0 items-center">
               <Image
-                src="/brand/arsgratia-logo.png"
+                src="/icon.png"
                 alt="ArsGratia"
                 width={320}
                 height={80}

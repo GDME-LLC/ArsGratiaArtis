@@ -40,7 +40,7 @@ const resourceGroups: ResourceGroup[] = [
     title: "Learning and research",
     description:
       "Courses, editorial references, and research hubs that help creators sharpen both craft and taste.",
-    imageSrc: "/brand/arsgratia-og.png",
+    imageSrc: "/icon.png",
     imageAlt: "ArsGratia editorial brand image",
     categories: ["learning_platforms", "inspiration_research"],
   },
@@ -50,7 +50,7 @@ const resourceGroups: ResourceGroup[] = [
     title: "Communities and showcases",
     description:
       "Places to meet the field as it is forming, see standout work, and stay close to the culture around AI cinema.",
-    imageSrc: "/brand/arsgratia-logo-white.png",
+    imageSrc: "/icon.png",
     imageAlt: "ArsGratia logo mark",
     categories: ["communities_showcases"],
   },

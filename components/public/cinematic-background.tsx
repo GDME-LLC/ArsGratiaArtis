@@ -7,8 +7,6 @@ type CinematicBackgroundProps = {
   platform?: "mobile" | "desktop";
 };
 
-const ENABLE_SKY_SPOTLIGHTS = true;
-
 const variantClassMap: Record<PublicExperienceVariant, string> = {
   home: "is-home",
   creator: "is-creator",
@@ -19,17 +17,7 @@ const variantClassMap: Record<PublicExperienceVariant, string> = {
   default: "is-default",
 };
 
-const spotlightConfigs = [
-  { className: "public-background__spotlight public-background__spotlight--left", duration: "38s", delay: "-6s", mobile: true },
-  { className: "public-background__spotlight public-background__spotlight--center", duration: "46s", delay: "-18s", mobile: true },
-  { className: "public-background__spotlight public-background__spotlight--right", duration: "54s", delay: "-12s", mobile: true },
-  { className: "public-background__spotlight public-background__spotlight--far-right", duration: "62s", delay: "-28s", mobile: false },
-];
-
 export function CinematicBackground({ variant, platform = "desktop" }: CinematicBackgroundProps) {
-  const showStrongSpotlights = ENABLE_SKY_SPOTLIGHTS && (variant === "home" || variant === "theatre");
-  const visibleSpotlights = spotlightConfigs.filter((spotlight) => platform === "desktop" || spotlight.mobile);
-
   return (
     <div className={`public-background ${variantClassMap[variant]}`} aria-hidden="true" data-platform={platform}>
       <div className="public-background__base" />
@@ -37,17 +25,6 @@ export function CinematicBackground({ variant, platform = "desktop" }: Cinematic
       <div className="public-background__nebula" />
       <div className="public-background__haze public-background__drift-slower" />
       <div className="public-background__light" />
-      {showStrongSpotlights ? (
-        <div className="public-background__spotlights is-strong">
-          {visibleSpotlights.map((spotlight) => (
-            <span
-              key={spotlight.className}
-              className={spotlight.className}
-              style={{ animationDuration: spotlight.duration, animationDelay: spotlight.delay }}
-            />
-          ))}
-        </div>
-      ) : null}
       <div className="public-background__grain" />
       <div className="public-background__vignette" />
     </div>

@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: CreatorPageProps): Promise<Me
 
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
   const url = `${siteUrl}/creator/${profile.handle}`;
-  const image = profile.theatreSettings.heroImageUrl || profile.bannerUrl || profile.avatarUrl || `${siteUrl}/og-default.jpg`;
+  const image = profile.theatreSettings.heroImageUrl || profile.bannerUrl || profile.avatarUrl || `${siteUrl}/icon.png`;
 
   return {
     title,
