@@ -6,10 +6,10 @@ const HERO_LOOP_PRIMARY_VIDEO = "/hero-loop.mp4";
 const HERO_LOOP_FALLBACK_VIDEO = "/video/hero-loop.mp4";
 const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
 const HERO_LOOP_FORWARD_DURATION_SECONDS = 7;
-const HERO_LOOP_MOBILE_BLEND_MS = 1180;
-const HERO_LOOP_DESKTOP_BLEND_MS = 760;
-const HERO_LOOP_MOBILE_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 1.7;
-const HERO_LOOP_DESKTOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 1.3;
+const HERO_LOOP_MOBILE_BLEND_MS = 860;
+const HERO_LOOP_DESKTOP_BLEND_MS = 520;
+const HERO_LOOP_MOBILE_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 1.15;
+const HERO_LOOP_DESKTOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.72;
 
 function resolveInitialLoopState() {
   if (typeof document === "undefined") {
@@ -265,8 +265,8 @@ export function HeroBackgroundVideo() {
   const opacityDurationClass = isDesktopPlatform ? "duration-[460ms]" : "duration-[720ms]";
   const videoScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.01] sm:scale-[1.0] lg:scale-[0.98]";
   const posterScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.01] sm:scale-[1.0] lg:scale-[0.98]";
-  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_0%]" : "object-[center_4%]";
-  const posterBackgroundPosition = isDesktopPlatform ? "center 0%" : "center 4%";
+  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_-8%]" : "object-[center_-2%]";
+  const posterBackgroundPosition = isDesktopPlatform ? "center -8%" : "center -2%";
   const videoBaseClass = `absolute inset-0 h-full w-full ${videoScaleClass} ${videoObjectPositionClass} object-cover transition-opacity ${opacityDurationClass} ease-out will-change-[opacity]`;
   const inactiveLayerClass = `${videoBaseClass} hidden`;
   const videoAClass = activeLayer === 0
