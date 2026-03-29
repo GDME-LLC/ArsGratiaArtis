@@ -21,6 +21,7 @@ const bodyFont = Inter({
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
 const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen-v4";
+const PUBLIC_INTRO_SKIP_ONCE_KEY = "arsgratia-public-intro-skip-once-v1";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -79,14 +80,16 @@ const publicEntryBootstrap = `
     var navEntries = typeof performance !== "undefined" && performance.getEntriesByType ? performance.getEntriesByType("navigation") : [];
     var isReload = !!(navEntries && navEntries.length && navEntries[0] && navEntries[0].type === "reload");
     var introSeen = false;
+    var skipIntroOnce = false;
     try {
       introSeen = window.sessionStorage.getItem("${PUBLIC_INTRO_STORAGE_KEY}") === "true";
+      skipIntroOnce = window.sessionStorage.getItem("${PUBLIC_INTRO_SKIP_ONCE_KEY}") === "true";
+      if (skipIntroOnce) {
+        window.sessionStorage.removeItem("${PUBLIC_INTRO_SKIP_ONCE_KEY}");
+      }
     } catch (error) {}
 
-    if (!prefersReducedMotion && !introSeen && !isReload) {
-      try {
-        window.sessionStorage.setItem("${PUBLIC_INTRO_STORAGE_KEY}", "true");
-      } catch (error) {}
+    if (!prefersReducedMotion && !introSeen && !isReload && !skipIntroOnce) {
       root.dataset.publicEntry = "intro";
       root.dataset.publicLoopVisible = "false";
       root.dataset.publicContentVisible = "false";

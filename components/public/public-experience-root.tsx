@@ -7,6 +7,7 @@ import { CinematicBackground } from "@/components/public/cinematic-background";
 import { PublicIntroOverlay } from "@/components/public/public-intro-overlay";
 
 const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen-v4";
+const PUBLIC_INTRO_SKIP_ONCE_KEY = "arsgratia-public-intro-skip-once-v1";
 const PUBLIC_INTRO_ENABLED = true;
 
 const entryConfig = {
@@ -107,11 +108,14 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     const navigationEntries = typeof performance !== "undefined" && performance.getEntriesByType ? performance.getEntriesByType("navigation") : [];
     const navigationEntry = navigationEntries[0] as PerformanceNavigationTiming | undefined;
     const isReload = navigationEntry?.type === "reload";
+    const skipIntroOnce = window.sessionStorage.getItem(PUBLIC_INTRO_SKIP_ONCE_KEY) === "true";
+    if (skipIntroOnce) {
+      window.sessionStorage.removeItem(PUBLIC_INTRO_SKIP_ONCE_KEY);
+    }
     const introSeen = window.sessionStorage.getItem(PUBLIC_INTRO_STORAGE_KEY) === "true";
-    const shouldPlayIntro = !prefersReducedMotion && !introSeen && !isReload;
+    const shouldPlayIntro = !prefersReducedMotion && !introSeen && !isReload && !skipIntroOnce;
 
     if (shouldPlayIntro) {
-      window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
 
@@ -133,19 +137,20 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       return;
     }
 
-    const markIntroSeenOnUnload = () => {
-      window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
+    const markSkipIntroOnNextLoad = () => {
+      window.sessionStorage.setItem(PUBLIC_INTRO_SKIP_ONCE_KEY, "true");
     };
 
-    window.addEventListener("pagehide", markIntroSeenOnUnload);
-    window.addEventListener("beforeunload", markIntroSeenOnUnload);
+    window.addEventListener("pagehide", markSkipIntroOnNextLoad);
+    window.addEventListener("beforeunload", markSkipIntroOnNextLoad);
 
     return () => {
-      window.removeEventListener("pagehide", markIntroSeenOnUnload);
-      window.removeEventListener("beforeunload", markIntroSeenOnUnload);
+      window.removeEventListener("pagehide", markSkipIntroOnNextLoad);
+      window.removeEventListener("beforeunload", markSkipIntroOnNextLoad);
     };
   }, [isHome]);
-useEffect(() => {
+
+  useEffect(() => {
     if (!isHome || typeof window === "undefined") {
       return;
     }
