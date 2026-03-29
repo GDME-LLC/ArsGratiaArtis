@@ -265,30 +265,30 @@ export function HeroBackgroundVideo() {
   const opacityDurationClass = isDesktopPlatform ? "duration-[460ms]" : "duration-[720ms]";
   const videoScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.12] sm:scale-[1.1] lg:scale-[1.08]";
   const posterScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.12] sm:scale-[1.1] lg:scale-[1.08]";
-  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_28%]" : "object-[center_34%]";
-  const posterBackgroundPosition = isDesktopPlatform ? "center 28%" : "center 34%";
+  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_16%]" : "object-[center_24%]";
+  const posterBackgroundPosition = isDesktopPlatform ? "center 16%" : "center 24%";
   const videoBaseClass = `absolute inset-0 h-full w-full ${videoScaleClass} ${videoObjectPositionClass} object-cover transition-opacity ${opacityDurationClass} ease-out will-change-[opacity]`;
   const inactiveLayerClass = `${videoBaseClass} hidden`;
   const videoAClass = activeLayer === 0
     ? isCrossfading
-      ? `${videoBaseClass} z-10 opacity-34`
-      : `${videoBaseClass} z-10 opacity-58`
+      ? `${videoBaseClass} z-10 opacity-18`
+      : `${videoBaseClass} z-10 opacity-38`
     : isCrossfading
-      ? `${videoBaseClass} z-20 opacity-58`
+      ? `${videoBaseClass} z-20 opacity-38`
       : inactiveLayerClass;
   const videoBClass = activeLayer === 1
     ? isCrossfading
-      ? `${videoBaseClass} z-10 opacity-34`
-      : `${videoBaseClass} z-10 opacity-58`
+      ? `${videoBaseClass} z-10 opacity-18`
+      : `${videoBaseClass} z-10 opacity-38`
     : isCrossfading
-      ? `${videoBaseClass} z-20 opacity-58`
+      ? `${videoBaseClass} z-20 opacity-38`
       : inactiveLayerClass;
 
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
       <div className={`absolute inset-0 transition-opacity ${opacityDurationClass} ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}>
         <div
-          className={`absolute inset-0 ${posterScaleClass} bg-cover bg-[center_42%] bg-no-repeat transition-opacity ${isDesktopPlatform ? "duration-[420ms]" : "duration-[560ms]"} ease-out ${hasReadyVideo && !prefersReducedMotion ? "opacity-8" : "opacity-64"}`}
+          className={`absolute inset-0 ${posterScaleClass} bg-cover bg-[center_42%] bg-no-repeat transition-opacity ${isDesktopPlatform ? "duration-[420ms]" : "duration-[560ms]"} ease-out ${hasReadyVideo && !prefersReducedMotion ? "opacity-4" : "opacity-34"}`}
           style={{ backgroundImage: `url(${HERO_LOOP_POSTER})`, backgroundPosition: posterBackgroundPosition }}
         />
         {!prefersReducedMotion ? (
