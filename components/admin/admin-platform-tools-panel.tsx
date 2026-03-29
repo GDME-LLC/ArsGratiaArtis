@@ -68,6 +68,55 @@ function settingsToFormState(settings: PlatformSettings): FormState {
 function HeroLineEditor({ label, line, maxLength, multiline = false, compact = false, onChange }: HeroLineEditorProps) {
   const controlClassName = "w-full min-w-0 rounded-2xl border border-white/12 bg-[hsl(var(--surface-2))] px-4 text-sm text-foreground outline-none transition focus:border-primary/60 focus:bg-[hsl(var(--surface-3))]";
 
+  if (compact) {
+    return (
+      <div className="grid gap-2">
+        <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{label}</span>
+        {multiline ? (
+          <textarea
+            value={line.text}
+            onChange={(event) => onChange({ text: event.target.value })}
+            maxLength={maxLength}
+            rows={3}
+            className={`min-h-[112px] py-3 ${controlClassName}`}
+          />
+        ) : (
+          <input
+            type="text"
+            value={line.text}
+            onChange={(event) => onChange({ text: event.target.value })}
+            maxLength={maxLength}
+            className={`h-12 ${controlClassName}`}
+          />
+        )}
+        <div className="grid gap-2 sm:grid-cols-2">
+          <select
+            value={line.color}
+            onChange={(event) => onChange({ color: event.target.value as HeroCopyLine["color"] })}
+            className={`h-12 ${controlClassName}`}
+          >
+            {HERO_COPY_COLOR_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={line.size}
+            onChange={(event) => onChange({ size: event.target.value as HeroCopyLine["size"] })}
+            className={`h-12 ${controlClassName}`}
+          >
+            {HERO_COPY_SIZE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-2 md:grid-cols-[88px_minmax(0,1fr)_92px_72px] md:items-start">
       <span className="pt-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{label}</span>
@@ -76,7 +125,7 @@ function HeroLineEditor({ label, line, maxLength, multiline = false, compact = f
           value={line.text}
           onChange={(event) => onChange({ text: event.target.value })}
           maxLength={maxLength}
-          rows={compact ? 2 : 3}
+          rows={3}
           className={`min-h-[88px] py-3 ${controlClassName}`}
         />
       ) : (
