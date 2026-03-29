@@ -132,6 +132,23 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       return;
     }
 
+    const markIntroSeenOnUnload = () => {
+      window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
+    };
+
+    window.addEventListener("pagehide", markIntroSeenOnUnload);
+    window.addEventListener("beforeunload", markIntroSeenOnUnload);
+
+    return () => {
+      window.removeEventListener("pagehide", markIntroSeenOnUnload);
+      window.removeEventListener("beforeunload", markIntroSeenOnUnload);
+    };
+  }, [isHome]);
+useEffect(() => {
+    if (!isHome || typeof window === "undefined") {
+      return;
+    }
+
     if (phase === "intro") {
       const prewarmLoop = window.setTimeout(() => {
         setLoopVisible(true);
