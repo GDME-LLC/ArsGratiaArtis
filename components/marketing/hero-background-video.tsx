@@ -9,7 +9,7 @@ const HERO_LOOP_FORWARD_DURATION_SECONDS = 7;
 const HERO_LOOP_MOBILE_BLEND_MS = 860;
 const HERO_LOOP_DESKTOP_BLEND_MS = 520;
 const HERO_LOOP_MOBILE_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 1.15;
-const HERO_LOOP_DESKTOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.72;
+const HERO_LOOP_DESKTOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 0.86;
 
 function resolveInitialLoopState() {
   if (typeof document === "undefined") {
@@ -211,6 +211,9 @@ export function HeroBackgroundVideo() {
       nextVideo.currentTime = 0;
       nextVideo.play().catch(() => undefined);
 
+      const remainingHandoffMs = Math.max(0, ((HERO_LOOP_FORWARD_DURATION_SECONDS - currentVideo.currentTime) * 1000) - 90);
+      const handoffDurationMs = remainingHandoffMs > 0 ? Math.min(overlapBlendMs, remainingHandoffMs) : 0;
+
       handoffFinishTimeoutRef.current = window.setTimeout(() => {
         currentVideo.pause();
         currentVideo.currentTime = 0;
@@ -218,7 +221,7 @@ export function HeroBackgroundVideo() {
         setActiveLayer(nextIndex);
         handoffInFlightRef.current = false;
         setIsCrossfading(false);
-      }, overlapBlendMs);
+      }, handoffDurationMs);
     };
 
     const attachListeners = (index: 0 | 1, element: HTMLVideoElement | null) => {
@@ -265,23 +268,23 @@ export function HeroBackgroundVideo() {
   const opacityDurationClass = isDesktopPlatform ? "duration-[460ms]" : "duration-[720ms]";
   const videoScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.01] sm:scale-[1.0] lg:scale-[0.98]";
   const posterScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.01] sm:scale-[1.0] lg:scale-[0.98]";
-  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_-8%]" : "object-[center_-2%]";
-  const posterBackgroundPosition = isDesktopPlatform ? "center -8%" : "center -2%";
+  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_-18%]" : "object-[center_-10%]";
+  const posterBackgroundPosition = isDesktopPlatform ? "center -18%" : "center -10%";
   const videoBaseClass = `absolute inset-0 h-full w-full ${videoScaleClass} ${videoObjectPositionClass} object-cover transition-opacity ${opacityDurationClass} ease-out will-change-[opacity]`;
   const inactiveLayerClass = `${videoBaseClass} hidden`;
   const videoAClass = activeLayer === 0
     ? isCrossfading
-      ? `${videoBaseClass} z-10 opacity-14`
-      : `${videoBaseClass} z-10 opacity-30`
+      ? `${videoBaseClass} z-10 opacity-10`
+      : `${videoBaseClass} z-10 opacity-24`
     : isCrossfading
-      ? `${videoBaseClass} z-20 opacity-30`
+      ? `${videoBaseClass} z-20 opacity-24`
       : inactiveLayerClass;
   const videoBClass = activeLayer === 1
     ? isCrossfading
-      ? `${videoBaseClass} z-10 opacity-14`
-      : `${videoBaseClass} z-10 opacity-30`
+      ? `${videoBaseClass} z-10 opacity-10`
+      : `${videoBaseClass} z-10 opacity-24`
     : isCrossfading
-      ? `${videoBaseClass} z-20 opacity-30`
+      ? `${videoBaseClass} z-20 opacity-24`
       : inactiveLayerClass;
 
   return (
