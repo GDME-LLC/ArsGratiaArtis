@@ -265,7 +265,9 @@ export function HeroBackgroundVideo() {
   const opacityDurationClass = isDesktopPlatform ? "duration-[460ms]" : "duration-[720ms]";
   const videoScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.12] sm:scale-[1.1] lg:scale-[1.08]";
   const posterScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.12] sm:scale-[1.1] lg:scale-[1.08]";
-  const videoBaseClass = `absolute inset-0 h-full w-full ${videoScaleClass} object-cover object-[center_42%] transition-opacity ${opacityDurationClass} ease-out will-change-[opacity]`;
+  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_34%]" : "object-[center_42%]";
+  const posterBackgroundPosition = isDesktopPlatform ? "center 34%" : "center 42%";
+  const videoBaseClass = `absolute inset-0 h-full w-full ${videoScaleClass} ${videoObjectPositionClass} object-cover transition-opacity ${opacityDurationClass} ease-out will-change-[opacity]`;
   const inactiveLayerClass = `${videoBaseClass} hidden`;
   const videoAClass = activeLayer === 0
     ? isCrossfading
@@ -287,7 +289,7 @@ export function HeroBackgroundVideo() {
       <div className={`absolute inset-0 transition-opacity ${opacityDurationClass} ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}>
         <div
           className={`absolute inset-0 ${posterScaleClass} bg-cover bg-[center_42%] bg-no-repeat transition-opacity ${isDesktopPlatform ? "duration-[420ms]" : "duration-[560ms]"} ease-out ${hasReadyVideo && !prefersReducedMotion ? "opacity-8" : "opacity-64"}`}
-          style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
+          style={{ backgroundImage: `url(${HERO_LOOP_POSTER})`, backgroundPosition: posterBackgroundPosition }}
         />
         {!prefersReducedMotion ? (
           <>
