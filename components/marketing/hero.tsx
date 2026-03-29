@@ -166,13 +166,13 @@ export function Hero({
             </div>
           </div>
 
-          <div className="public-home-hero-feature hidden lg:block lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
+          <div className="public-home-hero-feature hidden lg:block lg:translate-y-6 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
             <p className="display-kicker">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
               <>
                 <Link
                   href={`/film/${spotlightFilm.slug}`}
-                  className="mt-6 block overflow-hidden rounded-[24px] border border-white/12 bg-black/30 shadow-[0_18px_42px_rgba(0,0,0,0.32)] transition hover:-translate-y-0.5"
+                  className="mt-4 block overflow-hidden rounded-[24px] border border-white/12 bg-black/30 shadow-[0_18px_42px_rgba(0,0,0,0.32)] transition hover:-translate-y-0.5"
                 >
                   {spotlightArtworkUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
