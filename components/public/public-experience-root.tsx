@@ -111,6 +111,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     const shouldPlayIntro = !prefersReducedMotion && !introSeen && !isReload;
 
     if (shouldPlayIntro) {
+      window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
 

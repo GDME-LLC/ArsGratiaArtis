@@ -84,6 +84,9 @@ const publicEntryBootstrap = `
     } catch (error) {}
 
     if (!prefersReducedMotion && !introSeen && !isReload) {
+      try {
+        window.sessionStorage.setItem("${PUBLIC_INTRO_STORAGE_KEY}", "true");
+      } catch (error) {}
       root.dataset.publicEntry = "intro";
       root.dataset.publicLoopVisible = "false";
       root.dataset.publicContentVisible = "false";
