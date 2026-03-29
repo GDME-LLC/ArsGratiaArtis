@@ -172,7 +172,7 @@ export function Hero({
               <>
                 <Link
                   href={`/film/${spotlightFilm.slug}`}
-                  className="mt-4 block overflow-hidden rounded-[24px] border border-white/12 bg-black/30 shadow-[0_18px_42px_rgba(0,0,0,0.32)] transition hover:-translate-y-0.5"
+                  className="mt-6 block overflow-hidden rounded-[24px] border border-white/12 bg-black/30 shadow-[0_18px_42px_rgba(0,0,0,0.32)] transition hover:-translate-y-0.5"
                 >
                   {spotlightArtworkUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
