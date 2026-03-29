@@ -265,8 +265,8 @@ export function HeroBackgroundVideo() {
   const opacityDurationClass = isDesktopPlatform ? "duration-[460ms]" : "duration-[720ms]";
   const videoScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.12] sm:scale-[1.1] lg:scale-[1.08]";
   const posterScaleClass = isDesktopPlatform ? "scale-[1.01]" : "scale-[1.12] sm:scale-[1.1] lg:scale-[1.08]";
-  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_34%]" : "object-[center_42%]";
-  const posterBackgroundPosition = isDesktopPlatform ? "center 34%" : "center 42%";
+  const videoObjectPositionClass = isDesktopPlatform ? "object-[center_28%]" : "object-[center_34%]";
+  const posterBackgroundPosition = isDesktopPlatform ? "center 28%" : "center 34%";
   const videoBaseClass = `absolute inset-0 h-full w-full ${videoScaleClass} ${videoObjectPositionClass} object-cover transition-opacity ${opacityDurationClass} ease-out will-change-[opacity]`;
   const inactiveLayerClass = `${videoBaseClass} hidden`;
   const videoAClass = activeLayer === 0
