@@ -97,6 +97,7 @@ const publicEntryBootstrap = `
       return;
     }
 
+    // On refresh or if intro already seen, match the successful client-side nav state
     root.dataset.publicEntry = "ready";
     root.dataset.publicLoopVisible = "true";
     root.dataset.publicContentVisible = "true";
