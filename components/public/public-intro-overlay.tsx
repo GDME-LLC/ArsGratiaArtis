@@ -39,7 +39,7 @@ export function PublicIntroOverlay({ phase }: PublicIntroOverlayProps) {
     video.pause();
   }, [phase]);
 
-  if (prefersReducedMotion) {
+  if (prefersReducedMotion || phase === "ready") {
     return null;
   }
 
