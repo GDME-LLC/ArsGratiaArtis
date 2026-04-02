@@ -106,13 +106,13 @@ export function Hero({
     : null;
 
   return (
-    <section className="container-shell pt-2 sm:pt-3 lg:pt-4">
+    <section className="w-full pt-2 sm:pt-3 lg:pt-4">
       <div className="relative min-h-[68vh] overflow-hidden py-6 sm:py-7 lg:py-8">
         <HeroBackgroundVideo />
 
         <div className="relative z-10 grid gap-8 lg:-translate-y-14 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
           <div className="max-w-3xl">
-            <div className="public-home-hero-copy rounded-[28px] border border-white/12 bg-black/38 p-5 backdrop-blur-[10px] drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-7">
+            <div className="public-home-hero-copy">
             {heroContent.motto.text.trim() ? (
               <p className={getAboveFoldLineClass("motto", heroContent.motto.color, heroContent.motto.size)}>{heroContent.motto.text}</p>
             ) : null}
