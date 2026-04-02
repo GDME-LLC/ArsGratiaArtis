@@ -1,6 +1,6 @@
 param(
   [string]$Source = "public/video/hero-source.mp4",
-  [string]$Output = "public/video/hero-loop.mp4",
+  [string]$Output = "public/video/hero-loop-chrome.mp4",
   [string]$Poster = "public/video/hero-loop-poster.jpg"
 )
 
@@ -23,7 +23,7 @@ $posterTime = [Math]::Max([Math]::Min($forwardDuration - 0.2, $duration - 0.05),
 $posterTimeString = $posterTime.ToString("0.###", [System.Globalization.CultureInfo]::InvariantCulture)
 
 # Exact command pattern used for ArsGratia's homepage hero:
-# ffmpeg -y -i public/video/hero-source.mp4 -filter_complex "[0:v]trim=0:7,setpts=PTS-STARTPTS[fwd];[0:v]trim=0:7,setpts=PTS-STARTPTS,reverse[rev];[fwd][rev]concat=n=2:v=1:a=0[v]" -map "[v]" -an -c:v libx264 -preset slow -crf 23 -pix_fmt yuv420p -movflags +faststart public/video/hero-loop.mp4
+# ffmpeg -y -i public/video/hero-source.mp4 -filter_complex "[0:v]trim=0:7,setpts=PTS-STARTPTS[fwd];[0:v]trim=0:7,setpts=PTS-STARTPTS,reverse[rev];[fwd][rev]concat=n=2:v=1:a=0[v]" -map "[v]" -an -c:v libx264 -preset slow -crf 23 -pix_fmt yuv420p -movflags +faststart public/video/hero-loop-chrome.mp4
 & $ffmpeg.Source -y -i $Source -filter_complex "[0:v]trim=0:$forwardDurationString,setpts=PTS-STARTPTS[fwd];[0:v]trim=0:$forwardDurationString,setpts=PTS-STARTPTS,reverse[rev];[fwd][rev]concat=n=2:v=1:a=0[v]" -map "[v]" -an -c:v libx264 -preset slow -crf 23 -pix_fmt yuv420p -movflags +faststart $Output
 
 # Matching poster frame near the end of the forward pass for reduced-motion users and initial paint stability:
