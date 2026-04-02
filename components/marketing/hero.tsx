@@ -142,9 +142,9 @@ export function Hero({
               <Button
                 asChild
                 size="xl"
-                className="w-full border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.3),rgba(255,255,255,0.12))] text-foreground shadow-[0_14px_34px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.64),inset_0_-1px_0_rgba(132,140,152,0.42)] backdrop-blur-[8px] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(255,255,255,0.16))] sm:w-auto"
+                className="w-full border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.3),rgba(255,255,255,0.12))] text-black shadow-[0_14px_34px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.64),inset_0_-1px_0_rgba(132,140,152,0.42)] backdrop-blur-[8px] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(255,255,255,0.16))] sm:w-auto"
               >
-                <Link href="/feed">Watch New Work</Link>
+                <Link href="/feed">FILMWORK</Link>
               </Button>
               <Button
                 asChild
