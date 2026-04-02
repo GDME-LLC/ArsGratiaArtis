@@ -1,4 +1,4 @@
-import { theatreStylePresets, type TheatreStylePresetDefinition } from "@/lib/constants/theatre-style-presets";
+// (Legacy theatre style presets import removed)
 import {
   CREATIVE_PROCESS_SUMMARY_LIMIT,
   normalizeToolSlugs,
@@ -40,7 +40,6 @@ export const theatreSectionDefinitions: Array<{
 ];
 
 export const defaultTheatreSettings: CreatorTheatreSettings = {
-  stylePreset: "obsidian",
   heroImageUrl: null,
   heroVideoUrl: null,
   openingStatement: null,
@@ -51,9 +50,7 @@ export const defaultTheatreSettings: CreatorTheatreSettings = {
   sectionOrder: theatreSectionDefinitions.map((section) => section.id),
 };
 
-export function isTheatreStylePresetId(value: unknown): value is TheatreStylePresetId {
-  return typeof value === "string" && value in theatreStylePresets;
-}
+// (Legacy isTheatreStylePresetId removed; presets are no longer supported)
 
 export function isTheatreSectionId(value: unknown): value is TheatreSectionId {
   return theatreSectionDefinitions.some((section) => section.id === value);
@@ -78,54 +75,48 @@ function normalizeSectionIds(value: unknown, fallback: TheatreSectionId[]) {
 }
 
 export function normalizeTheatreSettings(value: unknown): CreatorTheatreSettings {
-  const source = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
-  const stylePreset = isTheatreStylePresetId(source.stylePreset)
-    ? source.stylePreset
-    : defaultTheatreSettings.stylePreset;
-  const heroImageUrl = typeof source.heroImageUrl === "string" && source.heroImageUrl.trim()
-    ? source.heroImageUrl
-    : null;
-  const heroVideoUrl = typeof source.heroVideoUrl === "string" && source.heroVideoUrl.trim()
-    ? source.heroVideoUrl
-    : null;
-  const openingStatementRaw = typeof source.openingStatement === "string"
-    ? source.openingStatement.trim()
-    : "";
-  const openingStatement = openingStatementRaw
-    ? openingStatementRaw.slice(0, THEATRE_OPENING_STATEMENT_LIMIT)
-    : null;
-  const featuredFilmId = typeof source.featuredFilmId === "string" && source.featuredFilmId.trim()
-    ? source.featuredFilmId
-    : null;
-  const preferredToolSlugs = normalizeToolSlugs(source.preferredToolSlugs);
-  const creativeProcessSummaryRaw = typeof source.creativeProcessSummary === "string"
-    ? source.creativeProcessSummary.trim()
-    : "";
-  const creativeProcessSummary = creativeProcessSummaryRaw
-    ? creativeProcessSummaryRaw.slice(0, CREATIVE_PROCESS_SUMMARY_LIMIT)
-    : null;
-  const visibleSections = normalizeSectionIds(source.visibleSections, defaultTheatreSettings.visibleSections);
-  const orderedSections = normalizeSectionIds(source.sectionOrder, defaultTheatreSettings.sectionOrder);
-  const missingSections = theatreSectionDefinitions.map((section) => section.id).filter((sectionId) => !orderedSections.includes(sectionId));
+    const source = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+    // stylePreset normalization removed; presets are no longer supported
+    const heroImageUrl = typeof source.heroImageUrl === "string" && source.heroImageUrl.trim()
+      ? source.heroImageUrl
+      : null;
+    const heroVideoUrl = typeof source.heroVideoUrl === "string" && source.heroVideoUrl.trim()
+      ? source.heroVideoUrl
+      : null;
+    const openingStatementRaw = typeof source.openingStatement === "string"
+      ? source.openingStatement.trim()
+      : "";
+    const openingStatement = openingStatementRaw
+      ? openingStatementRaw.slice(0, THEATRE_OPENING_STATEMENT_LIMIT)
+      : null;
+    const featuredFilmId = typeof source.featuredFilmId === "string" && source.featuredFilmId.trim()
+      ? source.featuredFilmId
+      : null;
+    const preferredToolSlugs = normalizeToolSlugs(source.preferredToolSlugs);
+    const creativeProcessSummaryRaw = typeof source.creativeProcessSummary === "string"
+      ? source.creativeProcessSummary.trim()
+      : "";
+    const creativeProcessSummary = creativeProcessSummaryRaw
+      ? creativeProcessSummaryRaw.slice(0, CREATIVE_PROCESS_SUMMARY_LIMIT)
+      : null;
+    const visibleSections = normalizeSectionIds(source.visibleSections, defaultTheatreSettings.visibleSections);
+    const orderedSections = normalizeSectionIds(source.sectionOrder, defaultTheatreSettings.sectionOrder);
+    const missingSections = theatreSectionDefinitions.map((section) => section.id).filter((sectionId) => !orderedSections.includes(sectionId));
 
-  return {
-    stylePreset,
-    heroImageUrl,
-    heroVideoUrl,
-    openingStatement,
-    featuredFilmId,
-    preferredToolSlugs,
-    creativeProcessSummary,
-    visibleSections,
-    sectionOrder: [...orderedSections, ...missingSections],
-  };
-}
+    return {
+      heroImageUrl,
+      heroVideoUrl,
+      openingStatement,
+      featuredFilmId,
+      preferredToolSlugs,
+      creativeProcessSummary,
+      visibleSections,
+      sectionOrder: [...orderedSections, ...missingSections],
+    };
+  }
 
 export function getOrderedVisibleTheatreSections(settings: CreatorTheatreSettings) {
   const visibility = new Set(settings.visibleSections);
   return settings.sectionOrder.filter((sectionId) => visibility.has(sectionId));
 }
 
-export function getTheatreStylePreset(stylePreset: TheatreStylePresetId): TheatreStylePresetDefinition {
-  return theatreStylePresets[stylePreset] ?? theatreStylePresets[defaultTheatreSettings.stylePreset];
-}

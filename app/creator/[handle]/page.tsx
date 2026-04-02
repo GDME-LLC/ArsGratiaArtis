@@ -13,7 +13,7 @@ import { findResourceEntryByToolSlug } from "@/lib/resources/tool-links";
 import { getPublicProfileByHandle } from "@/lib/profiles";
 import { listToolsBySlugs } from "@/lib/services/tools";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
-import { getOrderedVisibleTheatreSections, getTheatreStylePreset } from "@/lib/theatre";
+import { getOrderedVisibleTheatreSections } from "@/lib/theatre";
 import { cn, formatCountLabel, formatFollowerCount, formatMonthYear } from "@/lib/utils";
 
 type CreatorPageProps = {
@@ -109,7 +109,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
   const studioUrl = `${siteUrl}/creator/${profile.handle}`;
   const studioSettings = profile.theatreSettings;
-  const preset = getTheatreStylePreset(studioSettings.stylePreset);
+  // Theatre style presets are deprecated; use a default background class
   const heroImageUrl = studioSettings.heroImageUrl || profile.bannerUrl;
   const featuredFilm = studioSettings.featuredFilmId
     ? films.find((film) => film.id === studioSettings.featuredFilmId) ?? null
@@ -133,7 +133,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   });
 
   return (
-    <section className={cn("relative overflow-hidden py-8 sm:py-12 sm:pb-14", preset.pageBackgroundClass)} data-reveal="page">
+    <section className={cn("relative overflow-hidden py-8 sm:py-12 sm:pb-14 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_32%)]") } data-reveal="page">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_32%)] opacity-70" />
       <div className="container-shell relative z-10">
         {profile.isCurrentUser ? (
@@ -147,20 +147,19 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
           </div>
         ) : null}
 
-        <div className={cn("cinema-frame overflow-hidden border", preset.panelClass, preset.borderClass)} data-reveal="hero-card">
+        <div className={cn("cinema-frame overflow-hidden border border-white/10 bg-black/20")} data-reveal="hero-card">
           <div className="relative overflow-hidden">
             <div
               className={cn(
-                "min-h-[260px] w-full bg-cover bg-center sm:min-h-[360px] lg:min-h-[420px]",
-                heroImageUrl ? undefined : preset.surfaceClass,
+                "min-h-[260px] w-full bg-cover bg-center sm:min-h-[360px] lg:min-h-[420px] bg-black/30"
               )}
               style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
             />
-            <div className={cn("absolute inset-0", preset.heroOverlayClass)} />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/70" />
             <div className="absolute inset-x-0 bottom-0 p-4 sm:p-8 lg:p-10">
               <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)] lg:items-end lg:gap-8">
                 <div className="min-w-0">
-                  <p className={cn("display-kicker", preset.eyebrowClass)}>Studio (public page)</p>
+                  <p className="display-kicker text-white/80">Studio (public page)</p>
                   <div className="mt-3 flex min-w-0 items-start gap-3 sm:mt-4 sm:items-center sm:gap-4">
                     <div
                       className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl font-semibold text-foreground sm:h-20 sm:w-20 sm:text-2xl"
@@ -181,7 +180,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     </div>
                   </div>
                   {studioSettings.openingStatement ? (
-                    <p className={cn("mt-4 max-w-3xl text-[15px] leading-7 sm:mt-6 sm:text-xl sm:leading-8", preset.statementClass)}>
+                    <p className="mt-4 max-w-3xl text-[15px] leading-7 text-white sm:mt-6 sm:text-xl sm:leading-8">
                       {studioSettings.openingStatement}
                     </p>
                   ) : null}
@@ -192,7 +191,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                   ) : null}
                 </div>
 
-                <div className={cn("rounded-[24px] border p-4 sm:p-5 backdrop-blur-sm", preset.panelClass, preset.borderClass)}>
+                <div className="rounded-[24px] border border-white/10 bg-black/30 p-4 sm:p-5 backdrop-blur-sm">
                   <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-2">
                     {profile.viewerCanFollow ? (
                       <FollowButton
@@ -203,17 +202,17 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                       />
                     ) : null}
                     {showCreatorFollowPrompt ? (
-                      <Button asChild variant="ghost" className={cn("w-full sm:w-auto", preset.buttonVariantClass)}>
+                      <Button asChild variant="ghost" className="w-full sm:w-auto">
                         <Link href={creatorFollowCtaHref}>Become a creator to follow this filmmaker</Link>
                       </Button>
                     ) : null}
                     {profile.websiteUrl ? (
-                      <Button asChild variant="ghost" className={cn("w-full sm:w-auto", preset.buttonVariantClass)}>
+                      <Button asChild variant="ghost" className="w-full sm:w-auto">
                         <a href={profile.websiteUrl} target="_blank" rel="noreferrer">Visit website</a>
                       </Button>
                     ) : null}
                     {profile.isCurrentUser ? (
-                      <Button asChild variant="ghost" className={cn("w-full sm:w-auto", preset.buttonVariantClass)}>
+                      <Button asChild variant="ghost" className="w-full sm:w-auto">
                         <Link href="/settings">Edit Studio</Link>
                       </Button>
                     ) : null}
@@ -238,8 +237,8 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               {visibleSections.map((sectionId) => {
                 if (sectionId === "about") {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
-                      <p className={cn("display-kicker", preset.eyebrowClass)}>About</p>
+                    <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
+                      <p className="display-kicker text-white/80">About</p>
                       <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">
                         {profile.bio || "This Studio is open. A fuller note will appear here as releases and context accumulate around the work."}
                       </p>
@@ -249,8 +248,8 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "creative_stack") {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
-                      <p className={cn("display-kicker", preset.eyebrowClass)}>Creative Stack</p>
+                    <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
+                      <p className="display-kicker text-white/80">Creative Stack</p>
                       {studioSettings.creativeProcessSummary ? (
                         <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">{studioSettings.creativeProcessSummary}</p>
                       ) : null}
@@ -281,13 +280,13 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "featured_work" && featuredFilm) {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
+                    <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
                       <div className="flex flex-col gap-5 sm:gap-6 lg:flex-row lg:items-center">
                         <div className="w-full max-w-[200px] shrink-0 sm:max-w-[220px]">
                           <FilmArtwork artworkUrl={featuredFilm.posterUrl} title={featuredFilm.title} className="rounded-[24px]" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className={cn("display-kicker", preset.eyebrowClass)}>Featured Work</p>
+                          <p className="display-kicker text-white/80">Featured Work</p>
                           <h2 className="headline-lg mt-3 break-words text-foreground">{featuredFilm.title}</h2>
                           <p className="body-sm mt-3 max-w-3xl sm:mt-4">{featuredFilm.synopsis || "A spotlighted release from this Studio."}</p>
                           <div className="mt-4 flex flex-wrap gap-3 sm:mt-5">
@@ -303,14 +302,14 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "releases") {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
+                    <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
                       <div className="flex flex-col gap-3.5 sm:gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                          <p className={cn("display-kicker", preset.eyebrowClass)}>Studio Presentation</p>
+                          <p className="display-kicker text-white/80">Studio Presentation</p>
                           <h2 className="headline-lg mt-3 text-foreground">{formatCountLabel(films.length, "public release")}</h2>
                         </div>
                         {profile.isCurrentUser ? (
-                          <Button asChild variant="ghost" size="lg" className={preset.buttonVariantClass}>
+                          <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
                             <Link href="/upload">Start Release</Link>
                           </Button>
                         ) : null}
@@ -324,8 +323,8 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
                 if (sectionId === "links" && profile.websiteUrl) {
                   return (
-                    <article key={sectionId} className={cn("rounded-[28px] border p-4 sm:p-7", preset.panelClass, preset.borderClass)} data-reveal="panel">
-                      <p className={cn("display-kicker", preset.eyebrowClass)}>Links</p>
+                    <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
+                      <p className="display-kicker text-white/80">Links</p>
                       <div className="mt-4 flex flex-col gap-3 text-sm text-foreground">
                         <a href={profile.websiteUrl} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 break-all underline decoration-white/20 underline-offset-4">
                           Visit website
@@ -342,7 +341,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               })}
 
               {visibleSections.includes("releases") && films.length === 0 ? (
-                <div className={cn("rounded-[28px] border px-4 py-5 text-sm leading-6 text-muted-foreground sm:px-6 sm:py-8", preset.panelClass, preset.borderClass)}>
+                <div className="rounded-[28px] border border-white/10 bg-black/20 px-4 py-5 text-sm leading-6 text-muted-foreground sm:px-6 sm:py-8">
                   This Studio is live, but no public releases have premiered here yet. Return later to see what enters the programme.
                 </div>
               ) : null}

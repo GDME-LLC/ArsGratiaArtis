@@ -20,7 +20,6 @@ export type TheatreStylePresetId =
 export type TheatreSectionId = "about" | "creative_stack" | "featured_work" | "releases" | "links";
 
 export type CreatorTheatreSettings = {
-  stylePreset: TheatreStylePresetId;
   heroImageUrl: string | null;
   heroVideoUrl: string | null;
   openingStatement: string | null;
