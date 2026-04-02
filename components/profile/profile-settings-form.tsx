@@ -55,7 +55,7 @@ function formatFilmOptionLabel(film: CreatorFilmListItem) {
 const studioSections = [
   { id: "profile", label: "Profile" },
   { id: "following", label: "Following" },
-  { id: "theatre-settings", label: "Theatre Settings" },
+  { id: "studio-settings", label: "Studio Settings" },
 ] as const;
 
 export function ProfileSettingsForm({ profile, availableFilms, availableTools }: ProfileSettingsFormProps) {
@@ -222,14 +222,14 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
       <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2 sm:space-y-1">
           <p className="display-kicker">Creator Studio</p>
-          <h1 className="headline-lg text-balance">Private workspace for your profile and Theatre settings</h1>
+          <h1 className="headline-lg text-balance">Private workspace for your Studio</h1>
           <p className="body-sm max-w-3xl">
-            Manage your creator identity behind the scenes and shape what appears publicly on your Theatre, including your creative stack and process framing, without turning ArsGratia into a creation suite.
+            Manage your creator identity, featured work, links, and creative stack in one place. Your Studio is your public hub on ArsGratia.
           </p>
         </div>
         <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-start sm:gap-3">
           <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
-            <Link href={`/creator/${form.handle || profile.handle}`}>Open My Theatre</Link>
+            <Link href={`/creator/${form.handle || profile.handle}`}>Open My Studio</Link>
           </Button>
           <Button type="submit" size="xl" className="w-full sm:w-auto" disabled={isSaving || uploadInFlight}>
             {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save Studio Changes"}
@@ -250,7 +250,7 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
           <div className="space-y-2 sm:space-y-1">
             <p className="display-kicker text-foreground/80">Profile</p>
             <h2 className="headline-sm text-foreground">Creator identity and public essentials</h2>
-            <p className="body-sm">These are the core details that can appear across your Theatre, releases, and creator references.</p>
+            <p className="body-sm">These are the core details that can appear across your Studio, releases, and creator references.</p>
           </div>
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
@@ -290,27 +290,27 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
             <p className="display-kicker text-foreground/80">Following</p>
             <h2 className="headline-sm text-foreground">Followed creators will live here</h2>
             <p className="body-sm max-w-3xl">
-              This part of Creator Studio is reserved for the creators you follow and, later, for deciding whether any of that signal should appear publicly on your Theatre.
+              This part of Creator Studio is reserved for the creators you follow and, later, for deciding whether any of that signal should appear publicly on your Studio.
             </p>
           </div>
           <div className="rounded-[24px] border border-dashed border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-muted-foreground sm:p-5">
-            Following management is scaffolded here for the next pass. Public following will stay opt-in and Theatre-controlled when it arrives.
+            Following management is scaffolded here for the next pass. Public following will stay opt-in and Studio-controlled when it arrives.
           </div>
         </section>
 
-        <section id="theatre-settings" className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-8">
+        <section id="studio-settings" className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-8">
           <div className="space-y-2">
-            <p className="display-kicker text-foreground/80">Theatre Settings</p>
-            <h2 className="headline-sm text-foreground">Configure what the public Theatre shows and how it feels</h2>
+            <p className="display-kicker text-foreground/80">Studio Settings</p>
+            <h2 className="headline-sm text-foreground">Configure what your public Studio shows and how it feels</h2>
             <p className="body-sm max-w-3xl">
-              The Theatre is your public-facing stage. These controls affect presentation, section visibility, and the mood of the shareable page, including whether you credit a creative stack and describe your practice.
+              Your Studio is your public-facing hub. These controls affect presentation, section visibility, and the mood of your page, including whether you credit a creative stack and describe your practice.
             </p>
           </div>
 
           <div className="mt-5 grid gap-5 sm:mt-8 sm:gap-8">
             <div className="grid gap-4">
               <div className="space-y-1">
-                <p className="display-kicker text-foreground/80">Theatre Style</p>
+                <p className="display-kicker text-foreground/80">Studio Style</p>
                 <p className="body-sm">Choose a presentation mood that still feels unmistakably ArsGratia.</p>
               </div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -335,13 +335,13 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
 
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
               <div className="grid gap-5">
-                <Field label="Hero Visual" helperText="Set a screening-banner image at the top of your Theatre.">
-                  <ImageUploadField entityType="profile" field="hero" value={form.theatre_settings.heroImageUrl ?? ""} onChange={(nextValue) => updateTheatreSettings((current) => ({ ...current, heroImageUrl: nextValue || null }))} onUploadingChange={setIsHeroUploading} label="Theatre hero visual" aspectRatio="banner" helperText="A wide hero image that sits above the Theatre title block." />
+                <Field label="Hero Visual" helperText="Set a banner image at the top of your Studio.">
+                  <ImageUploadField entityType="profile" field="hero" value={form.theatre_settings.heroImageUrl ?? ""} onChange={(nextValue) => updateTheatreSettings((current) => ({ ...current, heroImageUrl: nextValue || null }))} onUploadingChange={setIsHeroUploading} label="Studio hero visual" aspectRatio="banner" helperText="A wide hero image that sits above the Studio title block." />
                 </Field>
 
-                <Field label="Opening Statement" helperText="A short line to set the tone of your Theatre.">
+                <Field label="Studio Intro" helperText="A short line to set the tone of your Studio.">
                   <div className="grid gap-2">
-                    <textarea value={form.theatre_settings.openingStatement ?? ""} onChange={(event) => updateTheatreSettings((current) => ({ ...current, openingStatement: event.target.value.slice(0, THEATRE_OPENING_STATEMENT_LIMIT) }))} className={cn(inputClassName, "min-h-24 py-3")} placeholder="A precise line that introduces the space." />
+                    <textarea value={form.theatre_settings.openingStatement ?? ""} onChange={(event) => updateTheatreSettings((current) => ({ ...current, openingStatement: event.target.value.slice(0, THEATRE_OPENING_STATEMENT_LIMIT) }))} className={cn(inputClassName, "min-h-24 py-3")} placeholder="A precise line that introduces your Studio." />
                     <p className="text-xs text-muted-foreground">{openingStatementLength}/{THEATRE_OPENING_STATEMENT_LIMIT}</p>
                   </div>
                 </Field>
@@ -355,7 +355,7 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
               </div>
 
               <div className="grid gap-5">
-                <Field label="Featured Work" helperText="Choose a release to spotlight near the opening of your Theatre.">
+                <Field label="Featured Work" helperText="Choose a release to spotlight near the opening of your Studio.">
                   <select value={form.theatre_settings.featuredFilmId ?? ""} onChange={(event) => updateTheatreSettings((current) => ({ ...current, featuredFilmId: event.target.value || null }))} className={cn(inputClassName, selectClassName)}>
                     <option value="">No featured work selected</option>
                     {availableFilms.map((film) => (
@@ -366,7 +366,7 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
 
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 sm:p-5">
                   <p className="display-kicker text-foreground/80">Creative Stack</p>
-                  <p className="body-sm mt-2">Choose up to {MAX_TOOL_SELECTIONS} preferred tools to display publicly on your Theatre.</p>
+                  <p className="body-sm mt-2">Choose up to {MAX_TOOL_SELECTIONS} preferred tools to display publicly on your Studio.</p>
                   <div className="mt-4 flex flex-wrap gap-2.5">
                     {availableTools.map((tool) => {
                       const selected = form.theatre_settings.preferredToolSlugs.includes(tool.slug);

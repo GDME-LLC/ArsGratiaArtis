@@ -62,7 +62,7 @@ export default async function DashboardPage() {
                 <CreatorBadgeList badges={profile.badges} />
               </div>
               <p className="body-lg mt-4">
-                Prepare releases, direct your Theatre, and keep the next film moving without losing the thread.
+                Prepare releases, shape your Studio, and keep the next film moving without losing the thread.
               </p>
               {profile.foundingCreator.isFoundingCreator ? (
                 <p className="mt-3 text-sm text-[#e7d1a0]">
@@ -79,7 +79,7 @@ export default async function DashboardPage() {
                 <Link href="/settings">Creator Studio</Link>
               </Button>
               <Button asChild variant="ghost" size="lg">
-                <Link href={`/creator/${profile.handle}`}>My Theatre</Link>
+                <Link href={`/creator/${profile.handle}`}>My Studio</Link>
               </Button>
               {isAdmin ? (
                 <Button asChild variant="ghost" size="lg">
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
               <p className="display-kicker">Creator Studio</p>
               <p className="title-md mt-3 text-foreground">@{profile.handle}</p>
               <p className="body-sm mt-3">
-                Edit your public identity, fine-tune your Theatre presentation, and manage publishing access in Creator Studio.
+                Edit your public identity, fine-tune your Studio presentation, and manage publishing access in Creator Studio. Your Studio is your public hub for your work, links, and creative identity.
               </p>
             </article>
 

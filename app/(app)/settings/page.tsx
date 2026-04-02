@@ -54,7 +54,7 @@ export default async function SettingsPage() {
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
           <Button asChild variant="ghost" size="lg">
-            <Link href={`/creator/${profile.handle}`}>My Theatre</Link>
+            <Link href={`/creator/${profile.handle}`}>My Studio</Link>
           </Button>
         </div>
         <ProfileSettingsForm profile={profile} availableFilms={availableFilms} availableTools={availableTools} />
