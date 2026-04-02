@@ -82,7 +82,7 @@
   }
 
   .display-kicker {
-    @apply font-sans text-[0.68rem] font-medium uppercase tracking-[0.3em] text-foreground/74 sm:text-[0.7rem] sm:tracking-[0.38em];
+    @apply font-sans text-[0.68rem] font-medium uppercase tracking-[0.3em] text-foreground/75 sm:text-[0.7rem] sm:tracking-[0.38em];
   }
 
   .hero-title {
@@ -90,7 +90,7 @@
   }
 
   .eyebrow {
-    @apply text-[0.72rem] font-medium uppercase tracking-[0.26em] text-foreground/72 sm:text-xs sm:tracking-[0.32em];
+    @apply text-[0.72rem] font-medium uppercase tracking-[0.26em] text-foreground/70 sm:text-xs sm:tracking-[0.32em];
   }
 
   .headline-xl {
