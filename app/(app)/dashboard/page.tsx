@@ -78,9 +78,7 @@ export default async function DashboardPage() {
               <Button asChild variant="ghost" size="lg">
                 <Link href="/settings">Creator Studio</Link>
               </Button>
-              <Button asChild variant="ghost" size="lg">
-                <Link href={`/creator/${profile.handle}`}>My Studio</Link>
-              </Button>
+              {/* No separate 'My Studio' button; all navigation is via Creator Studio */}
               {isAdmin ? (
                 <Button asChild variant="ghost" size="lg">
                   <Link href="/admin">Admin Tools</Link>

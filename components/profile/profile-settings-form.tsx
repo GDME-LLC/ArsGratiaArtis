@@ -53,9 +53,12 @@ function formatFilmOptionLabel(film: CreatorFilmListItem) {
 }
 
 const studioSections = [
-  { id: "profile", label: "Profile" },
-  { id: "following", label: "Following" },
-  { id: "studio-settings", label: "Studio Settings" },
+  { id: "identity", label: "Identity" },
+  { id: "featured", label: "Featured Work" },
+  { id: "releases", label: "Releases" },
+  { id: "links", label: "Links" },
+  { id: "stack", label: "Creative Stack" },
+  { id: "settings", label: "Creator Studio Settings" },
 ] as const;
 
 export function ProfileSettingsForm({ profile, availableFilms, availableTools }: ProfileSettingsFormProps) {
@@ -222,14 +225,14 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
       <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2 sm:space-y-1">
           <p className="display-kicker">Creator Studio</p>
-          <h1 className="headline-lg text-balance">Private workspace for your Studio</h1>
+          <h1 className="headline-lg text-balance">Your Creator Studio</h1>
           <p className="body-sm max-w-3xl">
-            Manage your creator identity, featured work, links, and creative stack in one place. Your Studio is your public hub on ArsGratia.
+            Manage your identity, featured work, releases, links, and creative stack. Your public Studio page is part of your Creator Studio.
           </p>
         </div>
         <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-start sm:gap-3">
           <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
-            <Link href={`/creator/${form.handle || profile.handle}`}>Open My Studio</Link>
+            <Link href={`/creator/${form.handle || profile.handle}`}>Open Studio Page</Link>
           </Button>
           <Button type="submit" size="xl" className="w-full sm:w-auto" disabled={isSaving || uploadInFlight}>
             {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save Studio Changes"}
@@ -250,7 +253,7 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
           <div className="space-y-2 sm:space-y-1">
             <p className="display-kicker text-foreground/80">Profile</p>
             <h2 className="headline-sm text-foreground">Creator identity and public essentials</h2>
-            <p className="body-sm">These are the core details that can appear across your Studio, releases, and creator references.</p>
+            <p className="body-sm">These are the core details that appear on your public Studio page and across your releases and references.</p>
           </div>
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
@@ -290,20 +293,20 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
             <p className="display-kicker text-foreground/80">Following</p>
             <h2 className="headline-sm text-foreground">Followed creators will live here</h2>
             <p className="body-sm max-w-3xl">
-              This part of Creator Studio is reserved for the creators you follow and, later, for deciding whether any of that signal should appear publicly on your Studio.
+              This section is reserved for following creators and, in the future, deciding what appears on your public Studio page.
             </p>
           </div>
           <div className="rounded-[24px] border border-dashed border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-muted-foreground sm:p-5">
-            Following management is scaffolded here for the next pass. Public following will stay opt-in and Studio-controlled when it arrives.
+            Following management is coming soon. Public following will be opt-in and part of your Creator Studio.
           </div>
         </section>
 
-        <section id="studio-settings" className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-8">
+        <section id="settings" className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-8">
           <div className="space-y-2">
-            <p className="display-kicker text-foreground/80">Studio Settings</p>
-            <h2 className="headline-sm text-foreground">Configure what your public Studio shows and how it feels</h2>
+            <p className="display-kicker text-foreground/80">Creator Studio Settings</p>
+            <h2 className="headline-sm text-foreground">Configure your Creator Studio and public Studio page</h2>
             <p className="body-sm max-w-3xl">
-              Your Studio is your public-facing hub. These controls affect presentation, section visibility, and the mood of your page, including whether you credit a creative stack and describe your practice.
+              These controls affect your public Studio page, its presentation, section visibility, and creative stack.
             </p>
           </div>
 

@@ -53,9 +53,7 @@ export default async function SettingsPage() {
           <Button asChild variant="ghost" size="lg">
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
-          <Button asChild variant="ghost" size="lg">
-            <Link href={`/creator/${profile.handle}`}>My Studio</Link>
-          </Button>
+          {/* No separate 'My Studio' button; all navigation is via Creator Studio */}
         </div>
         <ProfileSettingsForm profile={profile} availableFilms={availableFilms} availableTools={availableTools} />
       </section>

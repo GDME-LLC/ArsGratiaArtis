@@ -142,10 +142,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               <Link href="/dashboard">Back to Dashboard</Link>
             </Button>
             <Button asChild variant="ghost" size="lg">
-              <Link href="/settings">Creator Studio</Link>
-            </Button>
-            <Button asChild variant="ghost" size="lg">
-              <Link href="/settings#studio-settings">Studio Settings</Link>
+              <Link href="/settings">Creator Studio (manage)</Link>
             </Button>
           </div>
         ) : null}
@@ -163,7 +160,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
             <div className="absolute inset-x-0 bottom-0 p-4 sm:p-8 lg:p-10">
               <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)] lg:items-end lg:gap-8">
                 <div className="min-w-0">
-                  <p className={cn("display-kicker", preset.eyebrowClass)}>Studio</p>
+                  <p className={cn("display-kicker", preset.eyebrowClass)}>Studio (public page)</p>
                   <div className="mt-3 flex min-w-0 items-start gap-3 sm:mt-4 sm:items-center sm:gap-4">
                     <div
                       className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl font-semibold text-foreground sm:h-20 sm:w-20 sm:text-2xl"
