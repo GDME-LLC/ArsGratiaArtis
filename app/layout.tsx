@@ -19,7 +19,7 @@ const bodyFont = Inter({
   variable: "--font-body",
 });
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://www.ars-gratia.com").replace(/\/$/, "");
 const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen-v4";
 const PUBLIC_INTRO_SKIP_ONCE_KEY = "arsgratia-public-intro-skip-once-v1";
 
