@@ -37,13 +37,16 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
       : "Independent Filmmaker");
 
   return (
-    <article className="surface-panel cinema-frame flex h-full min-w-0 flex-col overflow-hidden">
-      <Link href={`/film/${film.slug}`} className="block">
-        <div className="p-4 pb-0 sm:p-5 sm:pb-0">
-          <FilmArtwork artworkUrl={artworkUrl} previewUrl={previewUrl} title={film.title} />
-        </div>
+    <article className="surface-panel cinema-frame flex h-full min-w-0 flex-col overflow-hidden rounded-[24px]">
+      <Link href={`/film/${film.slug}`} className="block overflow-hidden rounded-t-[24px]">
+        <FilmArtwork
+          artworkUrl={artworkUrl}
+          previewUrl={previewUrl}
+          title={film.title}
+          className="rounded-none border-0 bg-transparent shadow-none hover:translate-y-0 hover:shadow-none"
+        />
       </Link>
-      <div className="flex min-w-0 flex-1 flex-col px-4 py-4 sm:px-5">
+      <div className="flex min-w-0 flex-1 flex-col border-t border-white/10 bg-[linear-gradient(180deg,rgba(9,10,16,0.92),rgba(8,9,14,0.78))] px-4 py-4 sm:px-5">
         <Link href={`/film/${film.slug}`} className="block">
           <div className="flex min-w-0 flex-wrap gap-2">
             {film.staffPick ? (
