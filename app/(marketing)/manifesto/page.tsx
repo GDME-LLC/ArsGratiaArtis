@@ -1,5 +1,7 @@
 import { SectionShell } from "@/components/marketing/section-shell";
-import { PageIntro } from "@/components/shared/page-intro";
+import { HeroProductPanels } from "@/components/marketing/hero";
+import { getDefaultPlatformSettings, getPlatformSettings } from "@/lib/platform-settings";
+import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 const sections = [
   {
@@ -34,14 +36,15 @@ const sections = [
   },
 ] as const;
 
-export default function ManifestoPage() {
+export default async function ManifestoPage() {
+  const canLoad = hasSupabaseServerEnv();
+  const platformSettings = canLoad ? await getPlatformSettings() : getDefaultPlatformSettings();
+
   return (
     <SectionShell className="py-14 sm:py-16">
-      <PageIntro
-        eyebrow="Manifesto"
-        title="Cinema belongs to the singular, but a platform can still make room for it."
-        description="ArsNeos is built to present films with seriousness, welcome new creators with real ambition, and keep authorship, ownership, and experimentation at the center of the experience."
-      />
+      <p className="eyebrow">Manifesto</p>
+
+      <HeroProductPanels heroContent={platformSettings.heroContent} className="mt-5" />
 
       <div className="mt-8 max-w-3xl rounded-[24px] border border-white/10 bg-white/5 p-6 sm:p-7">
         <p className="display-kicker">Short Form</p>

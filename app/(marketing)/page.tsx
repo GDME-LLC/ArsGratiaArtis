@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { FoundingCreatorBenefits } from "@/components/founding/founding-creator-benefits";
-import { Hero, HeroProductPanels } from "@/components/marketing/hero";
+import { Hero } from "@/components/marketing/hero";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { Button } from "@/components/ui/button";
@@ -143,10 +143,6 @@ export default async function HomePage() {
         ctaLabel={mobileLeadVariant === "new-releases" ? "See the full feed" : "Browse all releases"}
         className="mt-6 sm:hidden"
       />
-
-      <SectionShell className="mt-6 sm:hidden">
-        <HeroProductPanels heroContent={platformSettings.heroContent} />
-      </SectionShell>
 
       {foundingCreators.length > 0 ? (
         <SectionShell className="mt-6 sm:mt-7">

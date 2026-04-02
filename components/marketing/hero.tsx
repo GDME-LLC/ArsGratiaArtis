@@ -22,6 +22,7 @@ type HeroProps = {
 type HeroProductPanelsProps = {
   heroContent: HeroContentSettings;
   className?: string;
+  softBackdrop?: boolean;
 };
 
 const toneClassMap: Record<HeroCopyColor, string> = {
@@ -150,7 +151,7 @@ export function Hero({
             </div>
             </div>
 
-            <HeroProductPanels heroContent={heroContent} className="mt-14 hidden sm:block sm:mt-16" />
+            <HeroProductPanels heroContent={heroContent} softBackdrop className="mt-14 hidden sm:block sm:mt-16" />
             <div aria-hidden="true" className="mt-14 h-[10.5rem] sm:hidden" />
           </div>
 
@@ -201,18 +202,27 @@ export function Hero({
   );
 }
 
-export function HeroProductPanels({ heroContent, className }: HeroProductPanelsProps) {
+export function HeroProductPanels({ heroContent, className, softBackdrop = false }: HeroProductPanelsProps) {
   return (
     <div
       className={cn(
-        "public-home-hero-panels relative rounded-[26px] border border-white/14 bg-black/46 p-5 backdrop-blur-[14px] shadow-[0_16px_40px_rgba(0,0,0,0.46)] sm:p-6 lg:p-7",
+        softBackdrop
+          ? "public-home-hero-panels relative p-5 sm:p-6 lg:p-7"
+          : "public-home-hero-panels relative rounded-[26px] border border-white/14 bg-black/46 p-5 backdrop-blur-[14px] shadow-[0_16px_40px_rgba(0,0,0,0.46)] sm:p-6 lg:p-7",
         className,
       )}
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_52%),linear-gradient(180deg,rgba(14,16,24,0.3),rgba(6,7,12,0.56))]"
-      />
+      {softBackdrop ? (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-[-0.75rem] inset-y-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.12),transparent_54%),linear-gradient(180deg,rgba(10,12,18,0.28),rgba(7,8,13,0.52))] blur-2xl"
+        />
+      ) : (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_52%),linear-gradient(180deg,rgba(14,16,24,0.3),rgba(6,7,12,0.56))]"
+        />
+      )}
       <div className="relative grid gap-5 sm:grid-cols-3 sm:gap-6">
         {HERO_PANEL_ORDER.map((panelKey) => {
           const panel = heroContent.panels[panelKey];
