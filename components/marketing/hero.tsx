@@ -111,7 +111,8 @@ export function Hero({
         <HeroBackgroundVideo />
 
         <div className="relative z-10 grid gap-8 lg:-translate-y-14 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
-          <div className="public-home-hero-copy max-w-3xl rounded-[28px] border border-white/12 bg-black/38 p-5 backdrop-blur-[10px] drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-7">
+          <div className="max-w-3xl">
+            <div className="public-home-hero-copy rounded-[28px] border border-white/12 bg-black/38 p-5 backdrop-blur-[10px] drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-7">
             {heroContent.motto.text.trim() ? (
               <p className={getAboveFoldLineClass("motto", heroContent.motto.color, heroContent.motto.size)}>{heroContent.motto.text}</p>
             ) : null}
@@ -131,7 +132,7 @@ export function Hero({
               </p>
             ) : null}
 
-            <div className="public-home-hero-actions mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="public-home-hero-actions mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-5 sm:gap-y-3">
               <Button asChild size="xl" className="w-full sm:w-auto">
                 <Link href="/feed">Watch New Work</Link>
               </Button>
@@ -143,7 +144,14 @@ export function Hero({
               </Button>
             </div>
 
-            <div className="public-home-hero-panels mt-8 grid gap-5 sm:grid-cols-3 sm:gap-6">
+            </div>
+
+            <div className="public-home-hero-panels relative mt-14 rounded-[26px] border border-white/14 bg-black/46 p-5 backdrop-blur-[14px] shadow-[0_16px_40px_rgba(0,0,0,0.46)] sm:mt-16 sm:p-6 lg:p-7">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_52%),linear-gradient(180deg,rgba(14,16,24,0.3),rgba(6,7,12,0.56))]"
+              />
+              <div className="relative grid gap-5 sm:grid-cols-3 sm:gap-6">
               {HERO_PANEL_ORDER.map((panelKey) => {
                 const panel = heroContent.panels[panelKey];
 
