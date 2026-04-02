@@ -62,20 +62,7 @@ export const theatreStylePresets: Record<TheatreStylePresetId, TheatreStylePrese
   },
   monolith: {
     label: "Monolith",
-    description: "Architectural charcoal and severe, monumental contrast.",
-    pageBackgroundClass: "bg-[linear-gradient(180deg,#060606_0%,#111214_52%,#050506_100%)]",
-    surfaceClass: "bg-[#0a0b0d]",
-    panelClass: "border-white/10 bg-[#111214] shadow-[0_22px_70px_rgba(0,0,0,0.52)] rounded-[20px]",
-    borderClass: "border-white/10",
-    accentClass: "text-white",
-    heroOverlayClass: "bg-[linear-gradient(180deg,rgba(5,5,6,0.08),rgba(5,5,6,0.82))]",
-    buttonVariantClass: "border-white/14 bg-white/[0.04] hover:bg-white/[0.09]",
-    eyebrowClass: "text-white/64",
-    statementClass: "text-white/92",
-    fontMode: "modern",
-  },
-  cathedral: {
-    label: "Cathedral",
+  // (Legacy theatre style presets removed; file retained for future cleanup if needed)
     description: "A quiet sanctuary of shadow, glow, and elevated stillness.",
     pageBackgroundClass: "bg-[radial-gradient(circle_at_top,rgba(240,232,214,0.12),transparent_28%),linear-gradient(180deg,#07080b_0%,#0e1117_48%,#060709_100%)]",
     surfaceClass: "bg-[rgba(10,12,16,0.52)]",

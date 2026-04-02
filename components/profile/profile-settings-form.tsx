@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { CREATIVE_PROCESS_SUMMARY_LIMIT, MAX_TOOL_SELECTIONS, normalizeToolSlugs } from "@/lib/constants/process";
-import { theatreStylePresetOrder, theatreStylePresets } from "@/lib/constants/theatre-style-presets";
 import {
   defaultTheatreSettings,
   normalizeTheatreSettings,
@@ -231,29 +230,23 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
           </p>
         </div>
         <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-start sm:gap-3">
-          <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
-            <Link href={`/creator/${form.handle || profile.handle}`}>Open Studio Page</Link>
+          <Button asChild variant="primary" size="lg" className="w-full sm:w-auto">
+            <Link href={`/creator/${form.handle || profile.handle}`}>View Public Studio</Link>
           </Button>
-          <Button type="submit" size="xl" className="w-full sm:w-auto" disabled={isSaving || uploadInFlight}>
-            {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save Studio Changes"}
+          <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSaving || uploadInFlight}>
+            {isSaving ? "Saving..." : uploadInFlight ? "Uploading..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
-        {studioSections.map((section) => (
-          <Button key={section.id} asChild variant="ghost" size="lg" className="min-h-10 px-4">
-            <a href={`#${section.id}`}>{section.label}</a>
-          </Button>
-        ))}
-      </div>
+      {/* Section navigation removed for clarity and tighter UI */}
 
       <div className="mt-5 grid gap-5 sm:mt-8 sm:gap-8">
-        <section id="profile" className="grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
+        <section id="identity" className="grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
           <div className="space-y-2 sm:space-y-1">
-            <p className="display-kicker text-foreground/80">Profile</p>
-            <h2 className="headline-sm text-foreground">Creator identity and public essentials</h2>
-            <p className="body-sm">These are the core details that appear on your public Studio page and across your releases and references.</p>
+            <p className="display-kicker text-foreground/80">Identity</p>
+            <h2 className="headline-sm text-foreground">Your public identity and essentials</h2>
+            <p className="body-sm">These details appear on your public Studio page and across your work.</p>
           </div>
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
@@ -271,10 +264,10 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
             <Field label="Avatar">
-              <ImageUploadField entityType="profile" field="avatar" value={form.avatar_url} onChange={(nextValue) => setForm((current) => ({ ...current, avatar_url: nextValue }))} onUploadingChange={setIsAvatarUploading} label="Creator avatar" aspectRatio="square" helperText="Shown on Theatre pages, film credits, and creator references across ArsGratia." />
+              <ImageUploadField entityType="profile" field="avatar" value={form.avatar_url} onChange={(nextValue) => setForm((current) => ({ ...current, avatar_url: nextValue }))} onUploadingChange={setIsAvatarUploading} label="Avatar" aspectRatio="square" helperText="This is your public avatar for your Studio and credits." />
             </Field>
             <Field label="Banner">
-              <ImageUploadField entityType="profile" field="banner" value={form.banner_url} onChange={(nextValue) => setForm((current) => ({ ...current, banner_url: nextValue }))} onUploadingChange={setIsBannerUploading} label="Creator banner" aspectRatio="banner" helperText="Used as the fallback atmosphere for the public Theatre when no hero visual is selected." />
+              <ImageUploadField entityType="profile" field="banner" value={form.banner_url} onChange={(nextValue) => setForm((current) => ({ ...current, banner_url: nextValue }))} onUploadingChange={setIsBannerUploading} label="Banner" aspectRatio="banner" helperText="This is the main banner for your Studio page." />
             </Field>
           </div>
 
@@ -284,7 +277,7 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
 
           <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-6 text-foreground sm:items-center">
             <input type="checkbox" checked={form.is_creator} onChange={(event) => setForm((current) => ({ ...current, is_creator: event.target.checked }))} className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--primary))] sm:mt-0" />
-            <span>Show me as a creator on the platform</span>
+            <span>Show me as a creator on ArsGratia</span>
           </label>
         </section>
 
@@ -304,44 +297,15 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
         <section id="settings" className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-8">
           <div className="space-y-2">
             <p className="display-kicker text-foreground/80">Creator Studio Settings</p>
-            <h2 className="headline-sm text-foreground">Configure your Creator Studio and public Studio page</h2>
+            <h2 className="headline-sm text-foreground">Configure your public Studio page</h2>
             <p className="body-sm max-w-3xl">
-              These controls affect your public Studio page, its presentation, section visibility, and creative stack.
+              These controls affect your public Studio page, its visible sections, and creative stack.
             </p>
           </div>
 
           <div className="mt-5 grid gap-5 sm:mt-8 sm:gap-8">
-            <div className="grid gap-4">
-              <div className="space-y-1">
-                <p className="display-kicker text-foreground/80">Studio Style</p>
-                <p className="body-sm">Choose a presentation mood that still feels unmistakably ArsGratia.</p>
-              </div>
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {theatreStylePresetOrder.map((presetId) => {
-                  const preset = theatreStylePresets[presetId];
-                  const selected = form.theatre_settings.stylePreset === presetId;
-
-                  return (
-                    <button key={presetId} type="button" onClick={() => updateTheatreSettings((current) => ({ ...current, stylePreset: presetId }))} className={cn("rounded-[24px] border p-4 text-left transition", "bg-white/[0.035] hover:bg-white/[0.06]", preset.panelClass, selected ? "ring-1 ring-[hsl(var(--primary))]" : "border-white/10")}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className={cn("display-kicker text-[0.64rem]", preset.eyebrowClass)}>{preset.label}</p>
-                          <p className="mt-3 text-sm leading-6 text-foreground/92">{preset.description}</p>
-                        </div>
-                        <span className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", selected ? "bg-[hsl(var(--primary))]" : "bg-white/20")} />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
               <div className="grid gap-5">
-                <Field label="Hero Visual" helperText="Set a banner image at the top of your Studio.">
-                  <ImageUploadField entityType="profile" field="hero" value={form.theatre_settings.heroImageUrl ?? ""} onChange={(nextValue) => updateTheatreSettings((current) => ({ ...current, heroImageUrl: nextValue || null }))} onUploadingChange={setIsHeroUploading} label="Studio hero visual" aspectRatio="banner" helperText="A wide hero image that sits above the Studio title block." />
-                </Field>
-
                 <Field label="Studio Intro" helperText="A short line to set the tone of your Studio.">
                   <div className="grid gap-2">
                     <textarea value={form.theatre_settings.openingStatement ?? ""} onChange={(event) => updateTheatreSettings((current) => ({ ...current, openingStatement: event.target.value.slice(0, THEATRE_OPENING_STATEMENT_LIMIT) }))} className={cn(inputClassName, "min-h-24 py-3")} placeholder="A precise line that introduces your Studio." />
