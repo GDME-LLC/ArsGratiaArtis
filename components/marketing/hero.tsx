@@ -170,8 +170,8 @@ export function Hero({
           </div>
 
           
-          <div className="public-home-hero-feature hidden rounded-[24px] border border-white/10 bg-black/34 p-4 backdrop-blur-[8px] lg:block lg:translate-y-6 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
-            <p className="display-kicker">{spotlightFilm ? spotlightLabel : "First Release"}</p>
+          <div className="public-home-hero-feature hidden rounded-[24px] border border-white/10 bg-black/34 p-4 backdrop-blur-[8px] lg:block lg:self-start lg:-translate-y-2 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
+            <p className="bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(214,222,233,0.88)_52%,rgba(166,176,190,0.84))] bg-clip-text font-sans text-[0.82rem] font-semibold uppercase tracking-[0.3em] text-transparent drop-shadow-[0_2px_12px_rgba(255,255,255,0.34)] sm:text-[0.88rem] sm:tracking-[0.34em]">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
               <>
                 <Link
