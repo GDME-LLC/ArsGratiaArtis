@@ -35,10 +35,10 @@ const contentByMode = {
     action: "login" as const,
   },
   signup: {
-    eyebrow: "Join ArsGratia",
+    eyebrow: "Join ArsNeos",
     title: "Start your account",
     description:
-      "Create your ArsGratia account now. Creator publishing access is enabled in small groups through review or invitation.",
+      "Create your ArsNeos account now. Creator publishing access is enabled in small groups through review or invitation.",
     cta: "Create Account",
     alternateHref: "/login",
     alternateLabel: "Already inside?",
@@ -189,7 +189,7 @@ export function AuthForm({ mode, initialError }: AuthFormProps) {
 
   return (
     <div className="mx-auto max-w-md surface-panel cinema-frame p-8 sm:p-10">
-      <p className="display-kicker">ArsGratia</p>
+      <p className="display-kicker">ArsNeos</p>
       <p className="eyebrow mt-4">{content.eyebrow}</p>
       <h1 className="headline-lg mt-4">{content.title}</h1>
       <p className="body-sm mt-4">{content.description}</p>

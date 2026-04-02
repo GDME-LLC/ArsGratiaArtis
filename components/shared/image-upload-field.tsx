@@ -272,7 +272,7 @@ export function ImageUploadField({
                   />
                 </>
               ) : (
-                <div className="flex h-full items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015)),radial-gradient(circle_at_top,rgba(199,166,106,0.1),transparent_38%)] p-4">
+                <div className="flex h-full items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015)),radial-gradient(circle_at_top,rgba(228,235,246,0.1),transparent_38%)] p-4">
                   <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
                     {label}
                   </p>

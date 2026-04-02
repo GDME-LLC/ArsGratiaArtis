@@ -80,8 +80,8 @@ export default async function FilmPage({ params }: FilmPageProps) {
     <section className="container-shell py-12 sm:py-16" data-reveal="page">
       <div className="surface-panel cinema-frame overflow-hidden" data-reveal="film-frame">
         {data.isOwner && data.moderationStatus !== "active" ? (
-          <div className="border-b border-amber-500/25 bg-amber-500/10 px-6 py-4 text-sm text-amber-100 sm:px-10">
-            <p className="display-kicker text-amber-100/90">{moderationLabel}</p>
+          <div className="border-b border-white/18 bg-white/8 px-6 py-4 text-sm text-foreground/88 sm:px-10">
+            <p className="display-kicker text-foreground/80">{moderationLabel}</p>
             <p className="mt-2">{moderationDescription}</p>
           </div>
         ) : null}
@@ -108,7 +108,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
               <p className="display-kicker">About this release</p>
               <div className="mt-4 space-y-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Released on ArsGratia</p>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Released on ArsNeos</p>
                   <p className="mt-2 text-sm text-foreground">{releaseDate || "Publication date to follow."}</p>
                 </div>
                 <div>
@@ -169,7 +169,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
             <Link href={`/report?type=film&slug=${data.slug}`} className="mt-3 inline-block text-sm text-foreground underline decoration-white/20 underline-offset-4">
               Report this film
             </Link>
-            <ShareActions url={filmUrl} title={`${data.title} by ${creatorName} | ArsGratia`} className="mt-6" />
+            <ShareActions url={filmUrl} title={`${data.title} by ${creatorName} | ArsNeos`} className="mt-6" />
           </div>
 
           {hasAnyProcessMaterial ? (

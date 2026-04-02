@@ -52,14 +52,14 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         <PageIntro
           eyebrow="New Releases"
           title="New Releases"
-          description="Fresh films published on ArsGratia."
+          description="Fresh films published on ArsNeos."
         />
 
         {films.length === 0 ? (
           <div className="mt-8">
             <StatePanel
               title="No public releases yet"
-              description="As creators begin publishing, new work will land here first. Until then, the homepage spotlight and filmmaker roster remain the best way into ArsGratia."
+              description="As creators begin publishing, new work will land here first. Until then, the homepage spotlight and filmmaker roster remain the best way into ArsNeos."
             />
           </div>
         ) : (

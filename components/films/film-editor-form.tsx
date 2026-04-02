@@ -471,7 +471,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
         <div className="mt-4 rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:mt-6 sm:p-5">
           <p className="display-kicker">Creator Responsibility</p>
           <p className="body-sm mt-3 text-muted-foreground">
-            ArsGratia does not pre-approve every upload. Creators are responsible for publishing only work they have the legal right to release and for avoiding unlawful or abusive material.
+            ArsNeos does not pre-approve every upload. Creators are responsible for publishing only work they have the legal right to release and for avoiding unlawful or abusive material.
           </p>
           <label className="mt-4 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-foreground">
             <input
@@ -481,7 +481,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
               className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]"
             />
             <span>
-              I confirm that I have the rights to publish this release on ArsGratia and that, to the best of my knowledge, it does not violate applicable law or the rights of others.
+              I confirm that I have the rights to publish this release on ArsNeos and that, to the best of my knowledge, it does not violate applicable law or the rights of others.
             </span>
           </label>
           <p className="mt-3 text-sm text-muted-foreground">

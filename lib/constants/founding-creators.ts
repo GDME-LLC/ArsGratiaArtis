@@ -1,8 +1,8 @@
-﻿export const FOUNDING_CREATOR_LIMIT = 20;
+export const FOUNDING_CREATOR_LIMIT = 20;
 
 export const foundingCreatorBenefits = [
   "Permanent Founding Creator badge",
-  "Featured placement on ArsGratia",
+  "Featured placement on ArsNeos",
   "Priority discovery during the platform's early era",
   "Direct input on creator-focused features",
   "Priority access to monetization beta tools as they launch",

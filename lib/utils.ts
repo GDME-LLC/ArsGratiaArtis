@@ -76,7 +76,7 @@ export function formatReleaseDate(date: string | null | undefined) {
 
 export function formatRelativeRelease(date: string | null | undefined, prefix = "Published") {
   if (!date) {
-    return prefix ? `${prefix} on ArsGratia` : "Recently released";
+    return prefix ? `${prefix} on ArsNeos` : "Recently released";
   }
 
   const publishedAt = new Date(date).getTime();

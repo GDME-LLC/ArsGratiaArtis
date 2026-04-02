@@ -31,7 +31,7 @@ const resourceGroups: ResourceGroup[] = [
     description:
       "A concise set of widely used platforms for moving image generation, look development, sound, and post production.",
     imageSrc: "/video/hero-loop-poster.jpg",
-    imageAlt: "ArsGratia cinematic hero still",
+    imageAlt: "ArsNeos cinematic hero still",
     categories: ["video_generation", "image_tools", "audio_voice_music", "editing_post"],
   },
   {
@@ -41,7 +41,7 @@ const resourceGroups: ResourceGroup[] = [
     description:
       "Courses, editorial references, and research hubs that help creators sharpen both craft and taste.",
     imageSrc: "/icon.png",
-    imageAlt: "ArsGratia editorial brand image",
+    imageAlt: "ArsNeos editorial brand image",
     categories: ["learning_platforms", "inspiration_research"],
   },
   {
@@ -51,7 +51,7 @@ const resourceGroups: ResourceGroup[] = [
     description:
       "Places to meet the field as it is forming, see standout work, and stay close to the culture around AI cinema.",
     imageSrc: "/icon.png",
-    imageAlt: "ArsGratia logo mark",
+    imageAlt: "ArsNeos logo mark",
     categories: ["communities_showcases"],
   },
 ];
@@ -62,14 +62,14 @@ export default function ResourcesPage() {
   return (
     <SectionShell className="py-12 sm:py-16">
       <div className="surface-panel cinema-frame relative overflow-hidden px-5 py-6 sm:px-8 sm:py-10 lg:px-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(199,166,106,0.12),transparent_30%),radial-gradient(circle_at_82%_16%,rgba(149,52,80,0.1),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_52%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(232,238,248,0.1),transparent_30%),radial-gradient(circle_at_82%_16%,rgba(158,166,178,0.08),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_52%)]" />
 
         <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)] lg:items-start lg:gap-8">
           <div className="min-w-0">
             <PageIntro
               eyebrow="Resources"
               title="Explore the tools, platforms, and communities shaping AI cinema."
-              description="ArsGratia highlights creators and finished work. Resources is a shorter editorial guide to the surrounding ecosystem: useful tools, educational platforms, communities, showcases, and research references worth keeping close."
+              description="ArsNeos highlights creators and finished work. Resources is a shorter editorial guide to the surrounding ecosystem: useful tools, educational platforms, communities, showcases, and research references worth keeping close."
             />
           </div>
 
@@ -87,7 +87,7 @@ export default function ResourcesPage() {
               ))}
             </div>
             <p className="body-sm mt-4">
-              Start with the section closest to what you need right now. ArsGratia remains focused on presentation; these links point outward to the broader ecosystem around making and studying the work.
+              Start with the section closest to what you need right now. ArsNeos remains focused on presentation; these links point outward to the broader ecosystem around making and studying the work.
             </p>
           </aside>
         </div>

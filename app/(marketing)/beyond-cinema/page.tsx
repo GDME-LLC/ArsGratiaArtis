@@ -32,7 +32,7 @@ export default async function BeyondCinemaPage() {
       <PageIntro
         eyebrow="Beyond Cinema"
         title="Beyond Cinema"
-        description="Animation, experimental work, commercial pieces, commentary, and short-form releases across ArsGratia."
+        description="Animation, experimental work, commercial pieces, commentary, and short-form releases across ArsNeos."
       />
 
       <div className="mt-6 flex flex-wrap gap-2">

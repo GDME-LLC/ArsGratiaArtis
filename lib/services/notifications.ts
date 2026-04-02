@@ -159,7 +159,7 @@ export async function listNotificationsForUser(userId: string, limit = 10): Prom
         entityId: row.entity_id,
         createdAt: row.created_at,
         read: row.read,
-        message: `Your film ${filmTitle} was featured on ArsGratia.`,
+        message: `Your film ${filmTitle} was featured on ArsNeos.`,
         href,
       };
     }

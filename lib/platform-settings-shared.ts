@@ -66,11 +66,11 @@ export type PlatformFilmOption = {
 };
 
 export const HERO_COPY_COLOR_OPTIONS: Array<{ value: HeroCopyColor; label: string }> = [
-  { value: "gold", label: "Gold" },
+  { value: "gold", label: "Chrome" },
   { value: "ivory", label: "Ivory" },
   { value: "soft", label: "Soft" },
   { value: "muted", label: "Muted" },
-  { value: "rose", label: "Rose" },
+  { value: "rose", label: "Steel" },
   { value: "slate", label: "Slate" },
 ];
 

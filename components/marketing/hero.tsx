@@ -111,7 +111,7 @@ export function Hero({
         <HeroBackgroundVideo />
 
         <div className="relative z-10 grid gap-8 lg:-translate-y-14 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
-          <div className="public-home-hero-copy max-w-3xl drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
+          <div className="public-home-hero-copy max-w-3xl rounded-[28px] border border-white/12 bg-black/38 p-5 backdrop-blur-[10px] drop-shadow-[0_10px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-7">
             {heroContent.motto.text.trim() ? (
               <p className={getAboveFoldLineClass("motto", heroContent.motto.color, heroContent.motto.size)}>{heroContent.motto.text}</p>
             ) : null}
@@ -166,7 +166,7 @@ export function Hero({
             </div>
           </div>
 
-          <div className="public-home-hero-feature hidden lg:block lg:translate-y-6 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
+          <div className="public-home-hero-feature hidden rounded-[24px] border border-white/10 bg-black/34 p-4 backdrop-blur-[8px] lg:block lg:translate-y-6 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
             <p className="display-kicker">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
               <>
@@ -184,7 +184,7 @@ export function Hero({
                       className="aspect-[2/3] w-full object-cover"
                     />
                   ) : (
-                    <div className="flex aspect-[2/3] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01)),radial-gradient(circle_at_top,rgba(199,166,106,0.18),transparent_38%)] p-4 text-left">
+                    <div className="flex aspect-[2/3] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01)),radial-gradient(circle_at_top,rgba(229,236,245,0.14),transparent_38%)] p-4 text-left">
                       <p className="text-xs uppercase tracking-[0.22em] text-foreground/70">Spotlight release</p>
                     </div>
                   )}
@@ -194,7 +194,7 @@ export function Hero({
                 </p>
                 <p className="mt-3 text-sm text-foreground/72">by {spotlightCreatorName}</p>
                 <p className="mt-4 body-sm text-foreground/76">
-                  {spotlightFilm.synopsis || "A newly published film on ArsGratia."}
+                  {spotlightFilm.synopsis || "A newly published film on ArsNeos."}
                 </p>
                 <Button asChild size="lg" variant="ghost" className="mt-5">
                   <Link href={`/film/${spotlightFilm.slug}`}>Watch film</Link>
@@ -202,7 +202,7 @@ export function Hero({
               </>
             ) : (
               <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
-                The first public films published on ArsGratia will appear here.
+                The first public films published on ArsNeos will appear here.
               </p>
             )}
           </div>

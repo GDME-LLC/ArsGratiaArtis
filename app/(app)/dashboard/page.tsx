@@ -65,8 +65,8 @@ export default async function DashboardPage() {
                 Prepare releases, shape your Studio, and keep the next film moving without losing the thread.
               </p>
               {profile.foundingCreator.isFoundingCreator ? (
-                <p className="mt-3 text-sm text-[#e7d1a0]">
-                  Founding Creator{founderSince ? ` since ${founderSince}` : ""}. One of the first 20 creators on ArsGratia.
+                <p className="mt-3 text-sm text-foreground/84">
+                  Founding Creator{founderSince ? ` since ${founderSince}` : ""}. One of the first 20 creators on ArsNeos.
                 </p>
               ) : null}
             </div>
@@ -113,7 +113,7 @@ export default async function DashboardPage() {
               </p>
               <p className="body-sm mt-3">
                 {profile.foundingCreator.isFoundingCreator
-                  ? "Permanent recognition as one of the first 20 creators on ArsGratia."
+                  ? "Permanent recognition as one of the first 20 creators on ArsNeos."
                   : "The founding tier is assigned manually to a permanent roster of the first 20 creators."}
               </p>
             </article>
@@ -134,7 +134,7 @@ export default async function DashboardPage() {
               <p className="display-kicker">Outside the platform</p>
               <p className="title-md mt-3 text-foreground">Find tools, learning, and communities without losing the focus on presentation.</p>
               <p className="body-sm mt-3">
-                ArsGratia is where creators and films are presented. The Resources page helps you discover the surrounding ecosystem of platforms that support learning, production, and discovery across AI cinema.
+                ArsNeos is where creators and films are presented. The Resources page helps you discover the surrounding ecosystem of platforms that support learning, production, and discovery across AI cinema.
               </p>
             </div>
           </div>
@@ -209,7 +209,7 @@ export default async function DashboardPage() {
                               {film.synopsis || "No synopsis added yet."}
                             </p>
                             {film.moderationStatus !== "active" ? (
-                              <div className="mt-4 rounded-[18px] border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                              <div className="mt-4 rounded-[18px] border border-white/18 bg-white/8 px-4 py-3 text-sm text-foreground/88">
                                 {moderationDescription}
                               </div>
                             ) : null}

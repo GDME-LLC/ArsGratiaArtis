@@ -81,7 +81,7 @@ export function ReportForm({ targetLabel, targetValue, targetType, slug, handle,
         return;
       }
 
-      setSuccess("Report submitted. ArsGratia will review it manually.");
+      setSuccess("Report submitted. ArsNeos will review it manually.");
       setDetails("");
       setTurnstileToken("");
       setTurnstileResetKey((current) => current + 1);
@@ -96,7 +96,7 @@ export function ReportForm({ targetLabel, targetValue, targetType, slug, handle,
         <p className="display-kicker">Report</p>
         <h2 className="headline-lg mt-3 text-foreground">Sign in to submit a report</h2>
         <p className="body-sm mt-3">
-          Reports are tied to authenticated accounts so ArsGratia can review issues responsibly.
+          Reports are tied to authenticated accounts so ArsNeos can review issues responsibly.
         </p>
         <Button asChild size="lg" className="mt-6">
           <Link href="/login">Sign In</Link>

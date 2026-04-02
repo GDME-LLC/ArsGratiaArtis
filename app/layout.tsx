@@ -26,31 +26,31 @@ const PUBLIC_INTRO_SKIP_ONCE_KEY = "arsgratia-public-intro-skip-once-v1";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "ArsGratia",
-    template: "%s | ArsGratia",
+    default: "ArsNeos",
+    template: "%s | ArsNeos",
   },
   description:
     "A creator-first home for releasing films, shaping a public presence, and sharing the craft behind the work.",
   openGraph: {
-    title: "ArsGratia",
+    title: "ArsNeos",
     description: "Cinema belongs to creators again.",
     url: siteUrl,
-    siteName: "ArsGratia",
+    siteName: "ArsNeos",
     type: "website",
     images: [
       {
-        url: "/brand/ArsGratia_OG.jpeg",
+        url: "/brand/arsneos-wordmark-bw-chrome.png",
         width: 1200,
         height: 630,
-        alt: "ArsGratia",
+        alt: "ArsNeos",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ArsGratia",
+    title: "ArsNeos",
     description: "Cinema belongs to creators again.",
-    images: ["/brand/ArsGratia_OG.jpeg"],
+    images: ["/brand/arsneos-wordmark-bw-chrome.png"],
   },
   icons: {
     icon: "/brand/arsgratia-icon.png",

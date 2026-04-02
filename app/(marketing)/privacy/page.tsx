@@ -13,7 +13,7 @@ const sections: PolicySection[] = [
   {
     title: "Overview",
     paragraphs: [
-      "ArsGratia respects your privacy and aims to collect only the information necessary to operate the platform.",
+      "ArsNeos respects your privacy and aims to collect only the information necessary to operate the platform.",
       "This Privacy Policy reflects the current invite-stage service and may evolve as the platform, infrastructure, and review process mature.",
     ],
   },
@@ -31,7 +31,7 @@ const sections: PolicySection[] = [
     title: "2. How We Use Information",
     paragraphs: ["Information collected may be used to:"],
     bullets: [
-      "operate the ArsGratia platform",
+      "operate the ArsNeos platform",
       "display creator profiles and published films",
       "improve platform features",
       "communicate important updates",
@@ -41,12 +41,12 @@ const sections: PolicySection[] = [
   {
     title: "3. Public Information",
     paragraphs: [
-      "Content published on ArsGratia, including films, creator profiles, comments, and interactions, may be publicly visible depending on your settings.",
+      "Content published on ArsNeos, including films, creator profiles, comments, and interactions, may be publicly visible depending on your settings.",
     ],
   },
   {
     title: "4. Platform Infrastructure",
-    paragraphs: ["ArsGratia uses third-party services to operate the platform, including:"],
+    paragraphs: ["ArsNeos uses third-party services to operate the platform, including:"],
     bullets: [
       "hosting infrastructure",
       "database services",
@@ -71,7 +71,7 @@ const sections: PolicySection[] = [
   {
     title: "7. Changes to This Policy",
     paragraphs: [
-      "We may update this Privacy Policy as ArsGratia evolves.",
+      "We may update this Privacy Policy as ArsNeos evolves.",
       "Changes will be reflected by updating the Last updated date on this page.",
     ],
   },

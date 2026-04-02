@@ -11,15 +11,15 @@ type PolicySection = {
 
 const sections: PolicySection[] = [
   {
-    title: "Welcome to ArsGratia.",
+    title: "Welcome to ArsNeos.",
     paragraphs: [
-      "ArsGratia is a platform for publishing and discovering independent films created with emerging tools and creative workflows. By accessing or using ArsGratia, you agree to these Terms.",
+      "ArsNeos is a platform for publishing and discovering independent films created with emerging tools and creative workflows. By accessing or using ArsNeos, you agree to these Terms.",
       "These Terms are a baseline for the current invite-stage platform and may evolve as the service, moderation tooling, and creator program grow.",
     ],
   },
   {
-    title: "1. Using ArsGratia",
-    paragraphs: ["You may use ArsGratia to:"],
+    title: "1. Using ArsNeos",
+    paragraphs: ["You may use ArsNeos to:"],
     bullets: [
       "publish original films",
       "share creative workflows and tools",
@@ -29,18 +29,18 @@ const sections: PolicySection[] = [
   {
     title: "2. Creator Ownership and License",
     paragraphs: [
-      "Creators retain ownership of the films, artwork, text, and related materials they publish on ArsGratia.",
-      "By publishing content on ArsGratia, a creator grants ArsGratia a non-exclusive, revocable license to host, display, stream, reproduce, and promote that content only as necessary to operate, improve, and promote the platform and the creator's work within it.",
-      "ArsGratia does not claim ownership of creator works.",
+      "Creators retain ownership of the films, artwork, text, and related materials they publish on ArsNeos.",
+      "By publishing content on ArsNeos, a creator grants ArsNeos a non-exclusive, revocable license to host, display, stream, reproduce, and promote that content only as necessary to operate, improve, and promote the platform and the creator's work within it.",
+      "ArsNeos does not claim ownership of creator works.",
       "This license does not transfer ownership and does not prevent creators from publishing, licensing, selling, or exhibiting their work elsewhere unless they explicitly choose otherwise through a separate written agreement.",
     ],
   },
   {
     title: "3. Content Responsibility",
     paragraphs: [
-      "Creators are responsible for the content they publish and for making sure they have the rights, permissions, and authority needed to release that work on ArsGratia.",
+      "Creators are responsible for the content they publish and for making sure they have the rights, permissions, and authority needed to release that work on ArsNeos.",
       "By publishing a release, you represent that, to the best of your knowledge, the work does not violate applicable law or the rights of others.",
-      "ArsGratia does not manually pre-approve every upload before it is submitted or processed.",
+      "ArsNeos does not manually pre-approve every upload before it is submitted or processed.",
       "You agree not to upload material that:",
     ],
     bullets: [
@@ -52,37 +52,37 @@ const sections: PolicySection[] = [
   {
     title: "4. Reports, Takedowns, and Removal",
     paragraphs: [
-      "ArsGratia may review, flag, hide, limit, or remove content when reports, legal concerns, or policy issues arise.",
-      "DMCA notices, abuse reports, and takedown requests should be sent to the contact addresses listed below. ArsGratia may request supporting information before acting on a claim.",
-      "Invite-stage moderation remains lean and partly manual. ArsGratia may place a release under review while a report or legal concern is being assessed.",
+      "ArsNeos may review, flag, hide, limit, or remove content when reports, legal concerns, or policy issues arise.",
+      "DMCA notices, abuse reports, and takedown requests should be sent to the contact addresses listed below. ArsNeos may request supporting information before acting on a claim.",
+      "Invite-stage moderation remains lean and partly manual. ArsNeos may place a release under review while a report or legal concern is being assessed.",
     ],
   },
   {
     title: "5. Accounts",
     paragraphs: [
       "You are responsible for maintaining the security of your account.",
-      "ArsGratia may suspend or terminate accounts that abuse the platform or violate these Terms.",
+      "ArsNeos may suspend or terminate accounts that abuse the platform or violate these Terms.",
       "Account creation may be open while creator publishing access is enabled in smaller groups. That access model may change as the platform grows.",
     ],
   },
   {
     title: "6. Platform Availability",
     paragraphs: [
-      "ArsGratia is an evolving platform. Features and services may change over time.",
+      "ArsNeos is an evolving platform. Features and services may change over time.",
       "We may modify or discontinue parts of the service as the platform develops.",
     ],
   },
   {
     title: "7. Limitation of Liability",
     paragraphs: [
-      "ArsGratia is provided \"as is\" without warranties of any kind.",
-      "To the extent permitted by law, ArsGratia is not liable for indirect or consequential damages arising from use of the platform.",
+      "ArsNeos is provided \"as is\" without warranties of any kind.",
+      "To the extent permitted by law, ArsNeos is not liable for indirect or consequential damages arising from use of the platform.",
     ],
   },
   {
     title: "8. Changes to These Terms",
     paragraphs: [
-      "These Terms may be updated as ArsGratia grows.",
+      "These Terms may be updated as ArsNeos grows.",
       "If material changes are made, the Last updated date on this page should be revised so creators can track the current baseline.",
     ],
   },

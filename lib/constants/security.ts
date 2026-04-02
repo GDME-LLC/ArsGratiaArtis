@@ -1,6 +1,6 @@
 export const securityConfig = {
-  supportEmail: "hello@arsgratia.com",
-  securityEmail: "contact@arsgratia.com",
-  dmcaEmail: "dmca@arsgratia.com",
+  supportEmail: "hello@ArsNeos.com",
+  securityEmail: "contact@ArsNeos.com",
+  dmcaEmail: "dmca@ArsNeos.com",
   legalLastUpdated: "March 14, 2026",
 } as const;

@@ -8,6 +8,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|brand/ArsGratia_OG.jpeg|/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|brand/arsneos-wordmark-bw-chrome.png|/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

@@ -161,7 +161,7 @@ export function AdminFilmPanel({ overview }: AdminFilmPanelProps) {
                       <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">{getStatusCopy(film)}</p>
                       <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">slug / {film.slug}</p>
                       {film.openReportCount > 0 ? (
-                        <p className="mt-3 inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-amber-100">
+                        <p className="mt-3 inline-flex rounded-full border border-white/18 bg-white/8 px-3 py-1 text-xs uppercase tracking-[0.18em] text-foreground/88">
                           {film.openReportCount} active report{film.openReportCount === 1 ? "" : "s"}
                         </p>
                       ) : (
@@ -246,7 +246,7 @@ export function AdminFilmPanel({ overview }: AdminFilmPanelProps) {
                     <h3 className="title-md mt-3 text-foreground">{profile.displayName || profile.handle || "Unknown user"}</h3>
                     <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">@{profile.handle || "unknown"}</p>
                     {profile.openReportCount > 0 ? (
-                      <p className="mt-3 inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-amber-100">
+                      <p className="mt-3 inline-flex rounded-full border border-white/18 bg-white/8 px-3 py-1 text-xs uppercase tracking-[0.18em] text-foreground/88">
                         {profile.openReportCount} active report{profile.openReportCount === 1 ? "" : "s"}
                       </p>
                     ) : (

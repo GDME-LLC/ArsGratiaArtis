@@ -277,7 +277,7 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
 
           <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-6 text-foreground sm:items-center">
             <input type="checkbox" checked={form.is_creator} onChange={(event) => setForm((current) => ({ ...current, is_creator: event.target.checked }))} className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--primary))] sm:mt-0" />
-            <span>Show me as a creator on ArsGratia</span>
+            <span>Show me as a creator on ArsNeos</span>
           </label>
         </section>
 

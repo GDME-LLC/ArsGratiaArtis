@@ -133,7 +133,7 @@ export default async function HomePage() {
                   <p className="eyebrow">Founding Creators</p>
                   <h2 className="headline-lg mt-3 text-foreground">Founding Creators</h2>
                   <p className="body-lg mt-3">
-                    A permanent roster of the artists helping define ArsGratia's beginning. The first 20 creators will remain part of the platform's founding record.
+                    A permanent roster of the artists helping define ArsNeos's beginning. The first 20 creators will remain part of the platform's founding record.
                   </p>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default async function HomePage() {
                       <h3 className="title-md mt-4 break-words text-foreground">{creator.displayName}</h3>
                       <p className="mt-2 break-all text-sm text-muted-foreground">@{creator.handle}</p>
                       <p className="body-sm mt-4 line-clamp-3 flex-1">
-                        {creator.bio || "One of the first artists helping shape ArsGratia's founding era."}
+                        {creator.bio || "One of the first artists helping shape ArsNeos's founding era."}
                       </p>
                       <div className="mt-5 grid grid-cols-1 gap-3 text-sm text-muted-foreground min-[420px]:grid-cols-2">
                         <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
@@ -189,7 +189,7 @@ export default async function HomePage() {
 
             <FoundingCreatorBenefits
               title="The First 20"
-              description="A prestige cohort reserved for the creators who help establish ArsGratia's standards, authorship, and early public identity."
+              description="A prestige cohort reserved for the creators who help establish ArsNeos's standards, authorship, and early public identity."
             />
           </div>
         </SectionShell>
@@ -198,7 +198,7 @@ export default async function HomePage() {
       <ReleaseSection
         eyebrow="Staff Picks"
         title="Staff Picks"
-        description="Selected by the ArsGratia team for authorship, craft, or originality."
+        description="Selected by the ArsNeos team for authorship, craft, or originality."
         films={staffPicks}
       />
 
@@ -223,7 +223,7 @@ export default async function HomePage() {
       <ReleaseSection
         eyebrow="New Releases"
         title="New Releases"
-        description="The latest uploads arriving on ArsGratia, newest first."
+        description="The latest uploads arriving on ArsNeos, newest first."
         films={newReleases}
         href="/feed"
         ctaLabel="See the full feed"

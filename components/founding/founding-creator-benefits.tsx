@@ -1,4 +1,4 @@
-﻿import { foundingCreatorBenefits, foundingCreatorMonetizationNote } from "@/lib/constants/founding-creators";
+import { foundingCreatorBenefits, foundingCreatorMonetizationNote } from "@/lib/constants/founding-creators";
 
 type FoundingCreatorBenefitsProps = {
   title?: string;
@@ -8,7 +8,7 @@ type FoundingCreatorBenefitsProps = {
 
 export function FoundingCreatorBenefits({
   title = "Founding Creator Benefits",
-  description = "A permanent founding tier for the first 20 creators shaping ArsGratia's beginning.",
+  description = "A permanent founding tier for the first 20 creators shaping ArsNeos's beginning.",
   className,
 }: FoundingCreatorBenefitsProps) {
   return (

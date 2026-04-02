@@ -3,34 +3,34 @@ import { PageIntro } from "@/components/shared/page-intro";
 
 const sections = [
   {
-    eyebrow: "What ArsGratia Is",
+    eyebrow: "What ArsNeos Is",
     title: "A platform for films with authorship.",
-    body: "ArsGratia is a creator-first home for publishing films, shaping a public presence, and sharing the craft behind the work without flattening it into generic platform furniture. It is built for cinema that carries a point of view and for creators who want their presentation to feel considered from the first frame onward.",
+    body: "ArsNeos is a creator-first home for publishing films, shaping a public presence, and sharing the craft behind the work without flattening it into generic platform furniture. It is built for cinema that carries a point of view and for creators who want their presentation to feel considered from the first frame onward.",
   },
   {
     eyebrow: "Why It Exists",
     title: "Because too much of the internet treats films as interchangeable content.",
-    body: "Most platforms optimize for churn, sameness, and constant interruption. ArsGratia exists to make room for something slower and more deliberate: a place where the work leads, where discovery still matters, and where emerging creators can stand beside established ones without having to imitate a system that was never built for them.",
+    body: "Most platforms optimize for churn, sameness, and constant interruption. ArsNeos exists to make room for something slower and more deliberate: a place where the work leads, where discovery still matters, and where emerging creators can stand beside established ones without having to imitate a system that was never built for them.",
   },
   {
     eyebrow: "Who It Is For",
     title: "For filmmakers, visual storytellers, and new voices with intent.",
-    body: "ArsGratia is for directors, editors, animators, cinematographers, prompt-native filmmakers, and interdisciplinary creators who care about storytelling, experimentation, and form. You do not need a large audience or institutional backing to belong here. What matters is seriousness of vision, curiosity, and the desire to make work that feels authored.",
+    body: "ArsNeos is for directors, editors, animators, cinematographers, prompt-native filmmakers, and interdisciplinary creators who care about storytelling, experimentation, and form. You do not need a large audience or institutional backing to belong here. What matters is seriousness of vision, curiosity, and the desire to make work that feels authored.",
   },
   {
     eyebrow: "Ownership",
     title: "Creators keep ownership of their work.",
-    body: "Films, images, prompts, notes, and supporting materials remain the creator's work. ArsGratia is a publishing venue and presentation layer, not a claim over authorship. The platform exists to help creators present and contextualize what they make, not to absorb the identity or rights of the work into the platform itself.",
+    body: "Films, images, prompts, notes, and supporting materials remain the creator's work. ArsNeos is a publishing venue and presentation layer, not a claim over authorship. The platform exists to help creators present and contextualize what they make, not to absorb the identity or rights of the work into the platform itself.",
   },
   {
     eyebrow: "Process",
     title: "Tools and workflows are part of the story, not a gimmick.",
-    body: "Prompts, software, references, and workflow notes can deepen a viewer's understanding when they are shared with intent. ArsGratia treats process as optional context: a way for creators to reveal method, experimentation, and craft without reducing the finished film to a tech demo. The work comes first. The supporting tools exist to illuminate it.",
+    body: "Prompts, software, references, and workflow notes can deepen a viewer's understanding when they are shared with intent. ArsNeos treats process as optional context: a way for creators to reveal method, experimentation, and craft without reducing the finished film to a tech demo. The work comes first. The supporting tools exist to illuminate it.",
   },
   {
     eyebrow: "Closing Statement",
     title: "Cinema deserves spaces that respect the maker.",
-    body: "ArsGratia stands for authorship over sameness, experimentation over formula, and stewardship over extraction. We want the platform to feel open to new creators, rigorous enough for serious work, and memorable enough that a film shown here feels properly seen.",
+    body: "ArsNeos stands for authorship over sameness, experimentation over formula, and stewardship over extraction. We want the platform to feel open to new creators, rigorous enough for serious work, and memorable enough that a film shown here feels properly seen.",
   },
 ] as const;
 
@@ -40,7 +40,7 @@ export default function ManifestoPage() {
       <PageIntro
         eyebrow="Manifesto"
         title="Cinema belongs to the singular, but a platform can still make room for it."
-        description="ArsGratia is built to present films with seriousness, welcome new creators with real ambition, and keep authorship, ownership, and experimentation at the center of the experience."
+        description="ArsNeos is built to present films with seriousness, welcome new creators with real ambition, and keep authorship, ownership, and experimentation at the center of the experience."
       />
 
       <div className="mt-8 max-w-3xl rounded-[24px] border border-white/10 bg-white/5 p-6 sm:p-7">
@@ -49,7 +49,7 @@ export default function ManifestoPage() {
           A premium, creator-first cinema platform for work that wants more than a feed.
         </p>
         <p className="body-lg mt-4">
-          ArsGratia exists to give films, creators, and creative process a more intentional public home, without asking artists to surrender ownership or dilute their voice.
+          ArsNeos exists to give films, creators, and creative process a more intentional public home, without asking artists to surrender ownership or dilute their voice.
         </p>
       </div>
 

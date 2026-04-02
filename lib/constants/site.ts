@@ -1,15 +1,15 @@
 import { securityConfig } from "@/lib/constants/security";
 
 export const siteConfig = {
-  name: "ArsGratia",
+  name: "ArsNeos",
   motto: "ARS GRATIA ARTIS",
   description:
     "A creator-first home for releasing films, shaping a public presence, and sharing the craft behind the work.",
   heroTitle: "Cinema belongs to creators again.",
   heroDescription:
-    "ArsGratia is a home for AI filmmakers publishing authored work with releases, process, and presence attached.",
+    "ArsNeos is a home for AI filmmakers publishing authored work with releases, process, and presence attached.",
   supportEmail: securityConfig.supportEmail,
-  contactEmail: "contact@arsgratia.com",
-  privacyEmail: "privacy@arsgratia.art",
+  contactEmail: "contact@ArsNeos.com",
+  privacyEmail: "privacy@ArsNeos.art",
   legalLastUpdated: securityConfig.legalLastUpdated,
 } as const;

@@ -45,7 +45,7 @@ export default async function ReportPage({ searchParams }: ReportPageProps) {
         <PageIntro
           eyebrow="Report"
           title="Flag something that needs review."
-          description="Use this page to submit a report directly into ArsGratia's review queue. Reports are reviewed manually in this invite-stage build."
+          description="Use this page to submit a report directly into ArsNeos's review queue. Reports are reviewed manually in this invite-stage build."
         />
       </div>
 
@@ -63,7 +63,7 @@ export default async function ReportPage({ searchParams }: ReportPageProps) {
           <p className="display-kicker">Review</p>
           <h2 className="title-md mt-3 text-foreground">Manual trust and safety queue</h2>
           <p className="body-sm mt-3">
-            ArsGratia does not claim automated media moderation that it does not have. Reports, copyright concerns, and abusive behavior are currently reviewed by hand.
+            ArsNeos does not claim automated media moderation that it does not have. Reports, copyright concerns, and abusive behavior are currently reviewed by hand.
           </p>
           <p className="body-sm mt-4">
             DMCA / abuse / takedown: <span className="text-foreground">{securityConfig.dmcaEmail}</span>

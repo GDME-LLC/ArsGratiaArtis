@@ -27,8 +27,8 @@ export async function generateMetadata({ params }: CreatorPageProps): Promise<Me
 
   if (!hasSupabaseServerEnv()) {
     return {
-      title: "Studio | ArsGratia",
-      description: "Creator Studios on ArsGratia.",
+      title: "Studio | ArsNeos",
+      description: "Creator Studios on ArsNeos.",
     };
   }
 
@@ -36,18 +36,18 @@ export async function generateMetadata({ params }: CreatorPageProps): Promise<Me
 
   if (!data) {
     return {
-      title: "Studio not found | ArsGratia",
+      title: "Studio not found | ArsNeos",
       description: "This Studio could not be found.",
     };
   }
 
   const { profile, films } = data;
-  const title = `${profile.displayName} (@${profile.handle}) | ArsGratia`;
+  const title = `${profile.displayName} (@${profile.handle}) | ArsNeos`;
   const description =
     profile.theatreSettings.openingStatement ||
     profile.theatreSettings.creativeProcessSummary ||
     profile.bio ||
-    `${profile.displayName} on ArsGratia${films.length > 0 ? ` - ${formatCountLabel(films.length, "public release")}` : "."}`;
+    `${profile.displayName} on ArsNeos${films.length > 0 ? ` - ${formatCountLabel(films.length, "public release")}` : "."}`;
 
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
   const url = `${siteUrl}/creator/${profile.handle}`;
@@ -63,14 +63,14 @@ export async function generateMetadata({ params }: CreatorPageProps): Promise<Me
       title,
       description,
       url,
-      siteName: "ArsGratia",
+      siteName: "ArsNeos",
       type: "profile",
       images: [
         {
           url: image,
           width: 1200,
           height: 630,
-          alt: `${profile.displayName} on ArsGratia`,
+          alt: `${profile.displayName} on ArsNeos`,
         },
       ],
     },
@@ -185,8 +185,8 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     </p>
                   ) : null}
                   {profile.foundingCreator.isFoundingCreator ? (
-                    <p className="mt-3 text-sm leading-6 text-[#e7d1a0] sm:mt-4">
-                      Founding Creator{founderSince ? ` since ${founderSince}` : ""}. One of the first 20 creators on ArsGratia.
+                    <p className="mt-3 text-sm leading-6 text-foreground/84 sm:mt-4">
+                      Founding Creator{founderSince ? ` since ${founderSince}` : ""}. One of the first 20 creators on ArsNeos.
                     </p>
                   ) : null}
                 </div>
@@ -226,7 +226,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     <p><span className="text-white">{formatFollowerCount(profile.followerCount)}</span></p>
                     <p>Filmmaker status: <span className="text-white">{profile.isCreator ? "Public filmmaker" : "Viewer"}</span></p>
                   </div>
-                  <ShareActions url={studioUrl} title={`${profile.displayName} on ArsGratia`} heading="Share Studio" className="mt-5 sm:mt-6" />
+                  <ShareActions url={studioUrl} title={`${profile.displayName} on ArsNeos`} heading="Share Studio" className="mt-5 sm:mt-6" />
                 </div>
               </div>
             </div>
