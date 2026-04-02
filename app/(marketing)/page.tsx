@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { FoundingCreatorBenefits } from "@/components/founding/founding-creator-benefits";
-import { Hero } from "@/components/marketing/hero";
+import { Hero, HeroProductPanels } from "@/components/marketing/hero";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { Button } from "@/components/ui/button";
@@ -26,15 +26,16 @@ type ReleaseSectionProps = {
   films: PublicFilmCard[];
   href?: string;
   ctaLabel?: string;
+  className?: string;
 };
 
-function ReleaseSection({ eyebrow, title, description, films, href, ctaLabel }: ReleaseSectionProps) {
+function ReleaseSection({ eyebrow, title, description, films, href, ctaLabel, className }: ReleaseSectionProps) {
   if (films.length === 0) {
     return null;
   }
 
   return (
-    <SectionShell className="mt-6 sm:mt-7">
+    <SectionShell className={className ?? "mt-6 sm:mt-7"}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           <p className="eyebrow">{eyebrow}</p>
@@ -116,6 +117,9 @@ export default async function HomePage() {
     automaticSpotlightLabel,
   );
 
+  const mobileLeadFilms = featuredFilms.length > 0 ? featuredFilms : newReleases.length > 0 ? newReleases : staffPicks;
+  const mobileLeadVariant = featuredFilms.length > 0 ? "featured" : newReleases.length > 0 ? "new-releases" : "staff-picks";
+
   return (
     <div className="pb-20">
       <Hero
@@ -123,6 +127,26 @@ export default async function HomePage() {
         spotlightLabel={spotlightLabel}
         heroContent={platformSettings.heroContent}
       />
+
+      <ReleaseSection
+        eyebrow={mobileLeadVariant === "featured" ? "Featured Films" : mobileLeadVariant === "new-releases" ? "New Releases" : "Staff Picks"}
+        title={mobileLeadVariant === "featured" ? "Featured Films" : mobileLeadVariant === "new-releases" ? "New Releases" : "Staff Picks"}
+        description={
+          mobileLeadVariant === "featured"
+            ? "A current selection of film releases worth settling into."
+            : mobileLeadVariant === "new-releases"
+              ? "The latest uploads arriving on ArsNeos, newest first."
+              : "Selected by the ArsNeos team for authorship, craft, or originality."
+        }
+        films={mobileLeadFilms}
+        href="/feed"
+        ctaLabel={mobileLeadVariant === "new-releases" ? "See the full feed" : "Browse all releases"}
+        className="mt-6 sm:hidden"
+      />
+
+      <SectionShell className="mt-6 sm:hidden">
+        <HeroProductPanels heroContent={platformSettings.heroContent} />
+      </SectionShell>
 
       {foundingCreators.length > 0 ? (
         <SectionShell className="mt-6 sm:mt-7">
@@ -209,6 +233,7 @@ export default async function HomePage() {
         films={featuredFilms}
         href="/feed"
         ctaLabel="Browse all releases"
+        className="hidden sm:block sm:mt-7"
       />
 
       <ReleaseSection
@@ -227,6 +252,7 @@ export default async function HomePage() {
         films={newReleases}
         href="/feed"
         ctaLabel="See the full feed"
+        className={mobileLeadVariant === "new-releases" ? "hidden sm:block sm:mt-7" : undefined}
       />
 
       <ReleaseSection

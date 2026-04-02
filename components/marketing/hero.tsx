@@ -19,6 +19,11 @@ type HeroProps = {
   heroContent?: HeroContentSettings;
 };
 
+type HeroProductPanelsProps = {
+  heroContent: HeroContentSettings;
+  className?: string;
+};
+
 const toneClassMap: Record<HeroCopyColor, string> = {
   gold: "text-primary/85",
   ivory: "text-foreground",
@@ -110,9 +115,9 @@ export function Hero({
       <div className="relative min-h-[68vh] overflow-hidden py-6 sm:py-7 lg:py-8">
         <HeroBackgroundVideo />
 
-        <div className="relative z-10 grid gap-8 lg:-translate-y-14 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
+        <div className="relative z-10 grid gap-8 px-5 sm:px-7 lg:-translate-y-14 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end lg:px-10 xl:px-14">
           <div className="max-w-3xl">
-            <div className="public-home-hero-copy">
+            <div className="public-home-hero-copy px-5 py-5 sm:px-6 sm:py-6 lg:px-7 lg:py-7">
             {heroContent.motto.text.trim() ? (
               <p className={getAboveFoldLineClass("motto", heroContent.motto.color, heroContent.motto.size)}>{heroContent.motto.text}</p>
             ) : null}
@@ -145,35 +150,11 @@ export function Hero({
             </div>
             </div>
 
-            <div className="public-home-hero-panels relative mt-14 rounded-[26px] border border-white/14 bg-black/46 p-5 backdrop-blur-[14px] shadow-[0_16px_40px_rgba(0,0,0,0.46)] sm:mt-16 sm:p-6 lg:p-7">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_52%),linear-gradient(180deg,rgba(14,16,24,0.3),rgba(6,7,12,0.56))]"
-              />
-              <div className="relative grid gap-5 sm:grid-cols-3 sm:gap-6">
-              {HERO_PANEL_ORDER.map((panelKey) => {
-                const panel = heroContent.panels[panelKey];
-
-                return (
-                  <div key={panelKey} className="px-1 text-center drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)] sm:px-3">
-                    {panel.kicker.text.trim() ? (
-                      <p className={cn("text-center", getPanelLineClass("kicker", panel.kicker.color, panel.kicker.size))}>{panel.kicker.text}</p>
-                    ) : null}
-                    {panel.title.text.trim() ? (
-                      <p className={cn("mt-3 text-center", getPanelLineClass("title", panel.title.color, panel.title.size))}>{panel.title.text}</p>
-                    ) : null}
-                    {panel.description.text.trim() ? (
-                      <p className={cn("mt-3 text-center", getPanelLineClass("description", panel.description.color, panel.description.size))}>
-                        {panel.description.text}
-                      </p>
-                    ) : null}
-                  </div>
-                );
-              })}
-              </div>
-            </div>
+            <HeroProductPanels heroContent={heroContent} className="mt-14 hidden sm:block sm:mt-16" />
+            <div aria-hidden="true" className="mt-14 h-[10.5rem] sm:hidden" />
           </div>
 
+          
           <div className="public-home-hero-feature hidden rounded-[24px] border border-white/10 bg-black/34 p-4 backdrop-blur-[8px] lg:block lg:translate-y-6 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
             <p className="display-kicker">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
@@ -217,5 +198,42 @@ export function Hero({
         </div>
       </div>
     </section>
+  );
+}
+
+export function HeroProductPanels({ heroContent, className }: HeroProductPanelsProps) {
+  return (
+    <div
+      className={cn(
+        "public-home-hero-panels relative rounded-[26px] border border-white/14 bg-black/46 p-5 backdrop-blur-[14px] shadow-[0_16px_40px_rgba(0,0,0,0.46)] sm:p-6 lg:p-7",
+        className,
+      )}
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_52%),linear-gradient(180deg,rgba(14,16,24,0.3),rgba(6,7,12,0.56))]"
+      />
+      <div className="relative grid gap-5 sm:grid-cols-3 sm:gap-6">
+        {HERO_PANEL_ORDER.map((panelKey) => {
+          const panel = heroContent.panels[panelKey];
+
+          return (
+            <div key={panelKey} className="px-1 text-center drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)] sm:px-3">
+              {panel.kicker.text.trim() ? (
+                <p className={cn("text-center", getPanelLineClass("kicker", panel.kicker.color, panel.kicker.size))}>{panel.kicker.text}</p>
+              ) : null}
+              {panel.title.text.trim() ? (
+                <p className={cn("mt-3 text-center", getPanelLineClass("title", panel.title.color, panel.title.size))}>{panel.title.text}</p>
+              ) : null}
+              {panel.description.text.trim() ? (
+                <p className={cn("mt-3 text-center", getPanelLineClass("description", panel.description.color, panel.description.size))}>
+                  {panel.description.text}
+                </p>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
