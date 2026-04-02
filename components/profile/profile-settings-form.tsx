@@ -230,7 +230,7 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
           </p>
         </div>
         <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-start sm:gap-3">
-          <Button asChild variant="primary" size="lg" className="w-full sm:w-auto">
+          <Button asChild size="lg" className="w-full sm:w-auto">
             <Link href={`/creator/${form.handle || profile.handle}`}>View Public Studio</Link>
           </Button>
           <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSaving || uploadInFlight}>
