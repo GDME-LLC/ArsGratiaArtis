@@ -143,7 +143,6 @@ export function Hero({
                 <Link href="/resources">Explore Resources</Link>
               </Button>
             </div>
-
             </div>
 
             <div className="public-home-hero-panels relative mt-14 rounded-[26px] border border-white/14 bg-black/46 p-5 backdrop-blur-[14px] shadow-[0_16px_40px_rgba(0,0,0,0.46)] sm:mt-16 sm:p-6 lg:p-7">
@@ -171,6 +170,7 @@ export function Hero({
                   </div>
                 );
               })}
+              </div>
             </div>
           </div>
 
@@ -202,7 +202,7 @@ export function Hero({
                 </p>
                 <p className="mt-3 text-sm text-foreground/72">by {spotlightCreatorName}</p>
                 <p className="mt-4 body-sm text-foreground/76">
-                  {spotlightFilm.synopsis || "A newly published film on ArsNeos."}
+                  {spotlightFilm.synopsis || "A newly published film on ArsGratia."}
                 </p>
                 <Button asChild size="lg" variant="ghost" className="mt-5">
                   <Link href={`/film/${spotlightFilm.slug}`}>Watch film</Link>
@@ -210,7 +210,7 @@ export function Hero({
               </>
             ) : (
               <p className="mt-2 font-serif text-[1.55rem] font-semibold leading-tight text-foreground">
-                The first public films published on ArsNeos will appear here.
+                The first public films published on ArsGratia will appear here.
               </p>
             )}
           </div>
