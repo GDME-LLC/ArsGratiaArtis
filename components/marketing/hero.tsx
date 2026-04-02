@@ -139,13 +139,23 @@ export function Hero({
             ) : null}
 
             <div className="public-home-hero-actions mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-5 sm:gap-y-3">
-              <Button asChild size="xl" className="w-full sm:w-auto">
+              <Button asChild size="xl" className="w-full shadow-[0_12px_30px_rgba(0,0,0,0.52)] sm:w-auto">
                 <Link href="/feed">Watch New Work</Link>
               </Button>
-              <Button asChild size="lg" variant="ghost" className="w-full sm:w-auto">
+              <Button
+                asChild
+                size="lg"
+                variant="ghost"
+                className="w-full shadow-[0_12px_30px_rgba(0,0,0,0.52)] sm:w-auto"
+              >
                 <Link href="/filmmakers">Meet the Filmmakers</Link>
               </Button>
-              <Button asChild size="lg" variant="ghost" className="w-full sm:w-auto">
+              <Button
+                asChild
+                size="lg"
+                variant="ghost"
+                className="w-full shadow-[0_12px_30px_rgba(0,0,0,0.52)] sm:w-auto"
+              >
                 <Link href="/resources">Explore Resources</Link>
               </Button>
             </div>
@@ -215,7 +225,7 @@ export function HeroProductPanels({ heroContent, className, softBackdrop = false
       {softBackdrop ? (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-[-0.75rem] inset-y-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.12),transparent_54%),linear-gradient(180deg,rgba(10,12,18,0.28),rgba(7,8,13,0.52))] blur-2xl"
+          className="pointer-events-none absolute inset-x-[-1.5rem] inset-y-[-0.45rem] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.18),transparent_60%),linear-gradient(180deg,rgba(6,8,14,0.66),rgba(3,5,10,0.84))] blur-3xl"
         />
       ) : (
         <div
