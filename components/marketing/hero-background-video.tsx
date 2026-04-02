@@ -235,7 +235,7 @@ export function HeroBackgroundVideo() {
   }, [prefersReducedMotion]);
 
   const layerVisible = loopVisible || prefersReducedMotion;
-  const videoBaseClass = "absolute inset-0 h-full w-full -translate-y-[14%] scale-[1.12] object-cover object-center blur-[2px] saturate-[0.74] brightness-[0.72] contrast-[0.86] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08]";
+  const videoBaseClass = "absolute inset-0 h-full w-full -translate-y-[14%] scale-[1.12] object-cover object-center transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08]";
   const videoAClass = activeLayer === 0
     ? isCrossfading
       ? `${videoBaseClass} z-10 opacity-34`
@@ -257,7 +257,7 @@ export function HeroBackgroundVideo() {
         className={`absolute inset-0 transition-opacity duration-[720ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
       >
         <div
-          className={`absolute inset-0 -translate-y-[14%] scale-[1.12] bg-cover bg-center bg-no-repeat blur-[1.5px] saturate-[0.72] brightness-[0.68] contrast-[0.84] transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${hasReadyVideo && !prefersReducedMotion ? "opacity-12" : "opacity-66"}`}
+          className={`absolute inset-0 -translate-y-[14%] scale-[1.12] bg-cover bg-center bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] ${hasReadyVideo && !prefersReducedMotion ? "opacity-10" : "opacity-64"}`}
           style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
         />
         {!prefersReducedMotion ? (
@@ -295,9 +295,8 @@ export function HeroBackgroundVideo() {
           </>
         ) : null}
       </div>
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,3,6,0.9)_0%,rgba(3,3,6,0.56)_34%,rgba(3,3,6,0.82)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_12%,rgba(2,2,4,0.62)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_52%_68%,rgba(8,10,16,0.64),transparent_56%)] blur-3xl" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,3,6,0.82)_0%,rgba(3,3,6,0.34)_34%,rgba(3,3,6,0.68)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_14%,rgba(2,2,4,0.5)_100%)]" />
     </div>
   );
 }
