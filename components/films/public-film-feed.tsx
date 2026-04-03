@@ -23,8 +23,8 @@ export function PublicFilmFeed({
       <>
         <HorizontalRail ariaLabel="film releases">
           {films.map((film) => (
-            <div key={film.id} className="w-[min(80vw,15.5rem)] shrink-0 snap-start sm:w-[14.5rem] lg:w-[15rem]">
-              <PublicFilmCard film={film} />
+            <div key={film.id} className="w-[min(68vw,12.25rem)] shrink-0 snap-start sm:w-[12rem] lg:w-[12.5rem]">
+              <PublicFilmCard film={film} compact />
             </div>
           ))}
         </HorizontalRail>

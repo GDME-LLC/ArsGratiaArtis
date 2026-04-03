@@ -170,7 +170,7 @@ export function Hero({
           </div>
 
           
-          <div className="public-home-hero-feature hidden border border-white/10 bg-black/34 p-3 lg:block lg:w-[14.75rem] lg:self-start lg:translate-y-0 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
+          <div className="public-home-hero-feature hidden border border-white/10 bg-black/34 p-3 lg:block lg:w-[14.75rem] lg:self-start lg:translate-y-10 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)] xl:translate-y-8">
             <p className="bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(214,222,233,0.88)_52%,rgba(166,176,190,0.84))] bg-clip-text font-sans text-[0.82rem] font-semibold uppercase tracking-[0.3em] text-transparent drop-shadow-[0_2px_12px_rgba(255,255,255,0.34)] sm:text-[0.88rem] sm:tracking-[0.34em]">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
               <>
@@ -185,7 +185,7 @@ export function Hero({
                       alt={`${spotlightFilm.title} poster`}
                       loading="lazy"
                       decoding="async"
-                      className="h-[min(38vh,16.5rem)] w-full object-cover"
+                      className="h-[min(38vh,16.5rem)] w-full object-cover object-top"
                     />
                   ) : (
                     <div className="flex h-[min(38vh,16.5rem)] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01)),radial-gradient(circle_at_top,rgba(229,236,245,0.14),transparent_38%)] p-3 text-left">

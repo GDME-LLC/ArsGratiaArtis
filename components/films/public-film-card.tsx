@@ -16,9 +16,10 @@ import type { PublicFilmCard } from "@/types";
 
 type PublicFilmCardProps = {
   film: PublicFilmCard;
+  compact?: boolean;
 };
 
-export function PublicFilmCard({ film }: PublicFilmCardProps) {
+export function PublicFilmCard({ film, compact = false }: PublicFilmCardProps) {
   const artworkUrl = getFilmArtworkUrl({
     posterUrl: film.posterUrl,
     muxPlaybackId: film.muxPlaybackId,
@@ -35,6 +36,54 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
     (hasCreatorIdentity({ handle: film.creator.handle, displayName: film.creator.displayName })
       ? "Release note to follow."
       : "Independent Filmmaker");
+
+  if (compact) {
+    return (
+      <article className="surface-panel cinema-frame flex h-full min-w-0 flex-col overflow-hidden rounded-[18px]">
+        <Link href={`/film/${film.slug}`} className="block overflow-hidden">
+          <FilmArtwork
+            artworkUrl={artworkUrl}
+            previewUrl={previewUrl}
+            title={film.title}
+            aspectRatio="1 / 1.22"
+            maxHeight="250px"
+            className="rounded-none border-0 bg-transparent shadow-none hover:translate-y-0 hover:shadow-none"
+          />
+        </Link>
+        <div className="flex min-w-0 flex-1 flex-col border-t border-white/10 bg-[linear-gradient(180deg,rgba(8,9,14,0.94),rgba(7,8,13,0.84))] px-3 py-3">
+          <div className="flex min-w-0 flex-wrap gap-1.5">
+            {film.staffPick ? (
+              <p className="inline-flex max-w-full rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-primary">
+                Staff Pick
+              </p>
+            ) : null}
+            <p className="inline-flex max-w-full rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-foreground/86">
+              {getFilmCategoryLabel(film.category)}
+            </p>
+          </div>
+          <Link href={`/film/${film.slug}`} className="block">
+            <h3 className="mt-2 line-clamp-2 font-serif text-[1rem] font-semibold leading-tight text-foreground">{film.title}</h3>
+          </Link>
+          <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] text-foreground/70">
+            <span>by</span>
+            {creatorHref ? (
+              <Link href={creatorHref} className="min-w-0 break-words text-foreground/78 transition hover:text-foreground">
+                {creatorName}
+              </Link>
+            ) : (
+              <span className="min-w-0 break-words text-foreground/78">{creatorName}</span>
+            )}
+          </div>
+          <Link
+            href={`/film/${film.slug}`}
+            className="mt-2.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground transition hover:text-foreground"
+          >
+            View release
+          </Link>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className="surface-panel cinema-frame flex h-full min-w-0 flex-col overflow-hidden rounded-[24px]">
