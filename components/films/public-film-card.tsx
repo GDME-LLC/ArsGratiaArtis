@@ -43,6 +43,8 @@ export function PublicFilmCard({ film }: PublicFilmCardProps) {
           artworkUrl={artworkUrl}
           previewUrl={previewUrl}
           title={film.title}
+          aspectRatio="4 / 5"
+          maxHeight="340px"
           className="rounded-none border-0 bg-transparent shadow-none hover:translate-y-0 hover:shadow-none"
         />
       </Link>

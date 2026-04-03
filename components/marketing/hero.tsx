@@ -170,13 +170,13 @@ export function Hero({
           </div>
 
           
-          <div className="public-home-hero-feature hidden rounded-[22px] border border-white/10 bg-black/34 p-3.5 backdrop-blur-[8px] lg:block lg:w-[15.25rem] lg:max-h-[calc(100vh-8.25rem)] lg:self-start lg:translate-y-0 lg:justify-self-end lg:overflow-hidden lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
+          <div className="public-home-hero-feature hidden border border-white/10 bg-black/34 p-3 lg:block lg:w-[14.75rem] lg:self-start lg:translate-y-0 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
             <p className="bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(214,222,233,0.88)_52%,rgba(166,176,190,0.84))] bg-clip-text font-sans text-[0.82rem] font-semibold uppercase tracking-[0.3em] text-transparent drop-shadow-[0_2px_12px_rgba(255,255,255,0.34)] sm:text-[0.88rem] sm:tracking-[0.34em]">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
               <>
                 <Link
                   href={`/film/${spotlightFilm.slug}`}
-                  className="mt-3 block overflow-hidden rounded-[18px] shadow-[0_16px_36px_rgba(0,0,0,0.34)] transition hover:-translate-y-0.5"
+                  className="mt-3 block overflow-hidden shadow-[0_16px_36px_rgba(0,0,0,0.34)] transition hover:-translate-y-0.5"
                 >
                   {spotlightArtworkUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
@@ -185,21 +185,21 @@ export function Hero({
                       alt={`${spotlightFilm.title} poster`}
                       loading="lazy"
                       decoding="async"
-                      className="h-[min(45vh,20rem)] w-full object-cover"
+                      className="h-[min(38vh,16.5rem)] w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-[min(45vh,20rem)] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01)),radial-gradient(circle_at_top,rgba(229,236,245,0.14),transparent_38%)] p-3 text-left">
+                    <div className="flex h-[min(38vh,16.5rem)] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01)),radial-gradient(circle_at_top,rgba(229,236,245,0.14),transparent_38%)] p-3 text-left">
                       <p className="text-xs uppercase tracking-[0.22em] text-foreground/70">Spotlight release</p>
                     </div>
                   )}
                 </Link>
-                <div className="mt-3 rounded-[16px] border border-white/10 bg-black/42 px-3 py-3 text-left">
-                  <p className="font-serif text-[1.24rem] font-semibold leading-tight text-foreground">{spotlightFilm.title}</p>
+                <div className="mt-2.5 border border-white/10 bg-black/42 px-3 py-2.5 text-left">
+                  <p className="font-serif text-[1.1rem] font-semibold leading-tight text-foreground">{spotlightFilm.title}</p>
                   <p className="mt-1.5 text-xs uppercase tracking-[0.18em] text-foreground/72">by {spotlightCreatorName}</p>
                   <p className="mt-2 line-clamp-1 text-[0.8rem] leading-5 text-foreground/74">
                     {spotlightFilm.synopsis || "A newly published film on ArsGratia."}
                   </p>
-                  <Button asChild size="default" variant="ghost" className="mt-2.5 w-full justify-center">
+                  <Button asChild size="default" variant="ghost" className="mt-2 w-full justify-center">
                     <Link href={`/film/${spotlightFilm.slug}`}>Watch film</Link>
                   </Button>
                 </div>

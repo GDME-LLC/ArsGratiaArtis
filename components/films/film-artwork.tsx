@@ -11,6 +11,8 @@ type FilmArtworkProps = {
   label?: string;
   className?: string;
   imageClassName?: string;
+  aspectRatio?: string;
+  maxHeight?: string;
 };
 
 export function FilmArtwork({
@@ -20,6 +22,8 @@ export function FilmArtwork({
   label = "Poster-led release",
   className,
   imageClassName,
+  aspectRatio = "2 / 3",
+  maxHeight = "420px",
 }: FilmArtworkProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [previewRequested, setPreviewRequested] = useState(false);
@@ -43,7 +47,7 @@ export function FilmArtwork({
         "group/artwork relative w-full overflow-hidden rounded-[24px] border border-white/10 bg-black/40 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(0,0,0,0.38)]",
         className,
       )}
-      style={{ aspectRatio: "2 / 3", maxHeight: "420px" }}
+      style={{ aspectRatio, maxHeight }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
