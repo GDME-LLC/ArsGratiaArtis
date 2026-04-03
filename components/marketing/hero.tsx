@@ -141,10 +141,18 @@ export function Hero({
             <div className="public-home-hero-actions mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-5 sm:gap-y-3">
               <Button
                 asChild
+                size="lg"
+                variant="ghost"
+                className="w-full border border-white/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.05))] text-foreground shadow-[0_12px_30px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(130,138,148,0.28)] backdrop-blur-[8px] hover:border-white/42 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.07))] sm:w-auto"
+              >
+                <Link href="/resources">Explore Resources</Link>
+              </Button>
+              <Button
+                asChild
                 size="xl"
                 className="w-full border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.3),rgba(255,255,255,0.12))] text-black shadow-[0_14px_34px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.64),inset_0_-1px_0_rgba(132,140,152,0.42)] backdrop-blur-[8px] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(255,255,255,0.16))] sm:w-auto"
               >
-                <Link href="/feed">FILMWORK</Link>
+                <Link href="/feed">Filmwork</Link>
               </Button>
               <Button
                 asChild
@@ -153,14 +161,6 @@ export function Hero({
                 className="w-full border border-white/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.05))] text-foreground shadow-[0_12px_30px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(130,138,148,0.28)] backdrop-blur-[8px] hover:border-white/42 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.07))] sm:w-auto"
               >
                 <Link href="/filmmakers">Meet the Filmmakers</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="ghost"
-                className="w-full border border-white/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.05))] text-foreground shadow-[0_12px_30px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(130,138,148,0.28)] backdrop-blur-[8px] hover:border-white/42 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.07))] sm:w-auto"
-              >
-                <Link href="/resources">Explore Resources</Link>
               </Button>
             </div>
             </div>
