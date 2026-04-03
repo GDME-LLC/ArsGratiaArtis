@@ -372,8 +372,7 @@ export function AdminPlatformToolsPanel({
 
           <div className="mt-4 space-y-5">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Above the Fold</p>
-              <div className="mt-3 grid gap-3">
+              <div className="grid gap-3">
                 <HeroLineEditor label="Motto" line={form.heroContent.motto} maxLength={PLATFORM_HERO_MOTTO_LIMIT} onChange={(patch) => updatePrimaryHeroLine("motto", patch)} />
                 <HeroLineEditor label="Line 2" line={form.heroContent.submotto} maxLength={PLATFORM_HERO_SUBMOTTO_LIMIT} onChange={(patch) => updatePrimaryHeroLine("submotto", patch)} />
                 <HeroLineEditor label="Title" line={form.heroContent.title} maxLength={PLATFORM_HERO_TITLE_LIMIT} multiline onChange={(patch) => updatePrimaryHeroLine("title", patch)} />
@@ -382,7 +381,7 @@ export function AdminPlatformToolsPanel({
             </div>
 
             <div>
-              <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Below the Fold</p>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Manifesto Hero</p>
               <div className="mt-3 grid gap-4 lg:grid-cols-3">
                 {HERO_PANEL_ORDER.map((panel) => (
                   <div key={panel} className="min-w-0 rounded-[22px] border border-white/10 bg-black/20 p-4">
