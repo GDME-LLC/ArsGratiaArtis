@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/brand/arsneos-wordmark-bw-chrome.png",
+        url: "/brand/ArsNeos-OG_Image.png",
         width: 1200,
         height: 630,
         alt: "ArsNeos",
@@ -50,11 +50,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ArsNeos",
     description: "Cinema belongs to creators again.",
-    images: ["/brand/arsneos-wordmark-bw-chrome.png"],
+    images: ["/brand/ArsNeos-OG_Image.png"],
   },
   icons: {
-    icon: "/brand/arsgratia-icon.png",
-    shortcut: "/favicon.ico",
+    icon: "/brand/ArsNeos-favicon.png",
+    shortcut: "/brand/ArsNeos-favicon.png",
+    apple: "/brand/ArsNeos-favicon.png",
   },
 };
 
