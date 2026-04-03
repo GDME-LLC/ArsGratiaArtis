@@ -20,33 +20,30 @@ function filterDistinct(films: PublicFilmCard[], excludedIds: Set<string>, limit
 }
 
 type ReleaseSectionProps = {
-  eyebrow: string;
   title: string;
   description: string;
   films: PublicFilmCard[];
   href?: string;
-  ctaLabel?: string;
   className?: string;
 };
 
-function ReleaseSection({ eyebrow, title, description, films, href, ctaLabel, className }: ReleaseSectionProps) {
+function ReleaseSection({ title, description, films, href, className }: ReleaseSectionProps) {
   if (films.length === 0) {
     return null;
   }
 
   return (
     <SectionShell className={className ?? "mt-6 sm:mt-7"}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl">
-          <p className="eyebrow">{eyebrow}</p>
-          <h2 className="headline-lg mt-3 text-foreground">{title}</h2>
-          <p className="body-lg mt-3">{description}</p>
+      <div className="max-w-3xl">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="headline-lg text-foreground">{title}</h2>
+          {href ? (
+            <Button asChild size="lg" variant="ghost">
+              <Link href={href}>{title}</Link>
+            </Button>
+          ) : null}
         </div>
-        {href && ctaLabel ? (
-          <Button asChild size="lg" variant="ghost">
-            <Link href={href}>{ctaLabel}</Link>
-          </Button>
-        ) : null}
+        <p className="body-lg mt-3">{description}</p>
       </div>
 
       <div className="mt-6">
@@ -129,7 +126,6 @@ export default async function HomePage() {
       />
 
       <ReleaseSection
-        eyebrow={mobileLeadVariant === "featured" ? "Featured Films" : mobileLeadVariant === "new-releases" ? "New Releases" : "Staff Picks"}
         title={mobileLeadVariant === "featured" ? "Featured Films" : mobileLeadVariant === "new-releases" ? "New Releases" : "Staff Picks"}
         description={
           mobileLeadVariant === "featured"
@@ -140,7 +136,6 @@ export default async function HomePage() {
         }
         films={mobileLeadFilms}
         href="/feed"
-        ctaLabel={mobileLeadVariant === "new-releases" ? "See the full feed" : "Browse all releases"}
         className="mt-6 sm:hidden"
       />
 
@@ -216,48 +211,39 @@ export default async function HomePage() {
       ) : null}
 
       <ReleaseSection
-        eyebrow="Staff Picks"
         title="Staff Picks"
         description="Selected by the ArsNeos team for authorship, craft, or originality."
         films={staffPicks}
       />
 
       <ReleaseSection
-        eyebrow="Featured Films"
         title="Featured Films"
         description="A current selection of film releases worth settling into."
         films={featuredFilms}
         href="/feed"
-        ctaLabel="Browse all releases"
         className="hidden sm:block sm:mt-7"
       />
 
       <ReleaseSection
-        eyebrow="Featured Beyond Cinema"
         title="Featured Beyond Cinema"
         description="Animation, experimental work, commentary, and commissioned pieces drawing attention now."
         films={featuredBeyondCinema}
         href="/beyond-cinema"
-        ctaLabel="Enter Beyond Cinema"
       />
 
       <ReleaseSection
-        eyebrow="New Releases"
         title="New Releases"
         description="The latest uploads arriving on ArsNeos, newest first."
         films={newReleases}
         href="/feed"
-        ctaLabel="See the full feed"
         className={mobileLeadVariant === "new-releases" ? "hidden sm:block sm:mt-7" : undefined}
       />
 
       <ReleaseSection
-        eyebrow="New Experiments"
         title="New Experiments"
         description="The newest AI-generated work beyond traditional cinema."
         films={newExperiments}
         href="/beyond-cinema"
-        ctaLabel="Browse Beyond Cinema"
       />
 
       {creatorsToWatch.length > 0 ? (
