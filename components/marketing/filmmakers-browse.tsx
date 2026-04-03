@@ -58,7 +58,7 @@ export function FilmmakersBrowse({ creators }: FilmmakersBrowseProps) {
       <div className="max-w-3xl">
         <h1 className="headline-xl text-foreground">Featured Filmmakers</h1>
         <p className="body-lg mt-4">
-          Discover the creators shaping what comes next. Explore filmmaker profiles, follow their work, and enter each creator&apos;s public theatre.
+          Discover the filmmakers shaping what comes next. Explore filmmaker profiles, follow their work, and track each new release.
         </p>
       </div>
 
@@ -178,7 +178,7 @@ export function FilmmakersBrowse({ creators }: FilmmakersBrowseProps) {
                     <div className="mt-3 flex items-center justify-between">
                       <p className="text-[10px] uppercase tracking-[0.16em] text-foreground/66">Followers {formatFollowerCount(creator.followerCount)}</p>
                       <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.16em] text-foreground/78 transition group-hover:text-foreground">
-                        Enter Theatre
+                        View Profile
                         <ChevronRight className="h-3.5 w-3.5" />
                       </span>
                     </div>

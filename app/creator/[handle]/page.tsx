@@ -22,13 +22,31 @@ type CreatorPageProps = {
   }>;
 };
 
+function getPrimaryLinkLabel(websiteUrl: string | null) {
+  if (!websiteUrl) {
+    return "Website";
+  }
+
+  const lower = websiteUrl.toLowerCase();
+
+  if (lower.includes("youtube.com") || lower.includes("youtu.be")) {
+    return "YouTube Channel";
+  }
+
+  if (lower.includes("vimeo.com")) {
+    return "Vimeo";
+  }
+
+  return "Website";
+}
+
 export async function generateMetadata({ params }: CreatorPageProps): Promise<Metadata> {
   const { handle } = await params;
 
   if (!hasSupabaseServerEnv()) {
     return {
-      title: "Studio | ArsNeos",
-      description: "Creator Studios on ArsNeos.",
+      title: "Filmmaker | ArsNeos",
+      description: "Filmmaker profiles on ArsNeos.",
     };
   }
 
@@ -36,8 +54,8 @@ export async function generateMetadata({ params }: CreatorPageProps): Promise<Me
 
   if (!data) {
     return {
-      title: "Studio not found | ArsNeos",
-      description: "This Studio could not be found.",
+      title: "Filmmaker not found | ArsNeos",
+      description: "This filmmaker profile could not be found.",
     };
   }
 
@@ -107,21 +125,22 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   const preferredTools = await listToolsBySlugs(profile.theatreSettings.preferredToolSlugs);
   const founderSince = formatMonthYear(profile.foundingCreator.awardedAt);
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://arsgratia.com").replace(/\/$/, "");
-  const studioUrl = `${siteUrl}/creator/${profile.handle}`;
-  const studioSettings = profile.theatreSettings;
+  const creatorUrl = `${siteUrl}/creator/${profile.handle}`;
+  const profileSettings = profile.theatreSettings;
+  const primaryLinkLabel = getPrimaryLinkLabel(profile.websiteUrl);
   // Theatre style presets are deprecated; use a default background class
-  const heroImageUrl = studioSettings.heroImageUrl || profile.bannerUrl;
-  const featuredFilm = studioSettings.featuredFilmId
-    ? films.find((film) => film.id === studioSettings.featuredFilmId) ?? null
+  const heroImageUrl = profileSettings.heroImageUrl || profile.bannerUrl;
+  const featuredFilm = profileSettings.featuredFilmId
+    ? films.find((film) => film.id === profileSettings.featuredFilmId) ?? null
     : null;
-  const showCreatorFollowPrompt = !profile.isCurrentUser && !profile.viewerCanFollow;
-  const creatorFollowCtaHref = profile.viewerIsSignedIn ? "/settings#profile" : "/signup";
-  const visibleSections = getOrderedVisibleTheatreSections(studioSettings).filter((sectionId) => {
+  const showFollowAccessPrompt = !profile.isCurrentUser && !profile.viewerCanFollow;
+  const followAccessHref = profile.viewerIsSignedIn ? "/settings#profile" : "/signup";
+  const visibleSections = getOrderedVisibleTheatreSections(profileSettings).filter((sectionId) => {
     if (sectionId === "featured_work") {
       return Boolean(featuredFilm);
     }
     if (sectionId === "creative_stack") {
-      return preferredTools.length > 0 || Boolean(studioSettings.creativeProcessSummary);
+      return preferredTools.length > 0 || Boolean(profileSettings.creativeProcessSummary);
     }
     if (sectionId === "releases") {
       return films.length > 0;
@@ -142,7 +161,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
               <Link href="/dashboard">Back to Dashboard</Link>
             </Button>
             <Button asChild variant="ghost" size="lg">
-              <Link href="/settings">Creator Studio (manage)</Link>
+              <Link href="/settings">Edit Filmmaker Profile</Link>
             </Button>
           </div>
         ) : null}
@@ -159,7 +178,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
             <div className="absolute inset-x-0 bottom-0 p-4 sm:p-8 lg:p-10">
               <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)] lg:items-end lg:gap-8">
                 <div className="min-w-0">
-                  <p className="display-kicker text-white/80">Studio (public page)</p>
+                  <p className="display-kicker text-white/80">Filmmaker Profile</p>
                   <div className="mt-3 flex min-w-0 items-start gap-3 sm:mt-4 sm:items-center sm:gap-4">
                     <div
                       className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl font-semibold text-foreground sm:h-20 sm:w-20 sm:text-2xl"
@@ -179,19 +198,19 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                       </div>
                     </div>
                   </div>
-                  {studioSettings.openingStatement ? (
+                  {profileSettings.openingStatement ? (
                     <p className="mt-4 max-w-3xl text-[15px] leading-7 text-white sm:mt-6 sm:text-xl sm:leading-8">
-                      {studioSettings.openingStatement}
+                      {profileSettings.openingStatement}
                     </p>
                   ) : null}
                   {profile.foundingCreator.isFoundingCreator ? (
                     <p className="mt-3 text-sm leading-6 text-foreground/84 sm:mt-4">
-                      Founding Creator{founderSince ? ` since ${founderSince}` : ""}. One of the first 20 creators on ArsNeos.
+                      Founding Filmmaker{founderSince ? ` since ${founderSince}` : ""}. One of the first 20 creators on ArsNeos.
                     </p>
                   ) : null}
                 </div>
 
-                <div className="rounded-[24px] border border-white/10 bg-black/30 p-4 sm:p-5 backdrop-blur-sm">
+                <div className="rounded-none border border-white/28 bg-black/55 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] sm:p-5 backdrop-blur-sm">
                   <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-2">
                     {profile.viewerCanFollow ? (
                       <FollowButton
@@ -201,32 +220,33 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                         isCurrentUser={profile.isCurrentUser}
                       />
                     ) : null}
-                    {showCreatorFollowPrompt ? (
+                    {showFollowAccessPrompt ? (
                       <Button asChild variant="ghost" className="w-full sm:w-auto">
-                        <Link href={creatorFollowCtaHref}>Become a creator to follow this filmmaker</Link>
+                        <Link href={followAccessHref}>Enable creator profile to follow</Link>
                       </Button>
                     ) : null}
                     {profile.websiteUrl ? (
                       <Button asChild variant="ghost" className="w-full sm:w-auto">
-                        <a href={profile.websiteUrl} target="_blank" rel="noreferrer">Visit website</a>
+                        <a href={profile.websiteUrl} target="_blank" rel="noreferrer">Open {primaryLinkLabel}</a>
                       </Button>
                     ) : null}
                     {profile.isCurrentUser ? (
                       <Button asChild variant="ghost" className="w-full sm:w-auto">
-                        <Link href="/settings">Edit Studio</Link>
+                        <Link href="/settings">Edit Profile</Link>
                       </Button>
                     ) : null}
                   </div>
-                  {showCreatorFollowPrompt ? (
+                  {showFollowAccessPrompt ? (
                     <p className="mt-3 max-w-sm text-sm leading-6 text-white/68 sm:mt-4">
-                      Follow is reserved for creator accounts. Become a creator to follow this filmmaker and keep up with their Theatre.
+                      Following is available for creator accounts. Activate your creator profile to follow this filmmaker and track new releases.
                     </p>
                   ) : null}
                   <div className="mt-4 space-y-2 text-sm leading-6 text-white/72 sm:mt-5">
                     <p><span className="text-white">{formatFollowerCount(profile.followerCount)}</span></p>
-                    <p>Filmmaker status: <span className="text-white">{profile.isCreator ? "Public filmmaker" : "Viewer"}</span></p>
+                    <p>Account type: <span className="text-white">{profile.isCreator ? "Creator" : "Viewer"}</span></p>
+                    <p>Published films: <span className="text-white">{films.length}</span></p>
                   </div>
-                  <ShareActions url={studioUrl} title={`${profile.displayName} on ArsNeos`} heading="Share Studio" className="mt-5 sm:mt-6" />
+                  <ShareActions url={creatorUrl} title={`${profile.displayName} on ArsNeos`} heading="Share Profile" className="mt-5 sm:mt-6" />
                 </div>
               </div>
             </div>
@@ -238,9 +258,9 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                 if (sectionId === "about") {
                   return (
                     <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
-                      <p className="display-kicker text-white/80">About</p>
+                      <p className="display-kicker text-white/80">About the Filmmaker</p>
                       <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">
-                        {profile.bio || "This Studio is open. A fuller note will appear here as releases and context accumulate around the work."}
+                        {profile.bio || "This filmmaker profile is live. A fuller note will appear here as the body of work grows."}
                       </p>
                     </article>
                   );
@@ -249,9 +269,9 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                 if (sectionId === "creative_stack") {
                   return (
                     <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
-                      <p className="display-kicker text-white/80">Creative Stack</p>
-                      {studioSettings.creativeProcessSummary ? (
-                        <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">{studioSettings.creativeProcessSummary}</p>
+                      <p className="display-kicker text-white/80">Process and Tools</p>
+                      {profileSettings.creativeProcessSummary ? (
+                        <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">{profileSettings.creativeProcessSummary}</p>
                       ) : null}
                       {preferredTools.length > 0 ? (
                         <div className="mt-4 flex flex-wrap gap-2.5 sm:mt-5">
@@ -286,9 +306,9 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                           <FilmArtwork artworkUrl={featuredFilm.posterUrl} title={featuredFilm.title} className="rounded-[24px]" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="display-kicker text-white/80">Featured Work</p>
+                          <p className="display-kicker text-white/80">Featured Film</p>
                           <h2 className="headline-lg mt-3 break-words text-foreground">{featuredFilm.title}</h2>
-                          <p className="body-sm mt-3 max-w-3xl sm:mt-4">{featuredFilm.synopsis || "A spotlighted release from this Studio."}</p>
+                          <p className="body-sm mt-3 max-w-3xl sm:mt-4">{featuredFilm.synopsis || "A spotlighted release from this filmmaker."}</p>
                           <div className="mt-4 flex flex-wrap gap-3 sm:mt-5">
                             <Button asChild size="lg">
                               <Link href={`/film/${featuredFilm.slug}`}>Open Release</Link>
@@ -305,12 +325,12 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                     <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
                       <div className="flex flex-col gap-3.5 sm:gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                          <p className="display-kicker text-white/80">Studio Presentation</p>
+                          <p className="display-kicker text-white/80">Filmography</p>
                           <h2 className="headline-lg mt-3 text-foreground">{formatCountLabel(films.length, "public release")}</h2>
                         </div>
                         {profile.isCurrentUser ? (
                           <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
-                            <Link href="/upload">Start Release</Link>
+                            <Link href="/upload">Publish New Film</Link>
                           </Button>
                         ) : null}
                       </div>
@@ -324,13 +344,13 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                 if (sectionId === "links" && profile.websiteUrl) {
                   return (
                     <article key={sectionId} className="rounded-[28px] border border-white/10 bg-black/20 p-4 sm:p-7" data-reveal="panel">
-                      <p className="display-kicker text-white/80">Links</p>
+                      <p className="display-kicker text-white/80">Profile Links</p>
                       <div className="mt-4 flex flex-col gap-3 text-sm text-foreground">
                         <a href={profile.websiteUrl} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 break-all underline decoration-white/20 underline-offset-4">
-                          Visit website
+                          Open {primaryLinkLabel}
                         </a>
                         <Link href={`/report?type=creator&handle=${profile.handle}`} className="inline-flex w-fit items-center gap-2 underline decoration-white/20 underline-offset-4">
-                          Report profile
+                          Report filmmaker profile
                         </Link>
                       </div>
                     </article>
@@ -342,7 +362,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
               {visibleSections.includes("releases") && films.length === 0 ? (
                 <div className="rounded-[28px] border border-white/10 bg-black/20 px-4 py-5 text-sm leading-6 text-muted-foreground sm:px-6 sm:py-8">
-                  This Studio is live, but no public releases have premiered here yet. Return later to see what enters the programme.
+                  This profile is live, but no public films have premiered yet. Return later to see new releases.
                 </div>
               ) : null}
             </div>

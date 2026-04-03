@@ -249,6 +249,10 @@ export type PublicFilmPageData = {
     handle: string;
     displayName: string;
     avatarUrl: string | null;
+    followerCount: number;
+    viewerIsFollowing: boolean;
+    viewerCanFollow: boolean;
+    isCurrentUser: boolean;
     foundingCreator: FoundingCreatorInfo;
     badges: CreatorBadge[];
   };

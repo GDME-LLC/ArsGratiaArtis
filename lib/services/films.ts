@@ -470,6 +470,22 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const viewerId = user?.id ?? null;
+  let viewerIsCreator = false;
+
+  if (viewerId) {
+    const { data: viewerProfile, error: viewerProfileError } = await supabase
+      .from("profiles")
+      .select("is_creator")
+      .eq("id", viewerId)
+      .maybeSingle();
+
+    if (viewerProfileError) {
+      throw new Error(viewerProfileError.message);
+    }
+
+    viewerIsCreator = Boolean(viewerProfile?.is_creator);
+  }
 
   const { data, error } = await supabase
     .from("films")
@@ -500,7 +516,7 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("handle, display_name, avatar_url, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
+    .select("handle, display_name, avatar_url, follower_count, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
     .eq("id", data.creator_id)
     .maybeSingle();
   const badgeMap = await getCreatorBadgesByProfileIds([String(data.creator_id)]);
@@ -656,6 +672,10 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
       handle: String(profile?.handle ?? ""),
       displayName: String(profile?.display_name ?? ""),
       avatarUrl: typeof profile?.avatar_url === "string" ? profile.avatar_url : null,
+      followerCount: typeof profile?.follower_count === "number" ? profile.follower_count : 0,
+      viewerIsFollowing: isFollower,
+      viewerCanFollow: Boolean(viewerId) && viewerIsCreator && viewerId !== data.creator_id,
+      isCurrentUser: Boolean(viewerId) && viewerId === data.creator_id,
       foundingCreator,
       badges: creatorBadges,
     },

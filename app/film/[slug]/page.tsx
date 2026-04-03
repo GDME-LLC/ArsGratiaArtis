@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 
 import { CommentForm } from "@/components/comments/comment-form";
 import { CommentList } from "@/components/comments/comment-list";
+import { FollowButton } from "@/components/engagement/follow-button";
 import { LikeButton } from "@/components/engagement/like-button";
 import { FilmArtwork } from "@/components/films/film-artwork";
 import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { ShareActions } from "@/components/shared/share-actions";
 import { StatePanel } from "@/components/shared/state-panel";
+import { Button } from "@/components/ui/button";
 import { findResourceEntryByToolSlug } from "@/lib/resources/tool-links";
 import { getFilmArtworkUrl } from "@/lib/films/artwork";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
@@ -50,6 +52,8 @@ export default async function FilmPage({ params }: FilmPageProps) {
   const artworkUrl = getFilmArtworkUrl({ posterUrl: data.posterUrl, muxPlaybackId: data.muxPlaybackId });
   const releaseDate = formatReleaseDate(data.publishedAt);
   const creatorName = resolveCreatorName({ handle: data.creator.handle, displayName: data.creator.displayName });
+  const showFollowAccessPrompt = !data.creator.isCurrentUser && !data.creator.viewerCanFollow;
+  const followAccessHref = user ? "/settings#profile" : "/signup";
   const hasTools = data.creation.tools.length > 0;
   const hasProcessNotes = Boolean(data.creation.processNotes);
   const hasProcessSummary = Boolean(data.creation.processSummary);
@@ -112,7 +116,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
                   <p className="mt-2 text-sm text-foreground">{releaseDate || "Publication date to follow."}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Creator</p>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Filmmaker</p>
                   <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
                     {data.creator.handle ? (
                       <Link href={`/creator/${data.creator.handle}`} className="inline-block min-w-0 break-words text-sm text-foreground underline decoration-white/20 underline-offset-4">
@@ -122,6 +126,21 @@ export default async function FilmPage({ params }: FilmPageProps) {
                       <span className="inline-block text-sm text-foreground">{creatorName}</span>
                     )}
                     <CreatorBadgeList badges={data.creator.badges} />
+                  </div>
+                  <div className="mt-3 flex flex-col gap-2">
+                    {data.creator.viewerCanFollow ? (
+                      <FollowButton
+                        creatorId={data.creator.id}
+                        initialFollowerCount={data.creator.followerCount}
+                        initialFollowing={data.creator.viewerIsFollowing}
+                        isCurrentUser={data.creator.isCurrentUser}
+                      />
+                    ) : null}
+                    {showFollowAccessPrompt ? (
+                      <Button asChild variant="ghost" className="w-full sm:w-auto">
+                        <Link href={followAccessHref}>Enable creator profile to follow</Link>
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
                 {data.series ? (

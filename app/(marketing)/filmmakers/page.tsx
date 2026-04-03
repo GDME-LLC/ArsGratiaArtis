@@ -24,7 +24,7 @@ export default async function FilmmakersPage() {
         <div className="mt-8">
           <StatePanel
             title="No public filmmakers yet"
-            description="As creators begin publishing work, this roster will fill with filmmaker pages, released films, and connected series. Until then, browse the current front page selections."
+            description="As creators begin publishing work, this roster will fill with filmmaker profiles, released films, and connected series. Until then, browse the current front page selections."
           />
         </div>
       ) : (
