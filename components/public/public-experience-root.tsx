@@ -69,9 +69,10 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
   const [phase, setPhase] = useState<PublicEntryPhase>(resolveInitialPhase);
   const [entryMode, setEntryMode] = useState<EntryMode>("staged");
   const [platform, setPlatform] = useState<ExperiencePlatform>(resolveInitialPlatform);
-  const [loopVisible, setLoopVisible] = useState(resolveInitialBoolean("publicLoopVisible", false));
-  const [contentVisible, setContentVisible] = useState(resolveInitialBoolean("publicContentVisible", false));
-  const [heroVisible, setHeroVisible] = useState(resolveInitialBoolean("publicHeroVisible", false));
+  // Always mount the hero loop video first, never unmount it
+  const [loopVisible, setLoopVisible] = useState(true);
+  const [contentVisible, setContentVisible] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(false);
   const config = useMemo(() => entryConfig[platform], [platform]);
 
   useEffect(() => {
@@ -91,9 +92,10 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
   }, []);
 
   useEffect(() => {
+    // Always show the hero loop first, never unmount it
+    setLoopVisible(true);
     if (!isHome || !PUBLIC_INTRO_ENABLED) {
       setPhase("ready");
-      setLoopVisible(true);
       setContentVisible(true);
       setHeroVisible(true);
       document.documentElement.dataset.publicRoute = "false";
@@ -123,7 +125,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
 
     setEntryMode(shouldPlayIntro ? "intro" : "staged");
     setPhase(shouldPlayIntro ? "intro" : "blend");
-    setLoopVisible(true);
+    setLoopVisible(true); // Always true
     setContentVisible(false);
     setHeroVisible(false);
   }, [isHome, pathname]);
@@ -158,35 +160,27 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       return;
     }
 
+    // Always keep the hero loop visible and only reveal content after a fixed delay
     if (phase === "intro") {
-      const prewarmLoop = window.setTimeout(() => {
-        setLoopVisible(true);
-      }, Math.max(config.introDurationMs - config.loopLeadInMs, 0));
-
+      // Loop is already visible
       const toBlend = window.setTimeout(() => {
-        setLoopVisible(true);
         setPhase("blend");
       }, config.introDurationMs);
 
       return () => {
-        window.clearTimeout(prewarmLoop);
         window.clearTimeout(toBlend);
       };
     }
 
     if (phase === "blend") {
-      const isStagedEntry = entryMode === "staged";
-      const revealDelay = isStagedEntry ? 1000 : config.contentRevealDelayMs;
-      const heroDelay = isStagedEntry ? 1000 : config.heroRevealDelayMs;
-      const finishDelay = isStagedEntry ? 1000 : config.blendDurationMs;
-
+      // Always use a fixed 1000ms delay for both content and hero reveal
       const revealContent = window.setTimeout(() => {
         setContentVisible(true);
-      }, revealDelay);
+      }, 1000);
 
       const revealHero = window.setTimeout(() => {
         setHeroVisible(true);
-      }, heroDelay);
+      }, 1000);
 
       const finishBlend = window.setTimeout(() => {
         window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
@@ -195,7 +189,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
         setHeroVisible(true);
         setLoopVisible(true);
         setPhase("ready");
-      }, finishDelay);
+      }, 1000);
 
       return () => {
         window.clearTimeout(revealContent);
@@ -204,11 +198,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       };
     }
   }, [
-    config.blendDurationMs,
-    config.contentRevealDelayMs,
-    config.heroRevealDelayMs,
     config.introDurationMs,
-    config.loopLeadInMs,
     entryMode,
     isHome,
     phase,
