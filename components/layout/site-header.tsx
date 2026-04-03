@@ -44,18 +44,18 @@ export async function SiteHeader() {
   const user = await getUser();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/16 backdrop-blur-xl">
-      <div className="container-shell py-2 sm:py-2.5">
-        <div className="flex min-h-[3.5rem] items-center justify-between gap-3 sm:min-h-[3.75rem] sm:gap-4">
+    <header className="sticky top-0 z-50 border-b border-white/6 bg-black/8 backdrop-blur-md">
+      <div className="container-shell py-1 sm:py-1.5">
+        <div className="flex min-h-[3.4rem] items-center justify-between gap-3 sm:min-h-[3.8rem] sm:gap-4">
           <div className="flex min-w-0 items-center gap-3 pr-2 sm:pr-0 lg:gap-5">
             <Link href="/" className="group flex min-w-0 items-center">
               <Image
-                src="/brand/ArsNeos-full_logo.png"
+                src="/brand/arsneos-wordmark-bw-chrome.png"
                 alt="ArsNeos"
-                width={320}
-                height={80}
+                width={730}
+                height={720}
                 style={{ width: "auto" }}
-                className="h-9 w-auto object-contain sm:h-11 lg:h-[50px]"
+                className="h-11 w-auto object-contain sm:h-12 lg:h-14"
                 priority
               />
             </Link>
