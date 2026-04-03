@@ -50,10 +50,11 @@ export async function SiteHeader() {
           <div className="flex min-w-0 items-center gap-3 pr-2 sm:pr-0 lg:gap-5">
             <Link href="/" className="group flex min-w-0 items-center">
               <Image
-                src="/brand/arsneos-wordmark-bw-chrome.png"
+                src="/brand/ArsNeos-full_logo-white-header.png"
                 alt="ArsNeos"
-                width={730}
-                height={720}
+                width={701}
+                height={572}
+                sizes="(min-width: 1024px) 69px, (min-width: 640px) 59px, 54px"
                 style={{ width: "auto" }}
                 className="h-11 w-auto object-contain sm:h-12 lg:h-14"
                 priority

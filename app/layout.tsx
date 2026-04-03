@@ -53,9 +53,9 @@ export const metadata: Metadata = {
     images: ["/brand/ArsNeos-OG_Image.png"],
   },
   icons: {
-    icon: "/brand/ArsNeos-favicon.png",
-    shortcut: "/brand/ArsNeos-favicon.png",
-    apple: "/brand/ArsNeos-favicon.png",
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
 };
 
@@ -98,17 +98,17 @@ const publicEntryBootstrap = `
       return;
     }
 
-    // On refresh or if intro already seen, match the successful client-side nav state
-    root.dataset.publicEntry = "ready";
+    // On refresh or if intro already seen, keep loop-first staging before revealing content.
+    root.dataset.publicEntry = "blend";
     root.dataset.publicLoopVisible = "true";
-    root.dataset.publicContentVisible = "true";
-    root.dataset.publicHeroVisible = "true";
+    root.dataset.publicContentVisible = "false";
+    root.dataset.publicHeroVisible = "false";
   } catch (error) {
     var root = document.documentElement;
-    root.dataset.publicEntry = "ready";
+    root.dataset.publicEntry = "blend";
     root.dataset.publicLoopVisible = "true";
-    root.dataset.publicContentVisible = "true";
-    root.dataset.publicHeroVisible = "true";
+    root.dataset.publicContentVisible = "false";
+    root.dataset.publicHeroVisible = "false";
   }
 })();`;
 

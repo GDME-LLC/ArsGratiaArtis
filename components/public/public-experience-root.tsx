@@ -29,6 +29,7 @@ const entryConfig = {
 
 type PublicEntryPhase = "intro" | "blend" | "ready";
 type ExperiencePlatform = "mobile" | "desktop";
+type EntryMode = "intro" | "staged";
 
 function resolveInitialPhase() {
   if (typeof document === "undefined") {
@@ -66,6 +67,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [phase, setPhase] = useState<PublicEntryPhase>(resolveInitialPhase);
+  const [entryMode, setEntryMode] = useState<EntryMode>("staged");
   const [platform, setPlatform] = useState<ExperiencePlatform>(resolveInitialPlatform);
   const [loopVisible, setLoopVisible] = useState(resolveInitialBoolean("publicLoopVisible", false));
   const [contentVisible, setContentVisible] = useState(resolveInitialBoolean("publicContentVisible", false));
@@ -119,10 +121,11 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
 
-    setPhase(shouldPlayIntro ? "intro" : "ready");
-    setLoopVisible(!shouldPlayIntro);
-    setContentVisible(!shouldPlayIntro);
-    setHeroVisible(!shouldPlayIntro);
+    setEntryMode(shouldPlayIntro ? "intro" : "staged");
+    setPhase(shouldPlayIntro ? "intro" : "blend");
+    setLoopVisible(true);
+    setContentVisible(false);
+    setHeroVisible(false);
   }, [isHome, pathname]);
 
   useEffect(() => {
@@ -172,13 +175,18 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     }
 
     if (phase === "blend") {
+      const isStagedEntry = entryMode === "staged";
+      const revealDelay = isStagedEntry ? 1000 : config.contentRevealDelayMs;
+      const heroDelay = isStagedEntry ? 1000 : config.heroRevealDelayMs;
+      const finishDelay = isStagedEntry ? 1000 : config.blendDurationMs;
+
       const revealContent = window.setTimeout(() => {
         setContentVisible(true);
-      }, config.contentRevealDelayMs);
+      }, revealDelay);
 
       const revealHero = window.setTimeout(() => {
         setHeroVisible(true);
-      }, config.heroRevealDelayMs);
+      }, heroDelay);
 
       const finishBlend = window.setTimeout(() => {
         window.sessionStorage.setItem(PUBLIC_INTRO_STORAGE_KEY, "true");
@@ -187,7 +195,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
         setHeroVisible(true);
         setLoopVisible(true);
         setPhase("ready");
-      }, config.blendDurationMs);
+      }, finishDelay);
 
       return () => {
         window.clearTimeout(revealContent);
@@ -201,6 +209,7 @@ export function PublicExperienceRoot({ children }: { children: React.ReactNode }
     config.heroRevealDelayMs,
     config.introDurationMs,
     config.loopLeadInMs,
+    entryMode,
     isHome,
     phase,
   ]);
