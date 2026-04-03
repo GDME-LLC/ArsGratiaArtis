@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getUser } from "@/lib/supabase/auth";
 
 const navItems = [
-  { href: "/beyond-cinema", label: "Beyond Cinema" },
+  { href: "/resources", label: "Explore Resources" },
   { href: null, label: "Socials" },
   { href: "/manifesto", label: "Manifesto" },
 ] as const;
