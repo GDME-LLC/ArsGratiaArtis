@@ -39,7 +39,7 @@ export function PublicFilmCard({ film, compact = false }: PublicFilmCardProps) {
 
   if (compact) {
     return (
-      <article className="surface-panel cinema-frame flex h-full min-w-0 flex-col overflow-hidden rounded-[18px]">
+      <article className="cinema-frame flex h-full min-w-0 flex-col overflow-hidden rounded-none border border-white/30 bg-black shadow-[0_14px_34px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(116,124,136,0.3)]">
         <Link href={`/film/${film.slug}`} className="block overflow-hidden">
           <FilmArtwork
             artworkUrl={artworkUrl}
@@ -50,7 +50,7 @@ export function PublicFilmCard({ film, compact = false }: PublicFilmCardProps) {
             className="rounded-none border-0 bg-transparent shadow-none hover:translate-y-0 hover:shadow-none"
           />
         </Link>
-        <div className="flex min-w-0 flex-1 flex-col border-t border-white/10 bg-[linear-gradient(180deg,rgba(8,9,14,0.94),rgba(7,8,13,0.84))] px-3 py-3">
+        <div className="flex min-w-0 flex-1 flex-col border-t border-white/16 bg-black px-3 py-3">
           <div className="flex min-w-0 flex-wrap gap-1.5">
             {film.staffPick ? (
               <p className="inline-flex max-w-full rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-primary">
@@ -86,8 +86,8 @@ export function PublicFilmCard({ film, compact = false }: PublicFilmCardProps) {
   }
 
   return (
-    <article className="surface-panel cinema-frame flex h-full min-w-0 flex-col overflow-hidden rounded-[24px]">
-      <Link href={`/film/${film.slug}`} className="block overflow-hidden rounded-t-[24px]">
+    <article className="cinema-frame flex h-full min-w-0 flex-col overflow-hidden rounded-none border border-white/30 bg-black shadow-[0_14px_34px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(116,124,136,0.3)]">
+      <Link href={`/film/${film.slug}`} className="block overflow-hidden">
         <FilmArtwork
           artworkUrl={artworkUrl}
           previewUrl={previewUrl}
@@ -97,7 +97,7 @@ export function PublicFilmCard({ film, compact = false }: PublicFilmCardProps) {
           className="rounded-none border-0 bg-transparent shadow-none hover:translate-y-0 hover:shadow-none"
         />
       </Link>
-      <div className="flex min-w-0 flex-1 flex-col border-t border-white/10 bg-[linear-gradient(180deg,rgba(9,10,16,0.92),rgba(8,9,14,0.78))] px-4 py-4 sm:px-5">
+      <div className="flex min-w-0 flex-1 flex-col border-t border-white/16 bg-black px-4 py-4 sm:px-5">
         <Link href={`/film/${film.slug}`} className="block">
           <div className="flex min-w-0 flex-wrap gap-2">
             {film.staffPick ? (

@@ -113,7 +113,7 @@ export function FilmmakersBrowse({ creators }: FilmmakersBrowseProps) {
                 <Link
                   key={creator.id}
                   href={`/creator/${creator.handle}`}
-                  className="group surface-panel cinema-frame w-[min(86vw,21rem)] shrink-0 snap-start overflow-hidden rounded-[22px] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,0,0,0.42)] sm:w-[19rem] lg:w-[20rem]"
+                  className="group cinema-frame w-[min(86vw,21rem)] shrink-0 snap-start overflow-hidden rounded-none border border-white/30 bg-black shadow-[0_14px_34px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(116,124,136,0.3)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.34)] sm:w-[19rem] lg:w-[20rem]"
                 >
                   <div className="relative h-60 overflow-hidden">
                     {hasBanner ? (
@@ -169,7 +169,7 @@ export function FilmmakersBrowse({ creators }: FilmmakersBrowseProps) {
                     ) : null}
                   </div>
 
-                  <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(9,10,16,0.92),rgba(7,8,13,0.84))] p-4 sm:p-4.5">
+                  <div className="border-t border-white/16 bg-black p-4 sm:p-4.5">
                     {!hasBanner ? (
                       <h2 className="font-serif text-[1.15rem] font-semibold leading-tight text-foreground">{creator.displayName}</h2>
                     ) : null}
