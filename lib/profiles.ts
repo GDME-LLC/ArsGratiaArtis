@@ -355,7 +355,7 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
 
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, bio, avatar_url, is_creator, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
+    .select("id, handle, display_name, bio, avatar_url, banner_url, website_url, is_creator, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
     .eq("is_public", true)
     .eq("is_creator", true)
     .limit(limit);
@@ -372,7 +372,7 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
 
   const { data: films, error: filmsError } = await supabase
     .from("films")
-    .select("id, creator_id, title, slug, synopsis, published_at, series_id")
+    .select("id, creator_id, title, slug, synopsis, published_at, poster_url, series_id")
     .in("creator_id", profileIds)
     .eq("publish_status", "published")
     .eq("visibility", "public")
@@ -394,6 +394,7 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
       slug: string;
       synopsis: string | null;
       publishedAt: string | null;
+      posterUrl: string | null;
     }>
   >();
 
@@ -420,6 +421,7 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
         slug: film.slug,
         synopsis: film.synopsis,
         publishedAt: film.published_at,
+        posterUrl: film.poster_url,
       });
       releasePreviewMap.set(film.creator_id, existingPreviews);
     }
@@ -443,6 +445,8 @@ export async function listPublicCreators(limit = 12): Promise<PublicCreatorListI
         displayName: String(profile.display_name ?? ""),
         bio: typeof profile.bio === "string" ? profile.bio : null,
         avatarUrl: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
+        bannerUrl: typeof profile.banner_url === "string" ? profile.banner_url : null,
+        websiteUrl: typeof profile.website_url === "string" ? profile.website_url : null,
         isCreator: Boolean(profile.is_creator),
         followerCount: followerCounts.get(String(profile.id)) ?? 0,
         publicFilmCount: filmCountMap.get(String(profile.id)) ?? 0,

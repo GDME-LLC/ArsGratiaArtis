@@ -312,6 +312,8 @@ export type PublicCreatorListItem = {
   displayName: string;
   bio: string | null;
   avatarUrl: string | null;
+  bannerUrl: string | null;
+  websiteUrl: string | null;
   isCreator: boolean;
   followerCount: number;
   publicFilmCount: number;
@@ -325,6 +327,7 @@ export type PublicCreatorListItem = {
     slug: string;
     synopsis: string | null;
     publishedAt: string | null;
+    posterUrl: string | null;
   }>;
 };
 
