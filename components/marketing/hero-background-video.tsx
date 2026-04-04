@@ -237,7 +237,7 @@ export function HeroBackgroundVideo() {
   }, [prefersReducedMotion]);
 
   const layerVisible = loopVisible || prefersReducedMotion;
-  const videoBaseClass = "public-background__hero-video absolute inset-0 h-full w-full -translate-y-[14%] scale-[1.12] object-cover object-center transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] xl:object-[24%_center]";
+  const videoBaseClass = "public-background__hero-video absolute inset-0 h-full w-full translate-y-[8vh] scale-[1.12] object-cover object-center brightness-150 transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] xl:object-[24%_center]";
   const videoAClass = activeLayer === 0
     ? isCrossfading
       ? `${videoBaseClass} z-10 opacity-34`
@@ -259,7 +259,7 @@ export function HeroBackgroundVideo() {
         className={`absolute inset-0 transition-opacity duration-[720ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
       >
         <div
-          className={`absolute inset-0 -translate-y-[14%] scale-[1.12] bg-cover bg-center bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] xl:bg-[position:24%_center] ${hasReadyVideo && !prefersReducedMotion ? "opacity-10" : "opacity-64"}`}
+          className={`absolute inset-0 translate-y-[8vh] scale-[1.12] bg-cover bg-center bg-no-repeat transition-opacity duration-[560ms] ease-out sm:scale-[1.1] lg:scale-[1.08] xl:bg-[position:24%_center] ${hasReadyVideo && !prefersReducedMotion ? "opacity-10" : "opacity-64"}`}
           style={{ backgroundImage: `url(${HERO_LOOP_POSTER})` }}
         />
         {!prefersReducedMotion ? (

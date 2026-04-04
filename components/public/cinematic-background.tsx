@@ -23,13 +23,6 @@ export function CinematicBackground({ variant, platform = "desktop" }: Cinematic
   return (
     <div className={`public-background ${variantClassMap[variant]}`} aria-hidden="true" data-platform={platform}>
       {variant === "home" ? <HeroBackgroundVideo /> : null}
-      <div className="public-background__base" />
-      <div className="public-background__starfield" />
-      <div className="public-background__nebula" />
-      <div className="public-background__haze public-background__drift-slower" />
-      <div className="public-background__light" />
-      <div className="public-background__grain" />
-      <div className="public-background__vignette" />
     </div>
   );
 }
