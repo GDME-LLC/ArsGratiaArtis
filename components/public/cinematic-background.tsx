@@ -1,7 +1,5 @@
 "use client";
 
-import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
-
 export type PublicExperienceVariant = "home" | "creator" | "film" | "theatre" | "editorial" | "resource" | "default";
 
 type CinematicBackgroundProps = {
@@ -22,7 +20,13 @@ const variantClassMap: Record<PublicExperienceVariant, string> = {
 export function CinematicBackground({ variant, platform = "desktop" }: CinematicBackgroundProps) {
   return (
     <div className={`public-background ${variantClassMap[variant]}`} aria-hidden="true" data-platform={platform}>
-      {variant === "home" ? <HeroBackgroundVideo /> : null}
+      <div className="public-background__base" />
+      <div className="public-background__starfield" />
+      <div className="public-background__nebula" />
+      <div className="public-background__haze public-background__drift-slower" />
+      <div className="public-background__light" />
+      <div className="public-background__grain" />
+      <div className="public-background__vignette" />
     </div>
   );
 }

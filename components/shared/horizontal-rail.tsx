@@ -13,6 +13,11 @@ type HorizontalRailProps = {
 
 export function HorizontalRail({ children, ariaLabel, className }: HorizontalRailProps) {
   const railRef = useRef<HTMLDivElement | null>(null);
+  const touchStartXRef = useRef(0);
+  const touchStartYRef = useRef(0);
+  const touchStartScrollLeftRef = useRef(0);
+  const touchHorizontalActiveRef = useRef(false);
+  const touchTrackingRef = useRef(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
@@ -59,8 +64,59 @@ export function HorizontalRail({ children, ariaLabel, className }: HorizontalRai
       return;
     }
 
-    const amount = Math.max(node.clientWidth * 0.82, 320) * direction;
+    const amount = node.clientWidth * direction;
     node.scrollBy({ left: amount, behavior: "smooth" });
+  }
+
+  function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+    const node = railRef.current;
+    const touch = event.touches[0];
+
+    if (!node || !touch) {
+      return;
+    }
+
+    touchTrackingRef.current = true;
+    touchHorizontalActiveRef.current = false;
+    touchStartXRef.current = touch.clientX;
+    touchStartYRef.current = touch.clientY;
+    touchStartScrollLeftRef.current = node.scrollLeft;
+  }
+
+  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+    const node = railRef.current;
+    const touch = event.touches[0];
+
+    if (!node || !touch || !touchTrackingRef.current) {
+      return;
+    }
+
+    const deltaX = touch.clientX - touchStartXRef.current;
+    const deltaY = touch.clientY - touchStartYRef.current;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+
+    // Only lock to horizontal once intentional horizontal movement is clear.
+    if (!touchHorizontalActiveRef.current) {
+      if (absY > 12 && absY > absX) {
+        touchTrackingRef.current = false;
+        return;
+      }
+
+      if (absX > 14 && absX > absY + 6) {
+        touchHorizontalActiveRef.current = true;
+      } else {
+        return;
+      }
+    }
+
+    event.preventDefault();
+    node.scrollLeft = touchStartScrollLeftRef.current - deltaX;
+  }
+
+  function handleTouchEnd() {
+    touchTrackingRef.current = false;
+    touchHorizontalActiveRef.current = false;
   }
 
   return (
@@ -70,12 +126,12 @@ export function HorizontalRail({ children, ariaLabel, className }: HorizontalRai
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-12 bg-gradient-to-r from-background via-background/70 to-transparent lg:block" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-16 bg-gradient-to-l from-background via-background/70 to-transparent lg:block" />
 
-          <div className="pointer-events-none absolute inset-y-0 left-2 z-20 hidden items-center opacity-0 transition group-hover/rail:opacity-100 group-focus-within/rail:opacity-100 lg:flex">
+          <div className="pointer-events-none absolute inset-y-0 left-1 z-20 flex items-center opacity-100 transition sm:left-2 sm:opacity-90 sm:group-hover/rail:opacity-100 sm:group-focus-within/rail:opacity-100">
             <Button
               type="button"
               variant="ghost"
               size="lg"
-              className="pointer-events-auto h-10 w-10 rounded-full border border-white/10 bg-black/35 p-0 backdrop-blur-sm"
+              className="pointer-events-auto h-9 w-9 rounded-full border border-white/12 bg-black/45 p-0 backdrop-blur-sm sm:h-10 sm:w-10"
               onClick={() => scrollByAmount(-1)}
               disabled={!canScrollLeft}
               aria-label={`Scroll ${ariaLabel} left`}
@@ -84,12 +140,12 @@ export function HorizontalRail({ children, ariaLabel, className }: HorizontalRai
             </Button>
           </div>
 
-          <div className="pointer-events-none absolute inset-y-0 right-2 z-20 hidden items-center opacity-0 transition group-hover/rail:opacity-100 group-focus-within/rail:opacity-100 lg:flex">
+          <div className="pointer-events-none absolute inset-y-0 right-1 z-20 flex items-center opacity-100 transition sm:right-2 sm:opacity-90 sm:group-hover/rail:opacity-100 sm:group-focus-within/rail:opacity-100">
             <Button
               type="button"
               variant="ghost"
               size="lg"
-              className="pointer-events-auto h-10 w-10 rounded-full border border-white/10 bg-black/35 p-0 backdrop-blur-sm"
+              className="pointer-events-auto h-9 w-9 rounded-full border border-white/12 bg-black/45 p-0 backdrop-blur-sm sm:h-10 sm:w-10"
               onClick={() => scrollByAmount(1)}
               disabled={!canScrollRight}
               aria-label={`Scroll ${ariaLabel} right`}
@@ -103,8 +159,12 @@ export function HorizontalRail({ children, ariaLabel, className }: HorizontalRai
       <div
         ref={railRef}
         aria-label={ariaLabel}
-        className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-3 pt-1 touch-pan-x overscroll-x-contain sm:mx-0 sm:gap-4 sm:px-0 sm:pr-[8vw] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-        style={{ WebkitOverflowScrolling: "touch" }}
+        className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-3 pt-1 overscroll-x-contain sm:mx-0 sm:gap-4 sm:px-0 sm:pr-[8vw] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y pinch-zoom" }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
       >
         {children}
       </div>

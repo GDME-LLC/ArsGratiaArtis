@@ -8,6 +8,7 @@ import {
   type HeroCopyColor,
   type HeroCopySize,
 } from "@/lib/platform-settings-shared";
+import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
 import { Button } from "@/components/ui/button";
 import { cn, resolveCreatorName } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
@@ -111,8 +112,10 @@ export function Hero({
     : null;
 
   return (
-    <section className="w-full pt-2 sm:pt-3 lg:pt-4">
-      <div className="relative min-h-[68vh] overflow-hidden py-6 sm:py-7 lg:py-8">
+    <section className="relative -mt-[3.85rem] w-full pt-[4.05rem] sm:-mt-[4.2rem] sm:pt-[4.45rem]">
+      <div className="relative min-h-[108vh] overflow-hidden py-6 sm:py-7 lg:py-8">
+        <HeroBackgroundVideo />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 bg-[linear-gradient(180deg,rgba(6,8,12,0)_0%,rgba(6,8,12,0.86)_100%)] sm:h-36" />
         <div className="relative z-10 grid gap-8 px-5 sm:px-7 lg:-translate-y-14 lg:grid-cols-[minmax(0,1fr)_15.5rem] lg:items-end lg:px-10 xl:px-14">
           <div className="max-w-3xl">
             <div className="public-home-hero-copy px-5 py-5 sm:px-6 sm:py-6 lg:px-7 lg:py-7">
