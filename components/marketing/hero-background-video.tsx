@@ -2,20 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const HERO_LOOP_VERSION = "v2";
-const HERO_LOOP_PRIMARY_VIDEO = `/hero-loop-chrome.mp4?${HERO_LOOP_VERSION}`;
-const HERO_LOOP_FALLBACK_VIDEO = `/video/hero-loop-chrome.mp4?${HERO_LOOP_VERSION}`;
-const HERO_LOOP_POSTER = "/video/hero-loop-poster.jpg";
+import { HOME_HERO_LOOP_POSTER_SRC, HOME_HERO_LOOP_SRC } from "@/lib/constants/site";
+
+const HERO_LOOP_VERSION = "v3";
+const HERO_LOOP_VIDEO = `${HOME_HERO_LOOP_SRC}?${HERO_LOOP_VERSION}`;
+const HERO_LOOP_POSTER = HOME_HERO_LOOP_POSTER_SRC;
 const HERO_LOOP_FORWARD_DURATION_SECONDS = 7;
 const HERO_LOOP_OVERLAP_BLEND_MS = 860;
 const HERO_LOOP_OVERLAP_THRESHOLD_SECONDS = HERO_LOOP_FORWARD_DURATION_SECONDS - 1.15;
 
 function resolveInitialLoopState() {
   if (typeof document === "undefined") {
-    return false;
+    return true;
   }
 
-  return document.documentElement.dataset.publicLoopVisible === "true";
+  return document.documentElement.dataset.publicLoopVisible !== "false";
 }
 
 function getVideoRef(index: 0 | 1, first: React.RefObject<HTMLVideoElement | null>, second: React.RefObject<HTMLVideoElement | null>) {
@@ -236,7 +237,7 @@ export function HeroBackgroundVideo() {
   }, [prefersReducedMotion]);
 
   const layerVisible = loopVisible || prefersReducedMotion;
-  const videoBaseClass = "absolute inset-0 h-full w-full -translate-y-[14%] scale-[1.12] object-cover object-center transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] xl:object-[24%_center]";
+  const videoBaseClass = "public-background__hero-video absolute inset-0 h-full w-full -translate-y-[14%] scale-[1.12] object-cover object-center transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] xl:object-[24%_center]";
   const videoAClass = activeLayer === 0
     ? isCrossfading
       ? `${videoBaseClass} z-10 opacity-34`
@@ -253,7 +254,7 @@ export function HeroBackgroundVideo() {
       : `${videoBaseClass} z-0 opacity-0`;
 
   return (
-    <div ref={containerRef} className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+    <div ref={containerRef} className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
       <div
         className={`absolute inset-0 transition-opacity duration-[720ms] ease-out ${layerVisible ? "opacity-100" : "opacity-0"}`}
       >
@@ -269,14 +270,13 @@ export function HeroBackgroundVideo() {
               autoPlay={false}
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               poster={HERO_LOOP_POSTER}
               disablePictureInPicture
               disableRemotePlayback
               onCanPlay={() => setVideoAReady(true)}
             >
-              <source src={HERO_LOOP_PRIMARY_VIDEO} type="video/mp4" />
-              <source src={HERO_LOOP_FALLBACK_VIDEO} type="video/mp4" />
+              <source src={HERO_LOOP_VIDEO} type="video/mp4" />
             </video>
             <video
               ref={videoBRef}
@@ -284,14 +284,13 @@ export function HeroBackgroundVideo() {
               autoPlay={false}
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               poster={HERO_LOOP_POSTER}
               disablePictureInPicture
               disableRemotePlayback
               onCanPlay={() => setVideoBReady(true)}
             >
-              <source src={HERO_LOOP_PRIMARY_VIDEO} type="video/mp4" />
-              <source src={HERO_LOOP_FALLBACK_VIDEO} type="video/mp4" />
+              <source src={HERO_LOOP_VIDEO} type="video/mp4" />
             </video>
           </>
         ) : null}

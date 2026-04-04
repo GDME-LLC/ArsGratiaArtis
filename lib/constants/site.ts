@@ -1,5 +1,11 @@
 import { securityConfig } from "@/lib/constants/security";
 
+export const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen-v4";
+export const PUBLIC_HOME_VISITED_STORAGE_KEY = "arsgratia-home-visited-v1";
+export const HOME_HERO_LOOP_SRC = "/video/hero-loop-chrome.mp4";
+export const HOME_HERO_LOOP_POSTER_SRC = "/video/hero-loop-poster.jpg";
+export const HOME_INTRO_VIDEO_SRC = "/brand/firefly-opening.mp4";
+
 export const siteConfig = {
   name: "ArsNeos",
   motto: "ARS GRATIA ARTIS",

@@ -5,6 +5,7 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PublicExperienceRoot } from "@/components/public/public-experience-root";
+import { PUBLIC_HOME_VISITED_STORAGE_KEY, PUBLIC_INTRO_STORAGE_KEY } from "@/lib/constants/site";
 
 import "./globals.css";
 
@@ -20,8 +21,6 @@ const bodyFont = Inter({
 });
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://www.ars-gratia.com").replace(/\/$/, "");
-const PUBLIC_INTRO_STORAGE_KEY = "arsgratia-public-intro-seen-v4";
-const PUBLIC_INTRO_SKIP_ONCE_KEY = "arsgratia-public-intro-skip-once-v1";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -74,6 +73,7 @@ const publicEntryBootstrap = `
       root.dataset.publicLoopVisible = "true";
       root.dataset.publicContentVisible = "true";
       root.dataset.publicHeroVisible = "true";
+      root.dataset.publicShowIntroOverlay = "false";
       return;
     }
 
@@ -81,34 +81,28 @@ const publicEntryBootstrap = `
     var navEntries = typeof performance !== "undefined" && performance.getEntriesByType ? performance.getEntriesByType("navigation") : [];
     var isReload = !!(navEntries && navEntries.length && navEntries[0] && navEntries[0].type === "reload");
     var introSeen = false;
-    var skipIntroOnce = false;
+    var homeVisited = false;
+
     try {
       introSeen = window.sessionStorage.getItem("${PUBLIC_INTRO_STORAGE_KEY}") === "true";
-      skipIntroOnce = window.sessionStorage.getItem("${PUBLIC_INTRO_SKIP_ONCE_KEY}") === "true";
-      if (skipIntroOnce) {
-        window.sessionStorage.removeItem("${PUBLIC_INTRO_SKIP_ONCE_KEY}");
-      }
+      homeVisited = window.sessionStorage.getItem("${PUBLIC_HOME_VISITED_STORAGE_KEY}") === "true";
     } catch (error) {}
 
-    if (!prefersReducedMotion && !introSeen && !isReload && !skipIntroOnce) {
-      root.dataset.publicEntry = "intro";
-      root.dataset.publicLoopVisible = "false";
-      root.dataset.publicContentVisible = "false";
-      root.dataset.publicHeroVisible = "false";
-      return;
-    }
+    var shouldPlayIntro = !prefersReducedMotion && !introSeen && !isReload && !homeVisited;
 
-    // On refresh or if intro already seen, keep loop-first staging before revealing content.
-    root.dataset.publicEntry = "blend";
+    root.dataset.publicEntry = shouldPlayIntro ? "intro" : "ready";
     root.dataset.publicLoopVisible = "true";
-    root.dataset.publicContentVisible = "false";
-    root.dataset.publicHeroVisible = "false";
+    root.dataset.publicContentVisible = shouldPlayIntro ? "false" : "true";
+    root.dataset.publicHeroVisible = shouldPlayIntro ? "false" : "true";
+    root.dataset.publicShowIntroOverlay = shouldPlayIntro ? "true" : "false";
   } catch (error) {
     var root = document.documentElement;
-    root.dataset.publicEntry = "blend";
+    root.dataset.publicRoute = "true";
+    root.dataset.publicEntry = "ready";
     root.dataset.publicLoopVisible = "true";
-    root.dataset.publicContentVisible = "false";
-    root.dataset.publicHeroVisible = "false";
+    root.dataset.publicContentVisible = "true";
+    root.dataset.publicHeroVisible = "true";
+    root.dataset.publicShowIntroOverlay = "false";
   }
 })();`;
 
