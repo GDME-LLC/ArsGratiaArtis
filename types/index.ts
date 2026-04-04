@@ -411,6 +411,24 @@ export type AdminReportedProfileRow = {
   reportReasons: string[];
 };
 
+export type AdminManagedUserRow = {
+  id: string;
+  handle: string;
+  displayName: string;
+  avatarUrl: string | null;
+  isCreator: boolean;
+  isPublic: boolean;
+  email: string | null;
+  createdAt: string;
+  lastSignInAt: string | null;
+  publicFilmCount: number;
+  isAdmin: boolean;
+};
+
+export type AdminUserManagementOverview = {
+  users: AdminManagedUserRow[];
+};
+
 export type AdminModerationOverview = {
   search: string;
   films: AdminReportedFilmRow[];
