@@ -159,10 +159,10 @@ export default async function HomePage() {
                     <Link
                       key={creator.id}
                       href={`/creator/${creator.handle}`}
-                      className="surface-panel cinema-frame flex w-[min(84vw,19rem)] shrink-0 snap-start flex-col overflow-hidden p-4 sm:w-[18rem] sm:p-5"
+                      className="cinema-frame flex w-[min(84vw,19rem)] shrink-0 snap-start flex-col overflow-hidden rounded-none border border-white/30 bg-black p-4 shadow-[0_14px_34px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(116,124,136,0.3)] sm:w-[18rem] sm:p-5"
                     >
                       <div
-                        className="h-36 rounded-[20px] border border-white/10 bg-white/5 bg-cover bg-center"
+                        className="h-36 rounded-none border border-white/12 bg-white/5 bg-cover bg-center"
                         style={
                           creator.bannerUrl
                             ? { backgroundImage: `linear-gradient(rgba(4,4,6,0.2), rgba(4,4,6,0.78)), url(${creator.bannerUrl})` }
@@ -183,14 +183,14 @@ export default async function HomePage() {
                       <p className="body-sm mt-4 line-clamp-3 flex-1">
                         {creator.bio || "One of the first artists helping shape ArsNeos's founding era."}
                       </p>
-                      <div className="mt-5 grid grid-cols-1 gap-3 text-sm text-muted-foreground min-[420px]:grid-cols-2">
-                        <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
-                          <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Releases</p>
-                          <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatCountLabel(creator.publicFilmCount, "release")}</p>
+                      <div className="mt-5 grid min-w-0 grid-cols-2 gap-3 text-sm text-muted-foreground">
+                        <div className="min-w-0 rounded-none border border-white/12 bg-black/20 px-4 py-3">
+                          <p className="text-[10px] uppercase tracking-[0.1em] text-primary/82 sm:text-[11px] sm:tracking-[0.18em]">Releases</p>
+                          <p className="mt-2 break-words text-[0.98rem] font-semibold leading-tight text-foreground sm:text-lg">{formatCountLabel(creator.publicFilmCount, "release")}</p>
                         </div>
-                        <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3">
-                          <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Followers</p>
-                          <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatFollowerCount(creator.followerCount)}</p>
+                        <div className="min-w-0 rounded-none border border-white/12 bg-black/20 px-4 py-3">
+                          <p className="text-[10px] uppercase tracking-[0.1em] text-primary/82 sm:text-[11px] sm:tracking-[0.18em]">Followers</p>
+                          <p className="mt-2 break-words text-[0.98rem] font-semibold leading-tight text-foreground sm:text-lg">{formatFollowerCount(creator.followerCount)}</p>
                         </div>
                       </div>
                       <p className="mt-4 text-sm text-muted-foreground">
@@ -269,7 +269,7 @@ export default async function HomePage() {
                 return (
                   <article
                     key={creator.id}
-                    className="surface-panel cinema-frame w-[min(86vw,21rem)] shrink-0 snap-start overflow-hidden p-4 sm:w-[20rem] sm:p-5"
+                    className="cinema-frame w-[min(86vw,21rem)] shrink-0 snap-start overflow-hidden rounded-none border border-white/30 bg-black p-4 shadow-[0_14px_34px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(116,124,136,0.3)] sm:w-[20rem] sm:p-5"
                   >
                     <p className="display-kicker">Filmmaker</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -281,29 +281,25 @@ export default async function HomePage() {
                       {creator.bio || "A public filmmaker page is live, with releases and series beginning to take shape."}
                     </p>
 
-                    <div className="mt-5 grid gap-3 text-sm min-[420px]:grid-cols-2 lg:grid-cols-3">
-                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-white/5 p-3">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Followers</p>
-                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatFollowerCount(creator.followerCount)}</p>
+                    <div className="mt-5 grid min-w-0 grid-cols-2 gap-3 text-sm">
+                      <div className="min-w-0 rounded-none border border-white/12 bg-white/5 p-3">
+                        <p className="text-[10px] uppercase tracking-[0.1em] text-primary/82 sm:text-[11px] sm:tracking-[0.18em]">Followers</p>
+                        <p className="mt-2 break-words text-[0.98rem] font-semibold leading-tight text-foreground sm:text-lg">{formatFollowerCount(creator.followerCount)}</p>
                       </div>
-                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-white/5 p-3">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Films</p>
-                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatCountLabel(creator.publicFilmCount, "release")}</p>
-                      </div>
-                      <div className="min-w-0 rounded-[18px] border border-white/10 bg-white/5 p-3 min-[420px]:col-span-2 lg:col-span-1">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Series</p>
-                        <p className="mt-2 break-words text-base font-semibold text-foreground sm:text-lg">{formatCountLabel(creator.seriesCount, "series", "series")}</p>
+                      <div className="min-w-0 rounded-none border border-white/12 bg-white/5 p-3">
+                        <p className="text-[10px] uppercase tracking-[0.1em] text-primary/82 sm:text-[11px] sm:tracking-[0.18em]">Releases</p>
+                        <p className="mt-2 break-words text-[0.98rem] font-semibold leading-tight text-foreground sm:text-lg">{formatCountLabel(creator.publicFilmCount, "release")}</p>
                       </div>
                     </div>
 
-                    <div className="mt-5 min-w-0 rounded-[20px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-primary/82 sm:text-[11px] sm:tracking-[0.22em]">Latest Release</p>
+                    <div className="mt-5 min-w-0 rounded-none border border-white/12 bg-black/20 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-primary/82 sm:text-[11px] sm:tracking-[0.18em]">Latest Release</p>
                       <p className="mt-3 break-words text-sm text-foreground">
                         {latestRelease?.title ?? "No public releases yet."}
                       </p>
                     </div>
 
-                    <Button asChild size="lg" variant="ghost" className="mt-5">
+                    <Button asChild size="lg" variant="ghost" className="mt-5 w-full min-w-0">
                       <Link href={`/creator/${creator.handle}`}>View filmmaker</Link>
                     </Button>
                   </article>
