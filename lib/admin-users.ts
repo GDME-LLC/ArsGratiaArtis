@@ -1,20 +1,41 @@
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { listAdminProfileIds } from "@/lib/admin";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { AdminManagedUserRow, AdminUserManagementOverview } from "@/types";
 
-function getAdminUserStorageClient() {
+async function getReadableAdminUserClient() {
+  const serviceSupabase = createServiceRoleSupabaseClient();
+  if (serviceSupabase) {
+    return { supabase: serviceSupabase, hasServiceRole: true };
+  }
+
+  const serverSupabase = await createServerSupabaseClient();
+  if (!serverSupabase) {
+    throw new Error("Supabase is not configured.");
+  }
+
+  return { supabase: serverSupabase, hasServiceRole: false };
+}
+
+function getAdminWriteClient() {
   const supabase = createServiceRoleSupabaseClient();
 
   if (!supabase) {
-    throw new Error("Supabase service role is not configured.");
+    throw new Error("User management requires a valid SUPABASE_SERVICE_ROLE_KEY.");
   }
 
   return supabase;
 }
 
 export async function listAdminUsers(): Promise<AdminUserManagementOverview> {
-  const supabase = getAdminUserStorageClient();
-  const adminProfileIds = new Set(await listAdminProfileIds());
+  const { supabase, hasServiceRole } = await getReadableAdminUserClient();
+  const adminProfileIds = hasServiceRole ? new Set(await listAdminProfileIds()) : new Set<string>();
+  let warning: string | null = null;
+  let canManageAuthUsers = hasServiceRole;
+
+  if (!hasServiceRole) {
+    warning = "User management is in read-only mode because SUPABASE_SERVICE_ROLE_KEY is not configured.";
+  }
 
   const [{ data: profileRows, error: profilesError }, authResponse] = await Promise.all([
     supabase
@@ -22,20 +43,37 @@ export async function listAdminUsers(): Promise<AdminUserManagementOverview> {
       .select("id, handle, display_name, avatar_url, is_creator, is_public, created_at")
       .order("created_at", { ascending: false })
       .limit(200),
-    supabase.auth.admin.listUsers({ page: 1, perPage: 200 }),
+    hasServiceRole ? supabase.auth.admin.listUsers({ page: 1, perPage: 200 }) : Promise.resolve(null),
   ]);
 
   if (profilesError) {
-    throw new Error(profilesError.message);
-  }
+    if (!hasServiceRole) {
+      return {
+        users: [],
+        canManageAuthUsers: false,
+        warning:
+          warning ??
+          "User management is unavailable until SUPABASE_SERVICE_ROLE_KEY is configured.",
+      };
+    }
 
-  if (authResponse.error) {
-    throw new Error(authResponse.error.message);
+    throw new Error(profilesError.message);
   }
 
   const profiles = profileRows ?? [];
   const profileIds = profiles.map((profile) => String(profile.id));
-  const authUserMap = new Map(authResponse.data.users.map((user) => [user.id, user]));
+  const authUserMap = new Map(
+    authResponse && !authResponse.error
+      ? authResponse.data.users.map((user) => [user.id, user])
+      : [],
+  );
+
+  if (authResponse?.error) {
+    canManageAuthUsers = false;
+    warning =
+      warning ??
+      "User management is partially unavailable because the service role key cannot access Supabase auth admin APIs.";
+  }
 
   const { data: filmRows, error: filmsError } = profileIds.length
     ? await supabase
@@ -44,8 +82,12 @@ export async function listAdminUsers(): Promise<AdminUserManagementOverview> {
         .in("creator_id", profileIds)
     : { data: [], error: null };
 
-  if (filmsError) {
+  if (filmsError && hasServiceRole) {
     throw new Error(filmsError.message);
+  }
+
+  if (filmsError && !hasServiceRole) {
+    warning = warning ?? "Read-only mode cannot load film totals without elevated database access.";
   }
 
   const filmCountMap = new Map();
@@ -77,14 +119,18 @@ export async function listAdminUsers(): Promise<AdminUserManagementOverview> {
     };
   });
 
-  return { users };
+  return {
+    users,
+    canManageAuthUsers,
+    warning,
+  };
 }
 
 export async function deleteAdminManagedUsers(input: {
   actorUserId: string;
   userIds: string[];
 }) {
-  const supabase = getAdminUserStorageClient();
+  const supabase = getAdminWriteClient();
   const uniqueUserIds = [...new Set(input.userIds.map((value) => value.trim()).filter(Boolean))];
 
   if (uniqueUserIds.length === 0) {

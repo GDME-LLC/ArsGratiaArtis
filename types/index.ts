@@ -427,6 +427,8 @@ export type AdminManagedUserRow = {
 
 export type AdminUserManagementOverview = {
   users: AdminManagedUserRow[];
+  canManageAuthUsers: boolean;
+  warning: string | null;
 };
 
 export type AdminModerationOverview = {

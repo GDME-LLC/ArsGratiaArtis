@@ -2,10 +2,12 @@ import { redirect } from "next/navigation";
 
 import { AdminToolsNav } from "@/components/admin/admin-tools-nav";
 import { AdminFilmPanel } from "@/components/admin/admin-film-panel";
+import { AdminUserManagementPanel } from "@/components/admin/admin-user-management-panel";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { StatePanel } from "@/components/shared/state-panel";
 import { getAdminUser } from "@/lib/admin";
 import { listAdminModerationContent } from "@/lib/admin-films";
+import { listAdminUsers } from "@/lib/admin-users";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 type AdminFilmsPageProps = {
@@ -34,7 +36,16 @@ export default async function AdminFilmsPage({ searchParams }: AdminFilmsPagePro
 
   try {
     const params = searchParams ? await searchParams : undefined;
-    const overview = await listAdminModerationContent(params?.q ?? "");
+    const [overview, userOverviewResult] = await Promise.all([
+      listAdminModerationContent(params?.q ?? ""),
+      listAdminUsers().catch((error) => ({ error })),
+    ]);
+    const userOverview = "error" in userOverviewResult ? null : userOverviewResult;
+    const userOverviewError = "error" in userOverviewResult
+      ? userOverviewResult.error instanceof Error
+        ? userOverviewResult.error.message
+        : "User management tools could not be loaded."
+      : null;
 
     return (
       <SectionShell className="py-14 sm:py-16">
@@ -44,12 +55,33 @@ export default async function AdminFilmsPage({ searchParams }: AdminFilmsPagePro
           <p className="display-kicker">Admin Tools</p>
           <h1 className="headline-xl mt-4">Moderation tools</h1>
           <p className="body-lg mt-4">
-            Search across films and users, with reported items surfaced automatically so moderation can stay proactive instead of report-only.
+            Search across films and creators, and manage user accounts from the same moderation workspace.
           </p>
         </div>
 
         <div className="mt-8">
           <AdminFilmPanel overview={overview} />
+        </div>
+
+        <div className="mt-10">
+          <div className="max-w-3xl">
+            <p className="display-kicker">Moderation Tools</p>
+            <h2 className="headline-lg mt-3">Users</h2>
+            <p className="body-sm mt-3">
+              Review and manage user accounts without leaving moderation tools.
+            </p>
+          </div>
+
+          <div className="mt-6">
+            {userOverview ? (
+              <AdminUserManagementPanel overview={userOverview} />
+            ) : (
+              <StatePanel
+                title="User tools could not be loaded"
+                description={userOverviewError ?? "An unexpected error occurred while loading user tools."}
+              />
+            )}
+          </div>
         </div>
       </SectionShell>
     );
