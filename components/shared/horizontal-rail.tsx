@@ -38,14 +38,19 @@ export function HorizontalRail({ children, ariaLabel, className }: HorizontalRai
     }
 
     updateState();
+
+    const resizeObserver = new ResizeObserver(updateState);
+    resizeObserver.observe(node);
+
     node.addEventListener("scroll", updateState, { passive: true });
     window.addEventListener("resize", updateState);
 
     return () => {
+      resizeObserver.disconnect();
       node.removeEventListener("scroll", updateState);
       window.removeEventListener("resize", updateState);
     };
-  }, []);
+  }, [children]);
 
   function scrollByAmount(direction: -1 | 1) {
     const node = railRef.current;
@@ -98,7 +103,8 @@ export function HorizontalRail({ children, ariaLabel, className }: HorizontalRai
       <div
         ref={railRef}
         aria-label={ariaLabel}
-        className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 pr-5 pt-1 sm:gap-4 sm:pr-[10vw] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-3 pt-1 touch-pan-x overscroll-x-contain sm:mx-0 sm:gap-4 sm:px-0 sm:pr-[8vw] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        style={{ WebkitOverflowScrolling: "touch" }}
       >
         {children}
       </div>

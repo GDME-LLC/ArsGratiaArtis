@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { formatCountValue, formatFollowerCount } from "@/lib/utils";
 
 type FollowButtonProps = {
@@ -11,6 +12,7 @@ type FollowButtonProps = {
   initialFollowerCount: number;
   initialFollowing: boolean;
   isCurrentUser: boolean;
+  className?: string;
 };
 
 export function FollowButton({
@@ -18,6 +20,7 @@ export function FollowButton({
   initialFollowerCount,
   initialFollowing,
   isCurrentUser,
+  className,
 }: FollowButtonProps) {
   const router = useRouter();
   const [following, setFollowing] = useState(initialFollowing);
@@ -76,6 +79,7 @@ export function FollowButton({
       type="button"
       variant={following ? "default" : "ghost"}
       size="lg"
+      className={cn("min-w-0", className)}
       onClick={handleClick}
       disabled={isPending}
       aria-label={`${buttonLabel} this filmmaker. ${formatFollowerCount(count)}.`}

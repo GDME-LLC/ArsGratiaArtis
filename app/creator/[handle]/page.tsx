@@ -210,29 +210,30 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                   ) : null}
                 </div>
 
-                <div className="rounded-none border border-white/28 bg-black/55 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] sm:p-5 backdrop-blur-sm">
-                  <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-2">
+                <div className="min-w-0 rounded-none border border-white/28 bg-black/55 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] sm:p-5 backdrop-blur-sm">
+                  <div className="min-w-0 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-2">
                     {profile.viewerCanFollow ? (
                       <FollowButton
                         creatorId={profile.id}
                         initialFollowerCount={profile.followerCount}
                         initialFollowing={profile.viewerIsFollowing}
                         isCurrentUser={profile.isCurrentUser}
+                        className="h-auto min-h-11 w-full px-4 py-2 text-[11px] tracking-[0.06em] whitespace-normal sm:h-12 sm:w-auto sm:px-6 sm:py-0 sm:text-sm sm:tracking-normal sm:whitespace-nowrap"
                       />
                     ) : null}
                     {showFollowAccessPrompt ? (
-                      <Button asChild variant="ghost" className="w-full sm:w-auto">
-                        <Link href={followAccessHref}>Enable creator profile to follow</Link>
+                      <Button asChild variant="ghost" className="h-auto min-h-11 w-full min-w-0 px-4 py-2 text-[11px] tracking-[0.06em] whitespace-normal sm:h-12 sm:w-auto sm:px-6 sm:py-0 sm:text-sm sm:tracking-normal sm:whitespace-nowrap">
+                        <Link href={followAccessHref} className="break-words text-center">Enable creator profile to follow</Link>
                       </Button>
                     ) : null}
                     {profile.websiteUrl ? (
-                      <Button asChild variant="ghost" className="w-full sm:w-auto">
-                        <a href={profile.websiteUrl} target="_blank" rel="noreferrer">Open {primaryLinkLabel}</a>
+                      <Button asChild variant="ghost" className="h-auto min-h-11 w-full min-w-0 px-4 py-2 text-[11px] tracking-[0.06em] whitespace-normal sm:h-12 sm:w-auto sm:px-6 sm:py-0 sm:text-sm sm:tracking-normal sm:whitespace-nowrap">
+                        <a href={profile.websiteUrl} target="_blank" rel="noreferrer" className="break-words text-center">Open {primaryLinkLabel}</a>
                       </Button>
                     ) : null}
                     {profile.isCurrentUser ? (
-                      <Button asChild variant="ghost" className="w-full sm:w-auto">
-                        <Link href="/settings">Edit Profile</Link>
+                      <Button asChild variant="ghost" className="h-auto min-h-11 w-full min-w-0 px-4 py-2 text-[11px] tracking-[0.06em] whitespace-normal sm:h-12 sm:w-auto sm:px-6 sm:py-0 sm:text-sm sm:tracking-normal sm:whitespace-nowrap">
+                        <Link href="/settings" className="break-words text-center">Edit Profile</Link>
                       </Button>
                     ) : null}
                   </div>
