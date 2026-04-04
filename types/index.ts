@@ -24,8 +24,12 @@ export type CreatorTheatreSettings = {
   heroVideoUrl: string | null;
   openingStatement: string | null;
   featuredFilmId: string | null;
+  featuredMode: "manual" | "latest";
+  featuredLabel: string | null;
+  presentationPreset: "signature" | "gallery" | "monument";
   preferredToolSlugs: string[];
   creativeProcessSummary: string | null;
+  filmOrder: string[];
   visibleSections: TheatreSectionId[];
   sectionOrder: TheatreSectionId[];
 };

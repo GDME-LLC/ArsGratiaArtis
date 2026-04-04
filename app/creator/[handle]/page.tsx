@@ -128,13 +128,37 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   const creatorUrl = `${siteUrl}/creator/${profile.handle}`;
   const profileSettings = profile.theatreSettings;
   const primaryLinkLabel = getPrimaryLinkLabel(profile.websiteUrl);
-  // Theatre style presets are deprecated; use a default background class
+  const presentationPreset = profileSettings.presentationPreset ?? "signature";
+  const creatorPageClass =
+    presentationPreset === "gallery"
+      ? "relative overflow-hidden py-10 sm:py-14 sm:pb-16 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_36%)]"
+      : presentationPreset === "monument"
+        ? "relative overflow-hidden py-6 sm:py-10 sm:pb-12 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.11),transparent_30%)]"
+        : "relative overflow-hidden py-8 sm:py-12 sm:pb-14 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_32%)]";
   const heroImageUrl = profileSettings.heroImageUrl || profile.bannerUrl;
-  const featuredFilm = profileSettings.featuredFilmId
-    ? films.find((film) => film.id === profileSettings.featuredFilmId) ?? null
-    : null;
+  const featuredFilm = profileSettings.featuredMode === "latest"
+    ? films[0] ?? null
+    : profileSettings.featuredFilmId
+      ? films.find((film) => film.id === profileSettings.featuredFilmId) ?? null
+      : null;
+  const featuredLabel = profileSettings.featuredLabel || (profileSettings.featuredMode === "latest" ? "Latest Release" : "Featured Work");
   const showFollowAccessPrompt = !profile.isCurrentUser && !profile.viewerCanFollow;
   const followAccessHref = profile.viewerIsSignedIn ? "/settings#profile" : "/signup";
+  const orderedFilms = [...films].sort((a, b) => {
+    const rankA = profileSettings.filmOrder.indexOf(a.id);
+    const rankB = profileSettings.filmOrder.indexOf(b.id);
+
+    if (rankA >= 0 && rankB >= 0) {
+      return rankA - rankB;
+    }
+    if (rankA >= 0) {
+      return -1;
+    }
+    if (rankB >= 0) {
+      return 1;
+    }
+    return (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "");
+  });
   const visibleSections = getOrderedVisibleTheatreSections(profileSettings).filter((sectionId) => {
     if (sectionId === "featured_work") {
       return Boolean(featuredFilm);
@@ -143,7 +167,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
       return preferredTools.length > 0 || Boolean(profileSettings.creativeProcessSummary);
     }
     if (sectionId === "releases") {
-      return films.length > 0;
+      return orderedFilms.length > 0;
     }
     if (sectionId === "links") {
       return Boolean(profile.websiteUrl);
@@ -152,7 +176,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   });
 
   return (
-    <section className={cn("relative overflow-hidden py-8 sm:py-12 sm:pb-14 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_32%)]") } data-reveal="page">
+    <section className={cn(creatorPageClass) } data-reveal="page">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_32%)] opacity-70" />
       <div className="container-shell relative z-10">
         {profile.isCurrentUser ? (
@@ -170,7 +194,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
           <div className="relative overflow-hidden">
             <div
               className={cn(
-                "min-h-[260px] w-full bg-cover bg-center sm:min-h-[360px] lg:min-h-[420px] bg-black/30"
+                "min-h-[380px] w-full bg-cover bg-center sm:min-h-[400px] lg:min-h-[420px] bg-black/30"
               )}
               style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
             />
@@ -275,7 +299,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                         <p className="body-lg mt-3 max-w-3xl text-foreground/92 sm:mt-4">{profileSettings.creativeProcessSummary}</p>
                       ) : null}
                       {preferredTools.length > 0 ? (
-                        <div className="mt-4 flex flex-wrap gap-2.5 sm:mt-5">
+                        <div className="mt-4 flex min-w-0 flex-wrap gap-2.5 sm:mt-5">
                           {preferredTools.map((tool) => {
                             const resourceEntry = findResourceEntryByToolSlug(tool.slug);
                             const href = resourceEntry ? `/resources#resource-entry-${tool.slug}` : tool.websiteUrl;
@@ -307,7 +331,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                           <FilmArtwork artworkUrl={featuredFilm.posterUrl} title={featuredFilm.title} className="rounded-[24px]" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="display-kicker text-white/80">Featured Film</p>
+                          <p className="display-kicker text-white/80">{featuredLabel}</p>
                           <h2 className="headline-lg mt-3 break-words text-foreground">{featuredFilm.title}</h2>
                           <p className="body-sm mt-3 max-w-3xl sm:mt-4">{featuredFilm.synopsis || "A spotlighted release from this filmmaker."}</p>
                           <div className="mt-4 flex flex-wrap gap-3 sm:mt-5">
@@ -327,7 +351,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                       <div className="flex flex-col gap-3.5 sm:gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="display-kicker text-white/80">Filmography</p>
-                          <h2 className="headline-lg mt-3 text-foreground">{formatCountLabel(films.length, "public release")}</h2>
+                          <h2 className="headline-lg mt-3 text-foreground">{formatCountLabel(orderedFilms.length, "public release")}</h2>
                         </div>
                         {profile.isCurrentUser ? (
                           <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
@@ -336,7 +360,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                         ) : null}
                       </div>
                       <div className="mt-5 sm:mt-6">
-                        <PublicFilmFeed films={films} variant="row" />
+                        <PublicFilmFeed films={orderedFilms} variant="row" />
                       </div>
                     </article>
                   );
@@ -361,7 +385,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                 return null;
               })}
 
-              {visibleSections.includes("releases") && films.length === 0 ? (
+              {visibleSections.includes("releases") && orderedFilms.length === 0 ? (
                 <div className="rounded-[28px] border border-white/10 bg-black/20 px-4 py-5 text-sm leading-6 text-muted-foreground sm:px-6 sm:py-8">
                   This profile is live, but no public films have premiered yet. Return later to see new releases.
                 </div>

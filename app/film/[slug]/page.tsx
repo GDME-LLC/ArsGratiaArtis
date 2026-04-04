@@ -99,7 +99,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
           </div>
         )}
         <div className="px-5 py-6 sm:px-10 sm:py-8">
-          <p className="display-kicker">Film</p>
+          <p className="display-kicker">Release</p>
           <h1 className="headline-xl mt-4">{data.title}</h1>
           <p className="body-lg mt-4 max-w-3xl">{data.synopsis || "A release note will appear here when the creator publishes one."}</p>
           <div className="mt-5 grid gap-5 border-t border-white/10 pt-5 sm:mt-6 sm:gap-6 sm:pt-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)]">
@@ -109,7 +109,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
             </div>
 
             <aside className="min-w-0 rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5">
-              <p className="display-kicker">About this release</p>
+              <p className="display-kicker">Release framing</p>
               <div className="mt-4 space-y-4">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Released on ArsNeos</p>
@@ -134,11 +134,12 @@ export default async function FilmPage({ params }: FilmPageProps) {
                         initialFollowerCount={data.creator.followerCount}
                         initialFollowing={data.creator.viewerIsFollowing}
                         isCurrentUser={data.creator.isCurrentUser}
+                        className="h-auto min-h-11 w-full px-4 py-2 text-[11px] tracking-[0.06em] whitespace-normal sm:h-12 sm:w-auto sm:px-6 sm:py-0 sm:text-sm sm:tracking-normal sm:whitespace-nowrap"
                       />
                     ) : null}
                     {showFollowAccessPrompt ? (
-                      <Button asChild variant="ghost" className="w-full sm:w-auto">
-                        <Link href={followAccessHref}>Enable creator profile to follow</Link>
+                      <Button asChild variant="ghost" className="h-auto min-h-11 w-full min-w-0 px-4 py-2 text-[11px] tracking-[0.06em] whitespace-normal sm:h-12 sm:w-auto sm:px-6 sm:py-0 sm:text-sm sm:tracking-normal sm:whitespace-nowrap">
+                        <Link href={followAccessHref} className="break-words text-center">Enable creator profile to follow</Link>
                       </Button>
                     ) : null}
                   </div>
@@ -193,77 +194,81 @@ export default async function FilmPage({ params }: FilmPageProps) {
 
           {hasAnyProcessMaterial ? (
             <div className="mt-7 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
-              <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5" data-reveal="panel">
-                  <p className="display-kicker">Process</p>
-                  <p className="mt-4 text-sm text-muted-foreground">{processSummary}</p>
-                  <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
+              <details className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5 [&_summary::-webkit-details-marker]:hidden" data-reveal="panel">
+                <summary className="cursor-pointer list-none">
+                  <div>
+                    <p className="display-kicker">Process details (optional)</p>
+                    <p className="mt-3 text-sm text-muted-foreground">{processSummary}</p>
+                  </div>
+                </summary>
+                <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                  <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
                     <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Prompt visibility</p>
                     <p className="mt-2 text-sm text-foreground">{promptVisibilityLabel}</p>
-                  </div>
-                  {data.creation.processSummary ? (
-                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Workflow / Process</p>
-                      <p className="mt-2 body-sm">{data.creation.processSummary}</p>
-                    </div>
-                  ) : null}
-                  {hasProcessTags ? (
-                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Made With</p>
-                      <div className="mt-3 flex min-w-0 flex-wrap gap-2">
-                        {data.creation.processTags.map((tag) => (
-                          <span key={tag} className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                  {hasPromptText ? (
-                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Prompt</p>
-                      <p className="mt-2 body-sm">{data.creation.promptText}</p>
-                    </div>
-                  ) : null}
-                </article>
-
-                <article className="rounded-[24px] border border-white/10 bg-white/5 p-4 sm:p-5" data-reveal="panel">
-                  <p className="display-kicker">Production Notes</p>
-                  <p className="body-sm mt-4">{data.creation.processNotes || "No process notes were shared for this release."}</p>
-                  {hasTools ? (
-                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Tools Used</p>
-                      <div className="mt-3 flex min-w-0 flex-wrap gap-2">
-                        {data.creation.tools.map((tool) => {
-                          const resourceEntry = findResourceEntryByToolSlug(tool.slug);
-                          const href = resourceEntry ? `/resources#resource-entry-${tool.slug}` : tool.websiteUrl;
-                          const content = (
-                            <span className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
-                              {tool.name}
+                    {data.creation.processSummary ? (
+                      <>
+                        <p className="mt-4 text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Workflow / Process</p>
+                        <p className="mt-2 body-sm">{data.creation.processSummary}</p>
+                      </>
+                    ) : null}
+                    {hasProcessTags ? (
+                      <>
+                        <p className="mt-4 text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Inspiration</p>
+                        <div className="mt-3 flex min-w-0 flex-wrap gap-2">
+                          {data.creation.processTags.map((tag) => (
+                            <span key={tag} className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
+                              {tag}
                             </span>
-                          );
+                          ))}
+                        </div>
+                      </>
+                    ) : null}
+                    {hasPromptText ? (
+                      <>
+                        <p className="mt-4 text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Prompt</p>
+                        <p className="mt-2 body-sm">{data.creation.promptText}</p>
+                      </>
+                    ) : null}
+                  </article>
 
-                          return href ? (
-                            <Link key={tool.id} href={href} className="transition hover:opacity-90">
-                              {content}
-                            </Link>
-                          ) : (
-                            <span key={tool.id}>{content}</span>
-                          );
-                        })}
+                  <article className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+                    <p className="display-kicker">Creator notes</p>
+                    <p className="body-sm mt-3">{data.creation.processNotes || "No process notes were shared for this release."}</p>
+                    {hasTools ? (
+                      <div className="mt-4">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Tools used</p>
+                        <div className="mt-3 flex min-w-0 flex-wrap gap-2">
+                          {data.creation.tools.map((tool) => {
+                            const resourceEntry = findResourceEntryByToolSlug(tool.slug);
+                            const href = resourceEntry ? `/resources#resource-entry-${tool.slug}` : tool.websiteUrl;
+                            const content = (
+                              <span className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground sm:text-xs sm:tracking-[0.16em]">
+                                {tool.name}
+                              </span>
+                            );
+
+                            return href ? (
+                              <Link key={tool.id} href={href} className="transition hover:opacity-90">
+                                {content}
+                              </Link>
+                            ) : (
+                              <span key={tool.id}>{content}</span>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  ) : null}
-                  {data.series?.nextEpisode ? (
-                    <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Series continuity</p>
-                      <Link href={`/film/${data.series.nextEpisode.slug}`} className="mt-2 inline-block break-words text-sm text-foreground underline decoration-white/20 underline-offset-4">
-                        Next episode: {data.series.nextEpisode.title}
-                      </Link>
-                    </div>
-                  ) : null}
-                </article>
-              </div>
+                    ) : null}
+                    {data.series?.nextEpisode ? (
+                      <div className="mt-4">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.22em]">Series continuity</p>
+                        <Link href={`/film/${data.series.nextEpisode.slug}`} className="mt-2 inline-block break-words text-sm text-foreground underline decoration-white/20 underline-offset-4">
+                          Next episode: {data.series.nextEpisode.title}
+                        </Link>
+                      </div>
+                    ) : null}
+                  </article>
+                </div>
+              </details>
             </div>
           ) : null}
 
