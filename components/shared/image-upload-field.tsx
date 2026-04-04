@@ -255,10 +255,10 @@ export function ImageUploadField({
             dragActive ? "border-primary/60 bg-white/[0.07]" : "hover:border-white/20 hover:bg-white/[0.06]",
           )}
         >
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center">
             <div
               className={cn(
-                "overflow-hidden rounded-[18px] border border-white/10 bg-white/[0.04] md:w-[180px]",
+                "overflow-hidden rounded-[18px] border border-white/10 bg-white/[0.04] lg:w-[180px]",
                 previewClassNames[aspectRatio],
               )}
             >

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,20 @@ const presentationPresets = [
   },
 ] as const;
 
+const STUDIO_MODULES_STORAGE_KEY = "arsneos-studio-modules-open-v1";
+
+type StudioModuleKey = "identity" | "featured" | "library" | "story" | "share";
+
+type StudioModuleOpenState = Record<StudioModuleKey, boolean>;
+
+const defaultStudioModuleOpenState: StudioModuleOpenState = {
+  identity: true,
+  featured: false,
+  library: false,
+  story: false,
+  share: false,
+};
+
 export function ProfileSettingsForm({ profile, availableFilms, availableTools }: ProfileSettingsFormProps) {
   const [form, setForm] = useState<FormState>({
     handle: profile.handle,
@@ -97,6 +111,35 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
   const [isBannerUploading, setIsBannerUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [moduleOpenState, setModuleOpenState] = useState<StudioModuleOpenState>(defaultStudioModuleOpenState);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STUDIO_MODULES_STORAGE_KEY);
+      if (!raw) {
+        return;
+      }
+
+      const parsed = JSON.parse(raw) as Partial<StudioModuleOpenState>;
+      setModuleOpenState({
+        identity: typeof parsed.identity === "boolean" ? parsed.identity : defaultStudioModuleOpenState.identity,
+        featured: typeof parsed.featured === "boolean" ? parsed.featured : defaultStudioModuleOpenState.featured,
+        library: typeof parsed.library === "boolean" ? parsed.library : defaultStudioModuleOpenState.library,
+        story: typeof parsed.story === "boolean" ? parsed.story : defaultStudioModuleOpenState.story,
+        share: typeof parsed.share === "boolean" ? parsed.share : defaultStudioModuleOpenState.share,
+      });
+    } catch {
+      // Keep defaults if localStorage is unavailable or malformed.
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STUDIO_MODULES_STORAGE_KEY, JSON.stringify(moduleOpenState));
+    } catch {
+      // Ignore storage failures; UI still works with in-memory state.
+    }
+  }, [moduleOpenState]);
 
   const uploadInFlight = isAvatarUploading || isBannerUploading;
   const openingStatementLength = form.theatre_settings.openingStatement?.length ?? 0;
@@ -325,13 +368,15 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
         </div>
       </div>
 
-      <div className="studio-modules mt-6 grid gap-5 sm:mt-8 sm:gap-8">
-        <section className="studio-module grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
-          <div className="space-y-2 sm:space-y-1">
-            <p className="display-kicker text-foreground/80">1. Identity</p>
-            <h2 className="headline-sm text-foreground">Define who you are</h2>
-            <p className="body-sm">Minimal editorial identity: name, line, description, and optional visual lead.</p>
-          </div>
+      <div className="studio-modules mt-6 grid gap-4 sm:mt-8 sm:gap-5">
+        <StudioModule
+          moduleKey="identity"
+          index="1"
+          title="Identity"
+          description="Minimal editorial identity: name, line, description, and optional visual lead."
+          isOpen={moduleOpenState.identity}
+          onToggle={(open) => setModuleOpenState((current) => ({ ...current, identity: open }))}
+        >
 
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
             <Field label="Handle">
@@ -358,7 +403,7 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
             <textarea value={form.bio} onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))} className={cn(inputClassName, "min-h-28 py-3 sm:min-h-32")} placeholder="Short profile description" />
           </Field>
 
-          <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
+          <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
             <Field label="Avatar">
               <ImageUploadField entityType="profile" field="avatar" value={form.avatar_url} onChange={(nextValue) => setForm((current) => ({ ...current, avatar_url: nextValue }))} onUploadingChange={setIsAvatarUploading} label="Avatar" aspectRatio="square" helperText="Public avatar for profile and credits." />
             </Field>
@@ -374,14 +419,16 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
               />
             </Field>
           </div>
-        </section>
+        </StudioModule>
 
-        <section className="studio-module grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
-          <div className="space-y-2 sm:space-y-1">
-            <p className="display-kicker text-foreground/80">2. Featured Work</p>
-            <h2 className="headline-sm text-foreground">Control what visitors see first</h2>
-            <p className="body-sm">Set manual spotlight or automatic latest release. Add optional context label.</p>
-          </div>
+        <StudioModule
+          moduleKey="featured"
+          index="2"
+          title="Featured Work"
+          description="Set manual spotlight or automatic latest release. Add optional context label."
+          isOpen={moduleOpenState.featured}
+          onToggle={(open) => setModuleOpenState((current) => ({ ...current, featured: open }))}
+        >
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
             <div className="grid gap-4">
@@ -428,14 +475,16 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
               <p className="mt-2 text-sm text-muted-foreground">{form.theatre_settings.featuredLabel || "No custom label"}</p>
             </aside>
           </div>
-        </section>
+        </StudioModule>
 
-        <section className="studio-module grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
-          <div className="space-y-2 sm:space-y-1">
-            <p className="display-kicker text-foreground/80">3. Film Library</p>
-            <h2 className="headline-sm text-foreground">Manage your releases quickly</h2>
-            <p className="body-sm">See publish state, visibility, order priority, and edit access at a glance.</p>
-          </div>
+        <StudioModule
+          moduleKey="library"
+          index="3"
+          title="Film Library"
+          description="See publish state, visibility, order priority, and edit access at a glance."
+          isOpen={moduleOpenState.library}
+          onToggle={(open) => setModuleOpenState((current) => ({ ...current, library: open }))}
+        >
 
           <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 sm:p-5">
             <p className="display-kicker text-foreground/80">Section order (major page flow)</p>
@@ -512,16 +561,17 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
               ))
             )}
           </div>
-        </section>
+        </StudioModule>
 
-        <section className="studio-module grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
-          <div className="space-y-2 sm:space-y-1">
-            <p className="display-kicker text-foreground/80">4. Story and Process</p>
-            <h2 className="headline-sm text-foreground">Optional context around the work</h2>
-            <p className="body-sm">Collapsed by default and shown only when you choose to include it.</p>
-          </div>
-
-          <details className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
+        <StudioModule
+          moduleKey="story"
+          index="4"
+          title="Story and Process"
+          description="Optional context around the work."
+          isOpen={moduleOpenState.story}
+          onToggle={(open) => setModuleOpenState((current) => ({ ...current, story: open }))}
+        >
+          <details className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:p-5" open={false}>
             <summary className="cursor-pointer text-sm text-foreground">Open story and process fields</summary>
             <div className="mt-4 grid gap-5">
               <Field label="Creator note" helperText="Appears as optional supporting context on your public page.">
@@ -576,14 +626,16 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
               </div>
             </div>
           </details>
-        </section>
+        </StudioModule>
 
-        <section className="studio-module grid gap-4 rounded-[28px] border border-white/10 bg-black/20 p-4 sm:gap-5 sm:p-8">
-          <div className="space-y-2 sm:space-y-1">
-            <p className="display-kicker text-foreground/80">5. Share and Preview</p>
-            <h2 className="headline-sm text-foreground">Publish with confidence</h2>
-            <p className="body-sm">Preview your page, copy your link, and choose a presentation preset that keeps quality high.</p>
-          </div>
+        <StudioModule
+          moduleKey="share"
+          index="5"
+          title="Share and Preview"
+          description="Preview your page, copy your link, and choose a presentation preset that keeps quality high."
+          isOpen={moduleOpenState.share}
+          onToggle={(open) => setModuleOpenState((current) => ({ ...current, share: open }))}
+        >
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
             <div className="grid gap-4">
@@ -640,12 +692,51 @@ export function ProfileSettingsForm({ profile, availableFilms, availableTools }:
               </div>
             </aside>
           </div>
-        </section>
+        </StudioModule>
 
         {error ? <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
         {success ? <div className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">{success}</div> : null}
       </div>
     </form>
+  );
+}
+
+function StudioModule({
+  moduleKey,
+  index,
+  title,
+  description,
+  children,
+  isOpen,
+  onToggle,
+}: {
+  moduleKey: StudioModuleKey;
+  index: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+  isOpen: boolean;
+  onToggle: (open: boolean) => void;
+}) {
+  return (
+    <details
+      className="studio-module rounded-[24px] border border-white/10 bg-black/20 p-4 sm:rounded-[26px] sm:p-6"
+      open={isOpen}
+      onToggle={(event) => {
+        const target = event.currentTarget;
+        onToggle(target.open);
+      }}
+      data-module={moduleKey}
+    >
+      <summary className="cursor-pointer list-none">
+        <div className="space-y-2 sm:space-y-1">
+          <p className="display-kicker text-foreground/80">{index}. {title}</p>
+          <h2 className="headline-sm text-foreground">{title}</h2>
+          <p className="body-sm">{description}</p>
+        </div>
+      </summary>
+      <div className="mt-5 grid gap-4 sm:mt-6 sm:gap-5">{children}</div>
+    </details>
   );
 }
 
