@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FolderOpen, RefreshCw, Save, Sparkles } from "lucide-react";
+import { FolderOpen, RefreshCw, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { SeededDraftPanel } from "@/components/workflows/seeded-draft-panel";
@@ -53,7 +53,7 @@ function hydrateFormFromDraft(draft: WorkflowDraft): WorkflowDraftState {
 
 export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "direct", initialDraftId = null }: WorkflowToolSurfaceProps) {
   const router = useRouter();
-  const [pathMode, setPathMode] = useState<"new" | "connect">("new");
+  const [activeSurface, setActiveSurface] = useState<"idle" | "start" | "import">("idle");
   const [draft, setDraft] = useState<WorkflowDraftState>(starterDraft);
   const [status, setStatus] = useState<string | null>(null);
   const [savedDrafts, setSavedDrafts] = useState<WorkflowDraft[]>([]);
@@ -62,11 +62,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   const [isLoadingDrafts, setIsLoadingDrafts] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const completion = useMemo(() => {
-    const fields = [draft.title, draft.concept, draft.creativeDirection, draft.selectedTools, draft.workflowSteps, draft.notes];
-    const done = fields.filter((value) => value.trim().length > 0).length;
-    return Math.round((done / fields.length) * 100);
-  }, [draft]);
+  const hasDraftInProgress = canPersist && savedDrafts.some((entry) => entry.status !== "archived");
 
   const persistencePrompt = "Become a Creator to save progress, create drafts, and build projects in your Studio.";
 
@@ -118,6 +114,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
           if (matched) {
             setActiveDraftId(matched.id);
             setDraft(hydrateFormFromDraft(matched));
+            setActiveSurface("import");
             return;
           }
         }
@@ -145,13 +142,14 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
     };
   }, [canPersist, initialDraftId]);
 
-  function handleLiteStart() {
-    if (pathMode === "new") {
-      setStatus("New project started. Add your title, idea, and first plan to build your draft.");
-      return;
-    }
+  function openStartProject() {
+    setActiveSurface("start");
+    setStatus("Start with a title, idea, and format. You can save and continue at any time.");
+  }
 
-    setStatus("Workflow connection started. Add your existing tools, exports, links, and stage notes.");
+  function openImportProject() {
+    setActiveSurface("import");
+    setStatus("Import an active project using integrations, uploads, exports, and links.");
   }
 
   async function persistDraft(nextStatus: WorkflowDraftStatus = "draft") {
@@ -213,7 +211,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
     }
   }
 
-  function handlePersistAction(action: "save" | "draft" | "studio") {
+  function handlePersistAction(action: "save" | "studio") {
     void (async () => {
       const saved = await persistDraft("draft");
 
@@ -223,11 +221,6 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
 
       if (action === "save") {
         setStatus("Project progress saved. Continue later from your workflow draft history.");
-        return;
-      }
-
-      if (action === "draft") {
-        setStatus("Draft project saved. You can now start a project from this workflow seed.");
         return;
       }
 
@@ -306,6 +299,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
 
   function handleOpenSavedDraft(saved: WorkflowDraft) {
     setActiveDraftId(saved.id);
+    setActiveSurface("import");
     setDraft(hydrateFormFromDraft(saved));
     setStatus(`Loaded workflow draft: ${saved.title}`);
     router.replace(`${entryPoint === "dashboard" ? "/workflows" : "/workflow-tool"}?draft=${saved.id}`);
@@ -314,7 +308,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   function handleStartNewDraft() {
     setActiveDraftId(null);
     setDraft(starterDraft);
-    setPathMode("new");
+    setActiveSurface("idle");
     setStatus("Started a new workflow draft.");
     router.replace(entryPoint === "dashboard" ? "/workflows" : "/workflow-tool");
   }
@@ -322,268 +316,328 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   return (
     <section className="container-shell pb-16 pt-8 sm:pb-20 sm:pt-10 lg:pt-12">
       <div className="surface-panel cinema-frame overflow-hidden p-4 sm:p-6 lg:p-8">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-start">
-          <div>
-            <p className="display-kicker">Workflow Tool</p>
-            <h1 className="headline-xl mt-3 text-foreground">Bring your project together</h1>
-            <p className="body-lg mt-4 max-w-3xl text-foreground/86">
-              Start a new AI film project or connect the tools and assets you already use.
-            </p>
+        <div>
+          <p className="display-kicker">Workflow Tool</p>
+          <h1 className="headline-xl mt-3 text-foreground">Bring your project together</h1>
+          <p className="body-lg mt-4 max-w-3xl text-foreground/86">
+            Start a new AI film project or import active work from tools and files you already use.
+          </p>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => setPathMode("new")}
-                className={cn(
-                  "rounded-2xl border p-4 text-left transition",
-                  pathMode === "new"
-                    ? "border-white/34 bg-black/42 shadow-[0_8px_24px_rgba(0,0,0,0.34)]"
-                    : "border-white/12 bg-black/25 hover:border-white/24",
-                )}
-              >
-                <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Beginner path</p>
-                <p className="title-sm mt-2 text-foreground">Start a New Project</p>
-                <p className="body-sm mt-2 text-foreground/82">Start from scratch with a guided draft you can grow over time.</p>
-              </button>
+          <div className="mt-7 grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={openStartProject}
+              className={cn(
+                "rounded-2xl border p-5 text-left transition",
+                activeSurface === "start"
+                  ? "border-white/36 bg-black/45 shadow-[0_10px_28px_rgba(0,0,0,0.36)]"
+                  : "border-white/14 bg-black/26 hover:border-white/26 hover:bg-black/34",
+              )}
+            >
+              <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Beginner path</p>
+              <p className="title-md mt-2 text-foreground">Start a Project</p>
+              <p className="body-sm mt-2 text-foreground/82">Open a guided project-start flow for title, idea, format, and optional tools.</p>
+            </button>
 
-              <button
-                type="button"
-                onClick={() => setPathMode("connect")}
-                className={cn(
-                  "rounded-2xl border p-4 text-left transition",
-                  pathMode === "connect"
-                    ? "border-white/34 bg-black/42 shadow-[0_8px_24px_rgba(0,0,0,0.34)]"
-                    : "border-white/12 bg-black/25 hover:border-white/24",
-                )}
-              >
-                <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Advanced path</p>
-                <p className="title-sm mt-2 text-foreground">Connect Existing Workflow</p>
-                <p className="body-sm mt-2 text-foreground/82">Bring in active work from external tools, exports, and project links.</p>
-              </button>
-            </div>
-
-            <article className="mt-6 rounded-[24px] border border-white/12 bg-black/30 p-5">
-              <p className="display-kicker">Ecosystem support</p>
-              <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Connect directly</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {directConnectTools.map((tool) => (
-                      <span key={tool} className="rounded-full border border-white/16 bg-black/35 px-3 py-1.5 text-xs text-foreground/84">
-                        {tool}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Add via exports, uploads, or links</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {importFriendlyTools.map((tool) => (
-                      <span key={tool} className="rounded-full border border-white/12 bg-black/25 px-3 py-1.5 text-xs text-foreground/78">
-                        {tool}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <p className="body-sm mt-4 text-foreground/74">
-                Direct connections are live integrations. Everything else can be organized through exports, uploads, and external links.
-              </p>
-            </article>
-
-            <div className="mt-6 rounded-[24px] border border-white/12 bg-black/24 p-4">
-              <p className="display-kicker">{pathMode === "new" ? "Start a New Project" : "Connect Existing Workflow"}</p>
-              <p className="body-sm mt-2 text-foreground/82">
-                {pathMode === "new"
-                  ? "Set a working title, describe your idea, choose a format, and begin a draft without needing connected accounts."
-                  : "Connect integrations, import exports, attach links, and organize active materials by stage."}
-              </p>
-            </div>
-
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {pathMode === "new" ? "Working title" : "Project title"}
-                </span>
-                <input
-                  value={draft.title}
-                  onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
-                  placeholder={pathMode === "new" ? "Working title for your film" : "Name of your active project"}
-                  className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
-                />
-              </label>
-
-              <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {pathMode === "new" ? "Project idea" : "Current project summary"}
-                </span>
-                <input
-                  value={draft.concept}
-                  onChange={(event) => setDraft((current) => ({ ...current, concept: event.target.value }))}
-                  placeholder={pathMode === "new" ? "Core idea and story premise" : "What already exists and what is next"}
-                  className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
-                />
-              </label>
-
-              <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {pathMode === "new" ? "Project type / format" : "Stage / focus"}
-                </span>
-                <input
-                  value={draft.creativeDirection}
-                  onChange={(event) => setDraft((current) => ({ ...current, creativeDirection: event.target.value }))}
-                  placeholder={pathMode === "new" ? "Short film, episodic, trailer, proof of concept" : "Previs, edit, sound, grade, polish"}
-                  className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
-                />
-              </label>
-
-              <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {pathMode === "new" ? "Planned tools (optional)" : "Connected tools / sources"}
-                </span>
-                <input
-                  value={draft.selectedTools}
-                  onChange={(event) => setDraft((current) => ({ ...current, selectedTools: event.target.value }))}
-                  placeholder={pathMode === "new" ? "Runway, ElevenLabs, Midjourney, Notion" : "Runway, Drive, exports, shared folders"}
-                  className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
-                />
-              </label>
-
-              <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {pathMode === "new" ? "First build steps" : "Materials by stage"}
-                </span>
-                <input
-                  value={draft.workflowSteps}
-                  onChange={(event) => setDraft((current) => ({ ...current, workflowSteps: event.target.value }))}
-                  placeholder={pathMode === "new" ? "Outline, test shots, audio pass" : "Scripts, rough cuts, sound design, finals"}
-                  className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
-                />
-              </label>
-
-              <label className="grid gap-2 sm:col-span-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {pathMode === "new" ? "Draft notes" : "External links and handoff notes"}
-                </span>
-                <textarea
-                  value={draft.notes}
-                  onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))}
-                  placeholder={
-                    pathMode === "new"
-                      ? "Add references, constraints, or ideas to remember as the draft evolves"
-                      : "Paste project links, export locations, and context needed to continue smoothly"
-                  }
-                  className="min-h-24 rounded-2xl border border-white/12 bg-black/30 px-4 py-3 text-sm text-foreground outline-none transition focus:border-white/34"
-                />
-              </label>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button
-                type="button"
-                size="lg"
-                className="w-full border border-white/44 bg-[linear-gradient(180deg,rgba(255,255,255,0.33),rgba(255,255,255,0.14))] text-black shadow-[0_14px_34px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.64),inset_0_-1px_0_rgba(132,140,152,0.42)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.38),rgba(255,255,255,0.18))] sm:w-auto"
-                onClick={handleLiteStart}
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                {pathMode === "new" ? "Start a New Project" : "Connect Existing Workflow"}
-              </Button>
-
-              <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => handlePersistAction("save")} disabled={isSaving}>
-                <Save className="mr-2 h-4 w-4" />
-                {isSaving ? "Saving..." : "Save Progress"}
-              </Button>
-
-              <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => handlePersistAction("draft")} disabled={isSaving}>
-                <FolderOpen className="mr-2 h-4 w-4" />
-                Create Project Draft
-              </Button>
-
-              <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => handlePersistAction("studio")} disabled={isSaving}>
-                Send to Studio
-              </Button>
-
-              {canPersist ? (
-                <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={handleStartNewDraft}>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  New Draft
-                </Button>
-              ) : null}
-            </div>
-
-            {status ? (
-              <div
-                className={cn(
-                  "mt-4 rounded-2xl border px-4 py-3 text-sm",
-                  canPersist ? "border-white/16 bg-black/30 text-foreground/88" : "border-primary/36 bg-primary/12 text-primary"
-                )}
-              >
-                {status}
-              </div>
-            ) : null}
+            <button
+              type="button"
+              onClick={openImportProject}
+              className={cn(
+                "rounded-2xl border p-5 text-left transition",
+                activeSurface === "import"
+                  ? "border-white/36 bg-black/45 shadow-[0_10px_28px_rgba(0,0,0,0.36)]"
+                  : "border-white/14 bg-black/26 hover:border-white/26 hover:bg-black/34",
+              )}
+            >
+              <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Advanced path</p>
+              <p className="title-md mt-2 text-foreground">Import Project</p>
+              <p className="body-sm mt-2 text-foreground/82">Connect integrations, upload exports, attach links, and continue active drafts.</p>
+            </button>
           </div>
 
-          <aside className="space-y-4">
-            {canPersist && activeDraft?.status === "seeded" ? (
-              <SeededDraftPanel draft={activeDraft} />
-            ) : null}
-            {canPersist && activeDraftId ? (
-              <WorkflowAssetManager draftId={activeDraftId} />
-            ) : null}
+          {activeSurface === "idle" && hasDraftInProgress ? (
+            <article className="mt-6 rounded-[24px] border border-white/12 bg-black/24 p-5">
+              <p className="display-kicker">Draft in progress</p>
+              <p className="body-sm mt-2 text-foreground/84">Continue where you left off or move your current draft into Creator Studio.</p>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Button
+                  type="button"
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    const latest = savedDrafts.find((entry) => entry.status !== "archived");
+                    if (latest) {
+                      handleOpenSavedDraft(latest);
+                    } else {
+                      openImportProject();
+                    }
+                  }}
+                >
+                  <FolderOpen className="mr-2 h-4 w-4" />
+                  Continue Draft
+                </Button>
+                <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
+                  <Link href="/dashboard">Open in Creator Studio</Link>
+                </Button>
+              </div>
+            </article>
+          ) : null}
 
-            {canPersist ? (
-              <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="display-kicker">Draft History</p>
-                  {isLoadingDrafts ? <span className="text-xs text-muted-foreground">Loading...</span> : null}
-                </div>
+          {activeSurface === "start" ? (
+            <article className="mt-6 rounded-[24px] border border-white/12 bg-black/28 p-5 sm:p-6">
+              <p className="display-kicker">Guided start</p>
+              <p className="body-sm mt-2 text-foreground/82">Create a project draft from scratch. No connected accounts required.</p>
 
-                {savedDrafts.length === 0 ? (
-                  <p className="body-sm mt-3">No saved workflow drafts yet. Save progress to unlock continue-later history.</p>
-                ) : (
-                  <div className="mt-3 space-y-2.5">
-                    {savedDrafts.map((saved) => (
-                      <div key={saved.id} className="rounded-xl border border-white/10 bg-black/25 p-3">
-                        <p className="text-sm font-medium text-foreground">{saved.title}</p>
-                        <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-foreground/68">
-                          {saved.status} - updated {new Date(saved.updatedAt).toLocaleDateString()}
-                          {saved.assetCount > 0 ? ` · ${saved.assetCount} asset${saved.assetCount !== 1 ? "s" : ""}` : ""}
-                        </p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          <Button type="button" size="default" variant="ghost" className="h-9 px-3" onClick={() => handleOpenSavedDraft(saved)}>
-                            Continue Later
-                          </Button>
-                          {saved.status === "seeded" && saved.seededFilmId ? (
-                            <Button asChild size="default" variant="ghost" className="h-9 px-3">
-                              <Link href={`/upload?film=${saved.seededFilmId}`}>Open Seeded Project</Link>
-                            </Button>
-                          ) : (
-                            <Button asChild size="default" variant="ghost" className="h-9 px-3" disabled={saved.status === "archived"}>
-                              <Link href={`/upload?workflowDraft=${saved.id}`}>Start a Project</Link>
-                            </Button>
-                          )}
-                          {saved.status === "archived" ? (
-                            <Button type="button" size="default" variant="ghost" className="h-9 px-3" disabled={isSaving} onClick={() => updateDraftStatus(saved.id, "draft")}>
-                              Unarchive
-                            </Button>
-                          ) : (
-                            <Button type="button" size="default" variant="ghost" className="h-9 px-3" disabled={isSaving} onClick={() => updateDraftStatus(saved.id, "archived")}>
-                              Archive
-                            </Button>
-                          )}
-                          <Button type="button" size="default" variant="ghost" className="h-9 px-3" disabled={isSaving} onClick={() => deleteSavedDraft(saved.id)}>
-                            Delete
-                          </Button>
-                        </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-2">
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Working title</span>
+                  <input
+                    value={draft.title}
+                    onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
+                    placeholder="Working title for your film"
+                    className="h-11 rounded-2xl border border-white/14 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/36"
+                  />
+                </label>
+
+                <label className="grid gap-2">
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Project idea</span>
+                  <input
+                    value={draft.concept}
+                    onChange={(event) => setDraft((current) => ({ ...current, concept: event.target.value }))}
+                    placeholder="Core idea and story premise"
+                    className="h-11 rounded-2xl border border-white/14 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/36"
+                  />
+                </label>
+
+                <label className="grid gap-2">
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Type or format</span>
+                  <input
+                    value={draft.creativeDirection}
+                    onChange={(event) => setDraft((current) => ({ ...current, creativeDirection: event.target.value }))}
+                    placeholder="Short film, episodic, trailer, proof of concept"
+                    className="h-11 rounded-2xl border border-white/14 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/36"
+                  />
+                </label>
+
+                <label className="grid gap-2">
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Intended tools (optional)</span>
+                  <input
+                    value={draft.selectedTools}
+                    onChange={(event) => setDraft((current) => ({ ...current, selectedTools: event.target.value }))}
+                    placeholder="Runway, ElevenLabs, Midjourney, Notion"
+                    className="h-11 rounded-2xl border border-white/14 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/36"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Button type="button" size="lg" className="w-full sm:w-auto" onClick={() => handlePersistAction("save")} disabled={isSaving}>
+                  <Save className="mr-2 h-4 w-4" />
+                  {isSaving ? "Saving..." : "Save Progress"}
+                </Button>
+                <Button asChild type="button" variant="ghost" size="lg" className="w-full sm:w-auto">
+                  <Link href="/dashboard">Open in Creator Studio</Link>
+                </Button>
+                <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => setActiveSurface("idle")}>
+                  Back
+                </Button>
+              </div>
+            </article>
+          ) : null}
+
+          {activeSurface === "import" ? (
+            <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-start">
+              <div className="space-y-4">
+                <article className="rounded-[24px] border border-white/12 bg-black/28 p-5 sm:p-6">
+                  <p className="display-kicker">Import existing work</p>
+                  <p className="body-sm mt-2 text-foreground/82">
+                    Connect available integrations and organize external work using uploads, exports, and links.
+                  </p>
+
+                  <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Connect directly</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {directConnectTools.map((tool) => (
+                          <span
+                            key={tool}
+                            className="cursor-default select-none rounded-full border border-white/14 bg-white/[0.04] px-3 py-1.5 text-xs text-foreground/76"
+                          >
+                            {tool}
+                          </span>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </article>
-            ) : null}
+                    </div>
 
-            <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Add via exports, uploads, or links</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {importFriendlyTools.map((tool) => (
+                          <span
+                            key={tool}
+                            className="cursor-default select-none rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs text-foreground/66"
+                          >
+                            {tool}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="body-sm mt-4 text-foreground/70">
+                    Direct connections are live integrations. Other tools are supported through exported files, manual uploads, and project links.
+                  </p>
+                </article>
+
+                <article className="rounded-[24px] border border-white/12 bg-black/28 p-5 sm:p-6">
+                  <p className="display-kicker">Project intake</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Project title</span>
+                      <input
+                        value={draft.title}
+                        onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
+                        placeholder="Name of your active project"
+                        className="h-11 rounded-2xl border border-white/14 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/36"
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Current summary</span>
+                      <input
+                        value={draft.concept}
+                        onChange={(event) => setDraft((current) => ({ ...current, concept: event.target.value }))}
+                        placeholder="What exists already and what is next"
+                        className="h-11 rounded-2xl border border-white/14 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/36"
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Connected tools / sources</span>
+                      <input
+                        value={draft.selectedTools}
+                        onChange={(event) => setDraft((current) => ({ ...current, selectedTools: event.target.value }))}
+                        placeholder="Runway, Drive, exports, shared folders"
+                        className="h-11 rounded-2xl border border-white/14 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/36"
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Materials by stage</span>
+                      <input
+                        value={draft.workflowSteps}
+                        onChange={(event) => setDraft((current) => ({ ...current, workflowSteps: event.target.value }))}
+                        placeholder="Scripts, rough cuts, sound design, finals"
+                        className="h-11 rounded-2xl border border-white/14 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/36"
+                      />
+                    </label>
+
+                    <label className="grid gap-2 sm:col-span-2">
+                      <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Project links and notes</span>
+                      <textarea
+                        value={draft.notes}
+                        onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))}
+                        placeholder="Paste project links, export locations, and context for collaborators"
+                        className="min-h-24 rounded-2xl border border-white/14 bg-black/30 px-4 py-3 text-sm text-foreground outline-none transition focus:border-white/36"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <Button type="button" size="lg" className="w-full sm:w-auto" onClick={() => handlePersistAction("save")} disabled={isSaving}>
+                      <Save className="mr-2 h-4 w-4" />
+                      {isSaving ? "Saving..." : "Save Progress"}
+                    </Button>
+                    <Button asChild type="button" variant="ghost" size="lg" className="w-full sm:w-auto">
+                      <Link href="/dashboard">Open in Creator Studio</Link>
+                    </Button>
+                    <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => setActiveSurface("idle")}>
+                      Back
+                    </Button>
+                    {canPersist ? (
+                      <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={handleStartNewDraft}>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        New Draft
+                      </Button>
+                    ) : null}
+                  </div>
+                </article>
+              </div>
+
+              <aside className="space-y-4">
+                {canPersist && activeDraft?.status === "seeded" ? <SeededDraftPanel draft={activeDraft} /> : null}
+                {canPersist && activeDraftId ? <WorkflowAssetManager draftId={activeDraftId} /> : null}
+
+                {canPersist ? (
+                  <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="display-kicker">Draft History</p>
+                      {isLoadingDrafts ? <span className="text-xs text-muted-foreground">Loading...</span> : null}
+                    </div>
+
+                    {savedDrafts.length === 0 ? (
+                      <p className="body-sm mt-3">No saved workflow drafts yet.</p>
+                    ) : (
+                      <div className="mt-3 space-y-2.5">
+                        {savedDrafts.map((saved) => (
+                          <div key={saved.id} className="rounded-xl border border-white/10 bg-black/25 p-3">
+                            <p className="text-sm font-medium text-foreground">{saved.title}</p>
+                            <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-foreground/68">
+                              {saved.status} - updated {new Date(saved.updatedAt).toLocaleDateString()}
+                              {saved.assetCount > 0 ? ` · ${saved.assetCount} asset${saved.assetCount !== 1 ? "s" : ""}` : ""}
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <Button type="button" size="default" variant="ghost" className="h-9 px-3" onClick={() => handleOpenSavedDraft(saved)}>
+                                Continue Draft
+                              </Button>
+                              {saved.status === "seeded" && saved.seededFilmId ? (
+                                <Button asChild size="default" variant="ghost" className="h-9 px-3">
+                                  <Link href={`/upload?film=${saved.seededFilmId}`}>Open Seeded Project</Link>
+                                </Button>
+                              ) : (
+                                <Button asChild size="default" variant="ghost" className="h-9 px-3" disabled={saved.status === "archived"}>
+                                  <Link href={`/upload?workflowDraft=${saved.id}`}>Open Draft</Link>
+                                </Button>
+                              )}
+                              {saved.status === "archived" ? (
+                                <Button
+                                  type="button"
+                                  size="default"
+                                  variant="ghost"
+                                  className="h-9 px-3"
+                                  disabled={isSaving}
+                                  onClick={() => updateDraftStatus(saved.id, "draft")}
+                                >
+                                  Unarchive
+                                </Button>
+                              ) : (
+                                <Button
+                                  type="button"
+                                  size="default"
+                                  variant="ghost"
+                                  className="h-9 px-3"
+                                  disabled={isSaving}
+                                  onClick={() => updateDraftStatus(saved.id, "archived")}
+                                >
+                                  Archive
+                                </Button>
+                              )}
+                              <Button type="button" size="default" variant="ghost" className="h-9 px-3" disabled={isSaving} onClick={() => deleteSavedDraft(saved.id)}>
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                ) : null}
+              </aside>
+            </div>
+          ) : null}
+
+          {activeSurface !== "import" ? (
+            <article className="mt-6 rounded-[24px] border border-white/12 bg-black/24 p-5">
               <p className="display-kicker">Creator Studio Access</p>
               <p className="title-md mt-3 text-foreground">{canPersist ? "Save and continue is active" : "Sign in to save and continue"}</p>
               <p className="body-sm mt-3">
@@ -592,26 +646,28 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                   : "You can plan freely now. Saving drafts, asset organization, and continue-later unlock after enabling Creator access."}
               </p>
               {!canPersist ? (
-                <Button asChild size="lg" className="mt-4 w-full">
+                <Button asChild size="lg" className="mt-4 w-full sm:w-auto">
                   <Link href={isSignedIn ? "/settings" : "/signup"}>Become a Creator</Link>
                 </Button>
               ) : (
-                <Button asChild variant="ghost" size="lg" className="mt-4 w-full">
+                <Button asChild variant="ghost" size="lg" className="mt-4 w-full sm:w-auto">
                   <Link href="/dashboard">Open Creator Studio</Link>
                 </Button>
               )}
+              {activeSurface !== "idle" ? <p className="body-sm mt-3 text-foreground/62">Opened from: {entryPoint}</p> : null}
             </article>
+          ) : null}
 
-            <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
-              <p className="display-kicker">Project Snapshot</p>
-              <p className="title-md mt-3 text-foreground">{completion}% complete</p>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full bg-[linear-gradient(90deg,rgba(255,255,255,0.88),rgba(210,218,232,0.74))]" style={{ width: `${completion}%` }} />
-              </div>
-              <p className="body-sm mt-3 text-foreground/80">Use this as a simple progress signal before sending your draft into production.</p>
-              <p className="body-sm mt-2 text-foreground/64">Opened from: {entryPoint}</p>
-            </article>
-          </aside>
+          {status ? (
+            <div
+              className={cn(
+                "mt-4 rounded-2xl border px-4 py-3 text-sm",
+                canPersist ? "border-white/16 bg-black/30 text-foreground/88" : "border-primary/36 bg-primary/12 text-primary"
+              )}
+            >
+              {status}
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

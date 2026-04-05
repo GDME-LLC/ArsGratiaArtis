@@ -3,10 +3,12 @@ import Link from "next/link";
 import { PublicFilmFeed } from "@/components/films/public-film-feed";
 import { CreatorBadgeList } from "@/components/badges/creator-badge-list";
 import { FoundingCreatorBenefits } from "@/components/founding/founding-creator-benefits";
+import { BeyondCinemaRail } from "@/components/marketing/beyond-cinema-rail";
 import { Hero } from "@/components/marketing/hero";
 import { SectionShell } from "@/components/marketing/section-shell";
 import { HorizontalRail } from "@/components/shared/horizontal-rail";
 import { Button } from "@/components/ui/button";
+import type { FilmCategory } from "@/lib/films/categories";
 import { getDefaultPlatformSettings, getPlatformSettings, resolveHomepageSpotlight } from "@/lib/platform-settings";
 import { listFeaturedFoundingCreators } from "@/lib/founding-creators";
 import { listCreatorsToWatch } from "@/lib/profiles";
@@ -24,10 +26,11 @@ type ReleaseSectionProps = {
   description: string;
   films: PublicFilmCard[];
   href?: string;
+  ctaLabel?: string;
   className?: string;
 };
 
-function ReleaseSection({ title, description, films, href, className }: ReleaseSectionProps) {
+function ReleaseSection({ title, description, films, href, ctaLabel, className }: ReleaseSectionProps) {
   if (films.length === 0) {
     return null;
   }
@@ -39,7 +42,7 @@ function ReleaseSection({ title, description, films, href, className }: ReleaseS
           <h2 className="headline-lg text-foreground">{title}</h2>
           {href ? (
             <Button asChild size="lg" variant="ghost">
-              <Link href={href}>{title}</Link>
+              <Link href={href}>{ctaLabel ?? title}</Link>
             </Button>
           ) : null}
         </div>
@@ -53,70 +56,16 @@ function ReleaseSection({ title, description, films, href, className }: ReleaseS
   );
 }
 
-function WorkflowSystemSection() {
-  return (
-    <SectionShell className="mt-6 sm:mt-7">
-      <div className="surface-panel cinema-frame overflow-hidden p-4 sm:p-6 lg:p-7">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)] lg:items-center">
-          <div>
-            <p className="eyebrow">Workflow Tool</p>
-            <h2 className="headline-lg mt-3 text-foreground">Project-first creation inside Creator Studio</h2>
-            <p className="body-lg mt-3 max-w-3xl">
-              Workflow Tool is the upstream layer for creator work. Start the concept, structure direction, shape a draft,
-              then move it into Creator Studio where Start a Project leads toward later release and publication.
-            </p>
-
-            <div className="mt-5 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-foreground/72 sm:text-[11px]">
-              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Workflow Tool</span>
-              <span className="text-foreground/50">-&gt;</span>
-              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Saved Draft / Project</span>
-              <span className="text-foreground/50">-&gt;</span>
-              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Creator Studio</span>
-              <span className="text-foreground/50">-&gt;</span>
-              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Start a Project</span>
-              <span className="text-foreground/50">-&gt;</span>
-              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Release / Publish</span>
-            </div>
-          </div>
-
-          <div className="rounded-[24px] border border-white/10 bg-black/25 p-5 sm:p-6">
-            <p className="display-kicker">Creator Entry</p>
-            <h3 className="title-md mt-3 text-foreground">Explore publicly, persist as a Creator</h3>
-            <p className="body-sm mt-3">
-              Public users can open Workflow Tool and begin shaping ideas. Save, draft, continue, and Studio transfer
-              actions activate after becoming a Creator.
-            </p>
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href="/workflow-tool">Open Workflow Tool</Link>
-              </Button>
-              <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
-                <Link href="/signup">Become a Creator</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </SectionShell>
-  );
-}
-
 export default async function HomePage() {
   const canLoad = hasSupabaseServerEnv();
   const platformSettings = canLoad ? await getPlatformSettings() : getDefaultPlatformSettings();
   const beyondCinemaCategories = platformSettings.beyondCinemaCategories;
 
-  const [foundingCreators, staffPickFilms, featuredFilmResponse, featuredBeyondResponse, newReleaseResponse, newExperimentsResponse, creatorsToWatch, manualSpotlightFilm] = canLoad
+  const [foundingCreators, staffPickFilms, featuredFilmResponse, newReleaseResponse, newExperimentsResponse, creatorsToWatch, manualSpotlightFilm, beyondCinemaByCategory] = canLoad
     ? await Promise.all([
         listFeaturedFoundingCreators(20),
         listStaffPickFilms(8),
         listPublishedFilms({ page: 1, pageSize: 24, categories: ["film"], sortBy: "created_at" }),
-        listPublishedFilms({
-          page: 1,
-          pageSize: 24,
-          categories: beyondCinemaCategories,
-          sortBy: "likes",
-        }),
         listPublishedFilms({ page: 1, pageSize: 24, sortBy: "created_at" }),
         listPublishedFilms({
           page: 1,
@@ -126,6 +75,18 @@ export default async function HomePage() {
         }),
         listCreatorsToWatch(8),
         platformSettings.homepageSpotlightFilmId ? getPublicFilmCardById(platformSettings.homepageSpotlightFilmId) : Promise.resolve(null),
+        Promise.all(
+          beyondCinemaCategories.map(async (category) => {
+            const response = await listPublishedFilms({
+              page: 1,
+              pageSize: 24,
+              categories: [category],
+              sortBy: "likes",
+            });
+
+            return [category, response.films] as const;
+          }),
+        ).then((entries) => Object.fromEntries(entries) as Partial<Record<FilmCategory, PublicFilmCard[]>>),
       ])
     : [
         [],
@@ -133,9 +94,9 @@ export default async function HomePage() {
         { films: [], hasMore: false },
         { films: [], hasMore: false },
         { films: [], hasMore: false },
-        { films: [], hasMore: false },
         [],
         null,
+        {},
       ];
 
   const usedFilmIds = new Set<string>();
@@ -145,15 +106,16 @@ export default async function HomePage() {
   const featuredFilms = filterDistinct(featuredFilmResponse.films, usedFilmIds, 12);
   featuredFilms.forEach((film) => usedFilmIds.add(film.id));
 
-  const featuredBeyondCinema = filterDistinct(featuredBeyondResponse.films, usedFilmIds, 12);
-  featuredBeyondCinema.forEach((film) => usedFilmIds.add(film.id));
-
   const newReleases = filterDistinct(newReleaseResponse.films, usedFilmIds, 12);
   newReleases.forEach((film) => usedFilmIds.add(film.id));
 
   const newExperiments = filterDistinct(newExperimentsResponse.films, usedFilmIds, 12);
 
-  const automaticSpotlightFilm = staffPicks[0] ?? featuredFilms[0] ?? newReleases[0] ?? featuredBeyondCinema[0] ?? newExperiments[0] ?? null;
+  const beyondCinemaSpotlightFilm = beyondCinemaCategories
+    .map((category) => beyondCinemaByCategory[category]?.[0] ?? null)
+    .find((film): film is PublicFilmCard => Boolean(film)) ?? null;
+
+  const automaticSpotlightFilm = staffPicks[0] ?? featuredFilms[0] ?? newReleases[0] ?? beyondCinemaSpotlightFilm ?? newExperiments[0] ?? null;
   const automaticSpotlightLabel = staffPicks.length > 0 ? "Staff Pick" : featuredFilms.length > 0 ? "Featured Film" : "Latest Release";
   const { spotlightFilm, spotlightLabel } = resolveHomepageSpotlight(
     platformSettings,
@@ -184,10 +146,9 @@ export default async function HomePage() {
         }
         films={mobileLeadFilms}
         href="/feed"
+        ctaLabel={mobileLeadVariant === "staff-picks" ? undefined : "Explore"}
         className="mt-6 sm:hidden"
       />
-
-      <WorkflowSystemSection />
 
       {foundingCreators.length > 0 ? (
         <SectionShell className="mt-6 sm:mt-7">
@@ -271,21 +232,18 @@ export default async function HomePage() {
         description="A current selection of film releases worth settling into."
         films={featuredFilms}
         href="/feed"
+        ctaLabel="Explore"
         className="hidden sm:block sm:mt-7"
       />
 
-      <ReleaseSection
-        title="Featured Beyond Cinema"
-        description="Animation, experimental work, commentary, and commissioned pieces drawing attention now."
-        films={featuredBeyondCinema}
-        href="/beyond-cinema"
-      />
+      <BeyondCinemaRail categories={beyondCinemaCategories} filmsByCategory={beyondCinemaByCategory} />
 
       <ReleaseSection
         title="New Releases"
         description="The latest uploads arriving on ArsNeos, newest first."
         films={newReleases}
         href="/feed"
+        ctaLabel="Explore"
         className={mobileLeadVariant === "new-releases" ? "hidden sm:block sm:mt-7" : undefined}
       />
 
@@ -300,10 +258,10 @@ export default async function HomePage() {
         <SectionShell className="mt-6 sm:mt-7">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-2xl">
-              <p className="eyebrow">Creators to Watch</p>
-              <h2 className="headline-lg mt-3 text-foreground">Creators to Watch</h2>
+              <p className="eyebrow">Filmmaker Spotlight</p>
+              <h2 className="headline-lg mt-3 text-foreground">Featured Filmmakers</h2>
               <p className="body-lg mt-3">
-                Filmmakers building momentum through releases, followership, and a visible body of work.
+                Creators become Filmmakers here when their published work meets the platform criteria for Filmwork.
               </p>
             </div>
             <Button asChild size="lg" variant="ghost">
@@ -312,7 +270,7 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6">
-            <HorizontalRail ariaLabel="creators to watch">
+            <HorizontalRail ariaLabel="featured filmmakers">
               {creatorsToWatch.map((creator) => {
                 const latestRelease = creator.featuredReleases[0] ?? null;
 
