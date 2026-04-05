@@ -129,6 +129,56 @@
     @apply w-full max-w-full min-w-0;
   }
 
+  .horizontal-rail-scroll {
+    @apply snap-x snap-proximity overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden;
+    scroll-padding-inline: 0.25rem;
+    scroll-snap-stop: normal;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y pinch-zoom;
+  }
+
+  .horizontal-rail-scroll > * {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .horizontal-rail-scroll:focus-visible {
+    outline: 1px solid rgba(255, 255, 255, 0.42);
+    outline-offset: 2px;
+  }
+
+  @media (min-width: 640px) {
+    .horizontal-rail-scroll {
+      scroll-padding-inline: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .horizontal-rail-scroll {
+      scroll-behavior: auto;
+    }
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    [data-rail-nav] {
+      display: none !important;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .horizontal-rail-scroll[data-desktop-drag="enabled"] {
+      cursor: grab;
+    }
+
+    .horizontal-rail-scroll[data-desktop-dragging="true"] {
+      cursor: grabbing;
+      scroll-snap-type: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  }
+
   .cinema-frame {
     position: relative;
     isolation: isolate;

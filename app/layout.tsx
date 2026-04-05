@@ -52,8 +52,8 @@ export const metadata: Metadata = {
     images: ["/brand/ArsNeos-OG_Image.png"],
   },
   icons: {
-    icon: "/icon.png",
-    shortcut: "/favicon.ico",
+    icon: [{ url: "/brand/ArsNeos-favicon-square.svg", type: "image/svg+xml" }],
+    shortcut: [{ url: "/brand/ArsNeos-favicon-square.svg", type: "image/svg+xml" }],
     apple: "/apple-icon.png",
   },
 };
