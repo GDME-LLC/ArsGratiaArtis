@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, FolderOpen, RefreshCw, Save, Sparkles } from "lucide-react";
+import { FolderOpen, RefreshCw, Save, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { SeededDraftPanel } from "@/components/workflows/seeded-draft-panel";
@@ -53,6 +53,7 @@ function hydrateFormFromDraft(draft: WorkflowDraft): WorkflowDraftState {
 
 export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "direct", initialDraftId = null }: WorkflowToolSurfaceProps) {
   const router = useRouter();
+  const [pathMode, setPathMode] = useState<"new" | "connect">("new");
   const [draft, setDraft] = useState<WorkflowDraftState>(starterDraft);
   const [status, setStatus] = useState<string | null>(null);
   const [savedDrafts, setSavedDrafts] = useState<WorkflowDraft[]>([]);
@@ -68,6 +69,23 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   }, [draft]);
 
   const persistencePrompt = "Become a Creator to save progress, create drafts, and build projects in your Studio.";
+
+  const directConnectTools = ["Runway", "ElevenLabs", "Google Drive", "Luma Dream Machine"];
+  const importFriendlyTools = [
+    "DaVinci Resolve",
+    "Adobe Premiere Pro",
+    "After Effects",
+    "Midjourney",
+    "Kling",
+    "Pika",
+    "Topaz",
+    "Suno",
+    "Udio",
+    "ChatGPT",
+    "Claude",
+    "Notion",
+    "Dropbox",
+  ];
 
   useEffect(() => {
     if (!canPersist) {
@@ -128,7 +146,12 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   }, [canPersist, initialDraftId]);
 
   function handleLiteStart() {
-    setStatus("Workflow draft started. You can explore the structure now and continue later after activating Creator mode.");
+    if (pathMode === "new") {
+      setStatus("New project started. Add your title, idea, and first plan to build your draft.");
+      return;
+    }
+
+    setStatus("Workflow connection started. Add your existing tools, exports, links, and stage notes.");
   }
 
   async function persistDraft(nextStatus: WorkflowDraftStatus = "draft") {
@@ -291,6 +314,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   function handleStartNewDraft() {
     setActiveDraftId(null);
     setDraft(starterDraft);
+    setPathMode("new");
     setStatus("Started a new workflow draft.");
     router.replace(entryPoint === "dashboard" ? "/workflows" : "/workflow-tool");
   }
@@ -301,81 +325,155 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-start">
           <div>
             <p className="display-kicker">Workflow Tool</p>
-            <h1 className="headline-xl mt-3 text-foreground">Begin the project before the release</h1>
+            <h1 className="headline-xl mt-3 text-foreground">Bring your project together</h1>
             <p className="body-lg mt-4 max-w-3xl text-foreground/86">
-              Workflow Tool is the creator entry layer of Creator Studio. Shape direction, structure ideas, and build a
-              project seed that can move into Start a Project and later publication.
+              Start a new AI film project or connect the tools and assets you already use.
             </p>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2.5 text-[11px] uppercase tracking-[0.16em] text-foreground/72">
-              <span className="rounded-full border border-white/16 bg-black/35 px-3 py-1.5">Workflow Tool</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-              <span className="rounded-full border border-white/16 bg-black/35 px-3 py-1.5">Saved Draft / Project</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-              <span className="rounded-full border border-white/16 bg-black/35 px-3 py-1.5">Creator Studio</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-              <span className="rounded-full border border-white/16 bg-black/35 px-3 py-1.5">Start a Project</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-              <span className="rounded-full border border-white/16 bg-black/35 px-3 py-1.5">Release / Publish</span>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setPathMode("new")}
+                className={cn(
+                  "rounded-2xl border p-4 text-left transition",
+                  pathMode === "new"
+                    ? "border-white/34 bg-black/42 shadow-[0_8px_24px_rgba(0,0,0,0.34)]"
+                    : "border-white/12 bg-black/25 hover:border-white/24",
+                )}
+              >
+                <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Beginner path</p>
+                <p className="title-sm mt-2 text-foreground">Start a New Project</p>
+                <p className="body-sm mt-2 text-foreground/82">Start from scratch with a guided draft you can grow over time.</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPathMode("connect")}
+                className={cn(
+                  "rounded-2xl border p-4 text-left transition",
+                  pathMode === "connect"
+                    ? "border-white/34 bg-black/42 shadow-[0_8px_24px_rgba(0,0,0,0.34)]"
+                    : "border-white/12 bg-black/25 hover:border-white/24",
+                )}
+              >
+                <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Advanced path</p>
+                <p className="title-sm mt-2 text-foreground">Connect Existing Workflow</p>
+                <p className="body-sm mt-2 text-foreground/82">Bring in active work from external tools, exports, and project links.</p>
+              </button>
+            </div>
+
+            <article className="mt-6 rounded-[24px] border border-white/12 bg-black/30 p-5">
+              <p className="display-kicker">Ecosystem support</p>
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Connect directly</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {directConnectTools.map((tool) => (
+                      <span key={tool} className="rounded-full border border-white/16 bg-black/35 px-3 py-1.5 text-xs text-foreground/84">
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Add via exports, uploads, or links</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {importFriendlyTools.map((tool) => (
+                      <span key={tool} className="rounded-full border border-white/12 bg-black/25 px-3 py-1.5 text-xs text-foreground/78">
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <p className="body-sm mt-4 text-foreground/74">
+                Direct connections are live integrations. Everything else can be organized through exports, uploads, and external links.
+              </p>
+            </article>
+
+            <div className="mt-6 rounded-[24px] border border-white/12 bg-black/24 p-4">
+              <p className="display-kicker">{pathMode === "new" ? "Start a New Project" : "Connect Existing Workflow"}</p>
+              <p className="body-sm mt-2 text-foreground/82">
+                {pathMode === "new"
+                  ? "Set a working title, describe your idea, choose a format, and begin a draft without needing connected accounts."
+                  : "Connect integrations, import exports, attach links, and organize active materials by stage."}
+              </p>
             </div>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Project title</span>
+                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {pathMode === "new" ? "Working title" : "Project title"}
+                </span>
                 <input
                   value={draft.title}
                   onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
-                  placeholder="Project title or working idea"
+                  placeholder={pathMode === "new" ? "Working title for your film" : "Name of your active project"}
                   className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Concept / description</span>
+                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {pathMode === "new" ? "Project idea" : "Current project summary"}
+                </span>
                 <input
                   value={draft.concept}
                   onChange={(event) => setDraft((current) => ({ ...current, concept: event.target.value }))}
-                  placeholder="Core idea and short premise"
+                  placeholder={pathMode === "new" ? "Core idea and story premise" : "What already exists and what is next"}
                   className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Creative direction</span>
+                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {pathMode === "new" ? "Project type / format" : "Stage / focus"}
+                </span>
                 <input
                   value={draft.creativeDirection}
                   onChange={(event) => setDraft((current) => ({ ...current, creativeDirection: event.target.value }))}
-                  placeholder="Tone, mood, style references"
+                  placeholder={pathMode === "new" ? "Short film, episodic, trailer, proof of concept" : "Previs, edit, sound, grade, polish"}
                   className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Tools / resources</span>
+                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {pathMode === "new" ? "Planned tools (optional)" : "Connected tools / sources"}
+                </span>
                 <input
                   value={draft.selectedTools}
                   onChange={(event) => setDraft((current) => ({ ...current, selectedTools: event.target.value }))}
-                  placeholder="Models, software, references"
+                  placeholder={pathMode === "new" ? "Runway, ElevenLabs, Midjourney, Notion" : "Runway, Drive, exports, shared folders"}
                   className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Workflow steps</span>
+                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {pathMode === "new" ? "First build steps" : "Materials by stage"}
+                </span>
                 <input
                   value={draft.workflowSteps}
                   onChange={(event) => setDraft((current) => ({ ...current, workflowSteps: event.target.value }))}
-                  placeholder="Sequence, acts, shot plan"
+                  placeholder={pathMode === "new" ? "Outline, test shots, audio pass" : "Scripts, rough cuts, sound design, finals"}
                   className="h-11 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-foreground outline-none transition focus:border-white/34"
                 />
               </label>
 
               <label className="grid gap-2 sm:col-span-2">
-                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Workflow notes</span>
+                <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {pathMode === "new" ? "Draft notes" : "External links and handoff notes"}
+                </span>
                 <textarea
                   value={draft.notes}
                   onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))}
-                  placeholder="Additional notes for continuity and continue-later context"
+                  placeholder={
+                    pathMode === "new"
+                      ? "Add references, constraints, or ideas to remember as the draft evolves"
+                      : "Paste project links, export locations, and context needed to continue smoothly"
+                  }
                   className="min-h-24 rounded-2xl border border-white/12 bg-black/30 px-4 py-3 text-sm text-foreground outline-none transition focus:border-white/34"
                 />
               </label>
@@ -389,7 +487,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                 onClick={handleLiteStart}
               >
                 <Sparkles className="mr-2 h-4 w-4" />
-                Start Workflow
+                {pathMode === "new" ? "Start a New Project" : "Connect Existing Workflow"}
               </Button>
 
               <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => handlePersistAction("save")} disabled={isSaving}>
@@ -399,7 +497,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
 
               <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => handlePersistAction("draft")} disabled={isSaving}>
                 <FolderOpen className="mr-2 h-4 w-4" />
-                Create Draft Project
+                Create Project Draft
               </Button>
 
               <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => handlePersistAction("studio")} disabled={isSaving}>
@@ -486,12 +584,12 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
             ) : null}
 
             <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
-              <p className="display-kicker">Creator Mode</p>
-              <p className="title-md mt-3 text-foreground">{canPersist ? "Persistence is active" : "Public exploration mode"}</p>
+              <p className="display-kicker">Creator Studio Access</p>
+              <p className="title-md mt-3 text-foreground">{canPersist ? "Save and continue is active" : "Sign in to save and continue"}</p>
               <p className="body-sm mt-3">
                 {canPersist
-                  ? "You can move this workflow into Creator Studio and continue with Start a Project."
-                  : "You can explore Workflow Tool now. Save, draft, continue, and send-to-Studio actions activate after becoming a Creator."}
+                  ? "Your drafts, assets, and project handoff are available in Creator Studio."
+                  : "You can plan freely now. Saving drafts, asset organization, and continue-later unlock after enabling Creator access."}
               </p>
               {!canPersist ? (
                 <Button asChild size="lg" className="mt-4 w-full">
@@ -505,22 +603,13 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
             </article>
 
             <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
-              <p className="display-kicker">Project Readiness</p>
+              <p className="display-kicker">Project Snapshot</p>
               <p className="title-md mt-3 text-foreground">{completion}% complete</p>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
                 <div className="h-full bg-[linear-gradient(90deg,rgba(255,255,255,0.88),rgba(210,218,232,0.74))]" style={{ width: `${completion}%` }} />
               </div>
-              <p className="body-sm mt-3">
-                Completion reflects how much of the initial project framework is defined before moving into Creator Studio.
-              </p>
-            </article>
-
-            <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
-              <p className="display-kicker">Entry Source</p>
-              <p className="body-sm mt-3 text-foreground/84">Opened from: {entryPoint}</p>
-              <p className="body-sm mt-2">
-                Workflow Tool remains public-facing for discovery, but it is part of the Creator Studio creation pipeline.
-              </p>
+              <p className="body-sm mt-3 text-foreground/80">Use this as a simple progress signal before sending your draft into production.</p>
+              <p className="body-sm mt-2 text-foreground/64">Opened from: {entryPoint}</p>
             </article>
           </aside>
         </div>
