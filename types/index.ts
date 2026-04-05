@@ -44,6 +44,23 @@ export type ToolOption = {
   isFeatured: boolean;
 };
 
+export type WorkflowDraftStatus = "draft" | "seeded" | "archived";
+
+export type WorkflowDraft = {
+  id: string;
+  creatorId: string;
+  title: string;
+  concept: string | null;
+  creativeDirection: string | null;
+  selectedTools: string[];
+  workflowSteps: string[];
+  notes: string | null;
+  status: WorkflowDraftStatus;
+  seededFilmId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type FoundingCreatorInfo = {
   isFoundingCreator: boolean;
   founderNumber: number | null;

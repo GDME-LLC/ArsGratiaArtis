@@ -7,6 +7,7 @@ import { isValidFilmSlug, normalizeSlug } from "@/lib/films/slug";
 import { moderateTextFields } from "@/lib/security/moderation";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { createOrUpdateFilm } from "@/lib/services/films";
+import { seedWorkflowDraftIntoProject } from "@/lib/services/workflows";
 import {
   createServerSupabaseClient,
   hasSupabaseServerEnv,
@@ -28,6 +29,7 @@ type FilmPayload = {
   prompt_visibility?: "public" | "followers" | "private";
   visibility?: "public" | "unlisted" | "private";
   publish_status?: "draft" | "published" | "archived";
+  workflow_draft_id?: string;
 };
 
 async function saveFilm(request: Request, method: "POST" | "PUT") {
@@ -140,6 +142,14 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
       visibility,
       publishStatus,
     });
+
+    if (payload.workflow_draft_id?.trim()) {
+      await seedWorkflowDraftIntoProject({
+        draftId: payload.workflow_draft_id.trim(),
+        creatorId: profile.id,
+        filmId: film.id,
+      });
+    }
 
     return NextResponse.json({ film });
   } catch (error) {

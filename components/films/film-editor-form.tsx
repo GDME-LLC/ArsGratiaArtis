@@ -10,10 +10,11 @@ import { FILM_PROCESS_SUMMARY_LIMIT, MAX_TOOL_SELECTIONS, normalizeProcessTags, 
 import { FILM_CATEGORY_LABELS, FILM_CATEGORY_VALUES, type FilmCategory } from "@/lib/films/categories";
 import { normalizeSlug } from "@/lib/films/slug";
 import { cn } from "@/lib/utils";
-import type { FilmEditorValues, ToolOption } from "@/types";
+import type { FilmEditorValues, ToolOption, WorkflowDraft } from "@/types";
 
 type FilmEditorFormProps = {
   initialFilm?: FilmEditorValues | null;
+  initialWorkflowDraft?: WorkflowDraft | null;
   availableTools: ToolOption[];
 };
 
@@ -34,18 +35,29 @@ type FormState = {
   publish_status: "draft" | "published";
 };
 
-export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormProps) {
+export function FilmEditorForm({ initialFilm, initialWorkflowDraft, availableTools }: FilmEditorFormProps) {
+  const workflowSeed = !initialFilm ? initialWorkflowDraft ?? null : null;
+  const workflowStepsText = workflowSeed?.workflowSteps.length ? workflowSeed.workflowSteps.join("\n") : "";
+  const workflowToolsText = workflowSeed?.selectedTools.length ? workflowSeed.selectedTools.join(", ") : "";
+  const workflowNotesSeed = [
+    workflowToolsText ? `Workflow tools/resources: ${workflowToolsText}` : "",
+    workflowStepsText ? `Workflow steps:\n${workflowStepsText}` : "",
+    workflowSeed?.notes ? `Workflow notes:\n${workflowSeed.notes}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
   const router = useRouter();
   const [form, setForm] = useState<FormState>({
-    title: initialFilm?.title ?? "",
-    slug: initialFilm?.slug ?? "",
-    synopsis: initialFilm?.synopsis ?? "",
-    description: initialFilm?.description ?? "",
+    title: initialFilm?.title ?? workflowSeed?.title ?? "",
+    slug: initialFilm?.slug ?? normalizeSlug(workflowSeed?.title ?? ""),
+    synopsis: initialFilm?.synopsis ?? workflowSeed?.concept ?? "",
+    description: initialFilm?.description ?? workflowSeed?.creativeDirection ?? "",
     category: initialFilm?.category ?? "film",
     poster_url: initialFilm?.posterUrl ?? "",
     prompt_text: initialFilm?.promptText ?? "",
-    process_summary: initialFilm?.processSummary ?? "",
-    process_notes: initialFilm?.processNotes ?? "",
+    process_summary: initialFilm?.processSummary ?? workflowSeed?.creativeDirection ?? "",
+    process_notes: initialFilm?.processNotes ?? workflowNotesSeed,
     process_tags: initialFilm?.processTags ?? [],
     tool_ids: initialFilm?.selectedToolIds ?? [],
     prompt_visibility: initialFilm?.promptVisibility ?? "private",
@@ -56,13 +68,14 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
   const [isPosterUploading, setIsPosterUploading] = useState(false);
   const [error, setError] = useState("");
   const [creatorAcknowledged, setCreatorAcknowledged] = useState(initialFilm?.publishStatus === "published");
+  const workflowDraftId = workflowSeed?.id ?? null;
   const submitLabel = isSaving
     ? "Saving..."
     : isPosterUploading
       ? "Uploading Poster..."
       : initialFilm?.id
-        ? "Save Release"
-        : "Create Draft Release";
+        ? "Save Project"
+        : "Create Draft Project";
   const isPublishing = form.publish_status === "published";
 
   function toggleTool(toolId: string) {
@@ -120,7 +133,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
     }
 
     if (isPublishing && !creatorAcknowledged) {
-      setError("Confirm creator responsibility before publishing this release.");
+      setError("Confirm creator responsibility before publishing this project.");
       return;
     }
 
@@ -153,6 +166,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
           prompt_visibility: form.prompt_visibility,
           visibility: form.visibility,
           publish_status: form.publish_status,
+          workflow_draft_id: workflowDraftId,
         }),
       });
 
@@ -176,11 +190,16 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
     <form className="app-stack-shell grid gap-3.5 sm:gap-5" onSubmit={handleSubmit}>
       <section className="app-stack-card rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
-          <p className="display-kicker">Release Identity</p>
-          <h2 className="title-lg mt-3 text-foreground">Build the page before the delivery</h2>
+          <p className="display-kicker">Project Identity</p>
+          <h2 className="title-lg mt-3 text-foreground">Build the project before the release</h2>
           <p className="body-sm mt-3 text-muted-foreground">
             Keep the first pass editorial and calm. Give the release its title, structure, and visual presence before you think about upload.
           </p>
+          {workflowSeed ? (
+            <p className="mt-3 rounded-xl border border-white/14 bg-black/25 px-3 py-2 text-xs uppercase tracking-[0.14em] text-foreground/78">
+              Seeded from workflow draft: {workflowSeed.title}
+            </p>
+          ) : null}
         </div>
 
         <div className="mt-4 grid gap-3.5 sm:mt-6 sm:gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)] lg:gap-5">
@@ -265,7 +284,7 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
           </div>
 
           <aside className="app-stack-card rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:p-5">
-            <p className="display-kicker">Release Route</p>
+            <p className="display-kicker">Project Route</p>
             <p className="mt-3 break-all text-sm uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.22em]">
               /film/{normalizeSlug(form.slug || form.title || "your-film")}
             </p>
@@ -406,8 +425,8 @@ export function FilmEditorForm({ initialFilm, availableTools }: FilmEditorFormPr
 
       <section className="app-stack-card rounded-[24px] border border-white/10 bg-white/[0.04] p-3.5 sm:rounded-[26px] sm:p-5 lg:p-6">
         <div className="max-w-2xl">
-          <p className="display-kicker">Release Settings</p>
-          <h2 className="title-lg mt-3 text-foreground">Decide how the release appears</h2>
+          <p className="display-kicker">Project Settings</p>
+          <h2 className="title-lg mt-3 text-foreground">Decide how the project progresses toward release</h2>
           <p className="body-sm mt-3 text-muted-foreground">
             Save privately while composing. Publish only when the page and the rights are both in order.
           </p>

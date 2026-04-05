@@ -1,9 +1,16 @@
 import { WorkflowToolSurface } from "@/components/workflows/workflow-tool-surface";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
 
-export default async function WorkflowToolPage() {
+type WorkflowToolPageProps = {
+  searchParams?: Promise<{
+    draft?: string;
+  }>;
+};
+
+export default async function WorkflowToolPage({ searchParams }: WorkflowToolPageProps) {
   let isSignedIn = false;
   let canPersist = false;
+  const params = searchParams ? await searchParams : undefined;
 
   if (hasSupabaseServerEnv()) {
     const supabase = await createServerSupabaseClient();
@@ -27,5 +34,5 @@ export default async function WorkflowToolPage() {
     }
   }
 
-  return <WorkflowToolSurface canPersist={canPersist} isSignedIn={isSignedIn} />;
+  return <WorkflowToolSurface canPersist={canPersist} isSignedIn={isSignedIn} initialDraftId={params?.draft ?? null} />;
 }

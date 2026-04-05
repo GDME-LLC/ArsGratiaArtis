@@ -11,6 +11,7 @@ import { getFilmCategoryLabel } from "@/lib/films/categories";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
+import { listCreatorWorkflowDrafts } from "@/lib/services/workflows";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { formatMonthYear } from "@/lib/utils";
@@ -47,7 +48,10 @@ export default async function DashboardPage() {
       );
     }
 
-    const films = await listCreatorFilms(profile.id);
+    const [films, workflowDrafts] = await Promise.all([
+      listCreatorFilms(profile.id),
+      listCreatorWorkflowDrafts(profile.id, 24),
+    ]);
     const isAdmin = await hasAdminAccess(user);
     const founderSince = formatMonthYear(profile.foundingCreator.awardedAt ?? null);
 
@@ -140,6 +144,39 @@ export default async function DashboardPage() {
                 Workflow Tool is part of Creator Studio: begin early structure there, then continue in Start a Project and move to release later in the lifecycle.
               </p>
             </div>
+
+            {workflowDrafts.length === 0 ? (
+              <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
+                <p className="display-kicker">Workflow Drafts</p>
+                <p className="title-md mt-3 text-foreground">No saved workflow drafts yet</p>
+                <p className="body-sm mt-3">
+                  Start in Workflow Tool, save a draft, and continue later from this Creator Studio history.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-6 grid gap-3">
+                {workflowDrafts.map((draft) => (
+                  <article key={draft.id} className="rounded-[20px] border border-white/10 bg-white/[0.04] p-4 sm:p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="display-kicker">Workflow Draft / {draft.status}</p>
+                        <h3 className="title-md mt-2 text-foreground">{draft.title}</h3>
+                        <p className="mt-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">Updated {new Date(draft.updatedAt).toLocaleDateString()}</p>
+                        <p className="body-sm mt-3">{draft.concept || draft.creativeDirection || "Project seed ready for Start a Project."}</p>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                        <Button asChild size="lg" variant="ghost">
+                          <Link href={`/workflows?draft=${draft.id}`}>Continue Later</Link>
+                        </Button>
+                        <Button asChild size="lg">
+                          <Link href={`/upload?workflowDraft=${draft.id}`}>Start a Project</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="mt-8 border-t border-white/10 pt-8">

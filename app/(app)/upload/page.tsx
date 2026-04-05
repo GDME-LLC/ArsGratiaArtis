@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { getCreatorFilmById } from "@/lib/services/films";
 import { listToolCatalog } from "@/lib/services/tools";
+import { getCreatorWorkflowDraftById } from "@/lib/services/workflows";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
 
 type UploadPageProps = {
   searchParams?: Promise<{
     film?: string;
+    workflowDraft?: string;
   }>;
 };
 
@@ -78,9 +80,10 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     }
 
     const params = searchParams ? await searchParams : undefined;
-    const [film, availableTools] = await Promise.all([
+    const [film, availableTools, workflowDraft] = await Promise.all([
       params?.film ? getCreatorFilmById(params.film, profile.id) : Promise.resolve(null),
       listToolCatalog(),
+      params?.workflowDraft ? getCreatorWorkflowDraftById(params.workflowDraft, profile.id) : Promise.resolve(null),
     ]);
 
     if (params?.film && !film) {
@@ -129,7 +132,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
           </div>
 
           <div className="mt-4 min-w-0 sm:mt-6">
-            <FilmEditorForm initialFilm={film} availableTools={availableTools} />
+            <FilmEditorForm initialFilm={film} initialWorkflowDraft={!film ? workflowDraft : null} availableTools={availableTools} />
           </div>
         </div>
       </section>
