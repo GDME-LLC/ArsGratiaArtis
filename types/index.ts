@@ -46,7 +46,19 @@ export type ToolOption = {
 
 export type WorkflowDraftStatus = "draft" | "seeded" | "archived";
 
-export type WorkflowAssetType = "link" | "upload";
+export type IntegrationPlatform = "runway" | "elevenlabs";
+
+export type CreatorIntegration = {
+  id: string;
+  creatorId: string;
+  platform: IntegrationPlatform;
+  maskedApiKey: string;
+  isActive: boolean;
+  connectedAt: string;
+  lastUsedAt: string | null;
+};
+
+export type WorkflowAssetType = "link" | "upload" | "import";
 export type WorkflowAssetSourceType = "runway" | "elevenlabs" | "generic";
 
 export type WorkflowAsset = {
@@ -64,6 +76,9 @@ export type WorkflowAsset = {
   stage: string | null;
   notes: string | null;
   sortOrder: number;
+  externalAssetId: string | null;
+  externalProjectId: string | null;
+  sourceMetadata: Record<string, unknown> | null;
   createdAt: string;
 };
 

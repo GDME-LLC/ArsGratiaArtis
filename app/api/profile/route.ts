@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 
 import { CREATIVE_PROCESS_SUMMARY_LIMIT } from "@/lib/constants/process";
-import { isValidHandle, mapProfile } from "@/lib/profiles";
+import { isValidHandle, mapProfile, ensureProfileForUser } from "@/lib/profiles";
 import { normalizeTheatreSettings, THEATRE_OPENING_STATEMENT_LIMIT } from "@/lib/theatre";
 import { moderateTextFields } from "@/lib/security/moderation";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
+import {
+  connectIntegration,
+  disconnectIntegration,
+  listCreatorIntegrations,
+} from "@/lib/services/integrations";
+import type { IntegrationPlatform } from "@/types";
+
+const VALID_PLATFORMS: IntegrationPlatform[] = ["runway", "elevenlabs"];
 
 export async function PUT(request: Request) {
   if (!hasSupabaseServerEnv()) {
@@ -156,4 +164,126 @@ export async function PUT(request: Request) {
   }
 
   return NextResponse.json({ profile: mapProfile(data as Record<string, unknown>) });
+}
+
+async function requireCreatorForIntegrations() {
+  if (!hasSupabaseServerEnv()) {
+    return { error: NextResponse.json({ error: "Supabase is not configured in this environment." }, { status: 503 }) };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) {
+    return { error: NextResponse.json({ error: "Supabase client unavailable." }, { status: 503 }) };
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
+  }
+
+  const profile = await ensureProfileForUser(user);
+  if (!profile) {
+    return { error: NextResponse.json({ error: "Profile unavailable." }, { status: 400 }) };
+  }
+
+  if (!profile.isCreator) {
+    return {
+      error: NextResponse.json(
+        { error: "Become a Creator to connect platform integrations." },
+        { status: 403 },
+      ),
+    };
+  }
+
+  return { profile };
+}
+
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const sub = url.searchParams.get("_sub");
+
+  if (sub !== "integrations") {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+
+  const access = await requireCreatorForIntegrations();
+  if ("error" in access) return access.error;
+
+  try {
+    const integrations = await listCreatorIntegrations(access.profile.id);
+    return NextResponse.json({ integrations });
+  } catch {
+    return NextResponse.json({ error: "Could not load integrations." }, { status: 400 });
+  }
+}
+
+export async function POST(request: Request) {
+  const url = new URL(request.url);
+  const sub = url.searchParams.get("_sub");
+
+  if (sub !== "integration-connect") {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+
+  const access = await requireCreatorForIntegrations();
+  if ("error" in access) return access.error;
+
+  const ip = await getRequestIp();
+  const rateLimit = await enforceRateLimit({
+    ...rateLimitPresets.integrations,
+    key: `integrations:${ip}:${access.profile.id}`,
+  });
+
+  if (!rateLimit.ok) {
+    return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
+  }
+
+  const payload = (await request.json()) as { platform?: string; api_key?: string };
+  const platform = payload.platform?.trim().toLowerCase();
+
+  if (!platform || !VALID_PLATFORMS.includes(platform as IntegrationPlatform)) {
+    return NextResponse.json({ error: "Platform must be one of: runway, elevenlabs." }, { status: 400 });
+  }
+
+  if (!payload.api_key?.trim()) {
+    return NextResponse.json({ error: "API key is required." }, { status: 400 });
+  }
+
+  const { integration, error } = await connectIntegration(
+    access.profile.id,
+    platform as IntegrationPlatform,
+    payload.api_key
+  );
+
+  if (error || !integration) {
+    return NextResponse.json({ error: error ?? "Could not connect integration." }, { status: 400 });
+  }
+
+  return NextResponse.json({ integration });
+}
+
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const sub = url.searchParams.get("_sub");
+
+  if (sub !== "integration-disconnect") {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+
+  const access = await requireCreatorForIntegrations();
+  if ("error" in access) return access.error;
+
+  const platform = url.searchParams.get("platform")?.toLowerCase();
+
+  if (!platform || !VALID_PLATFORMS.includes(platform as IntegrationPlatform)) {
+    return NextResponse.json({ error: "Platform must be one of: runway, elevenlabs." }, { status: 400 });
+  }
+
+  const result = await disconnectIntegration(access.profile.id, platform as IntegrationPlatform);
+
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error ?? "Could not disconnect integration." }, { status: 400 });
+  }
+
+  return NextResponse.json({ ok: true });
 }

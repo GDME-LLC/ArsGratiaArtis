@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink, FileUp, Link2, Trash2, X } from "lucide-react";
+import { ExternalLink, FileUp, Import, Link2, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import type { WorkflowAsset, WorkflowAssetSourceType } from "@/types";
+import { WorkflowImportPicker } from "@/components/workflows/workflow-import-picker";
+import type { CreatorIntegration, IntegrationPlatform, WorkflowAsset, WorkflowAssetSourceType } from "@/types";
 
 const SOURCE_TYPE_LABELS: Record<WorkflowAssetSourceType, string> = {
   runway: "Runway",
@@ -30,7 +31,7 @@ type WorkflowAssetManagerProps = {
   draftId: string;
 };
 
-type Tab = "link" | "upload";
+type Tab = "link" | "upload" | "import";
 
 const emptyLinkForm = { label: "", url: "", sourceType: "generic" as WorkflowAssetSourceType, stage: "", notes: "" };
 const emptyUploadForm = { label: "", sourceType: "generic" as WorkflowAssetSourceType, stage: "", notes: "" };
@@ -39,6 +40,8 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
   const [assets, setAssets] = useState<WorkflowAsset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("link");
+  const [connectedIntegrations, setConnectedIntegrations] = useState<CreatorIntegration[]>([]);
+  const [importPlatform, setImportPlatform] = useState<IntegrationPlatform | null>(null);
   const [linkForm, setLinkForm] = useState(emptyLinkForm);
   const [uploadForm, setUploadForm] = useState(emptyUploadForm);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -55,19 +58,31 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
       setIsLoading(true);
 
       try {
-        const res = await fetch(`/api/workflows/${draftId}/assets`, { cache: "no-store" });
-        const payload = (await res.json()) as { assets?: WorkflowAsset[]; error?: string };
+        const [assetsRes, integrationsRes] = await Promise.all([
+          fetch(`/api/workflows/${draftId}/assets`, { cache: "no-store" }),
+          fetch("/api/integrations", { cache: "no-store" }),
+        ]);
+
+        const assetsPayload = (await assetsRes.json()) as { assets?: WorkflowAsset[]; error?: string };
+        const integrationsPayload = (await integrationsRes.json()) as { integrations?: CreatorIntegration[]; error?: string };
 
         if (!mounted) {
           return;
         }
 
-        if (!res.ok || !payload.assets) {
-          setError(payload.error ?? "Could not load assets.");
+        if (!assetsRes.ok || !assetsPayload.assets) {
+          setError(assetsPayload.error ?? "Could not load assets.");
           return;
         }
 
-        setAssets(payload.assets);
+        setAssets(assetsPayload.assets);
+
+        if (integrationsRes.ok && integrationsPayload.integrations) {
+          setConnectedIntegrations(integrationsPayload.integrations);
+          if (integrationsPayload.integrations.length > 0) {
+            setImportPlatform(integrationsPayload.integrations[0].platform);
+          }
+        }
       } catch {
         if (mounted) {
           setError("Network error loading assets.");
@@ -263,6 +278,16 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
           <FileUp className="h-3 w-3" />
           Upload
         </button>
+        {connectedIntegrations.length > 0 ? (
+          <button
+            type="button"
+            onClick={() => { clearMessages(); setActiveTab("import"); }}
+            className={`flex-1 flex items-center justify-center gap-1.5 rounded-[10px] px-3 py-2 text-xs uppercase tracking-[0.14em] transition ${activeTab === "import" ? "bg-white/10 text-foreground" : "text-muted-foreground hover:text-foreground/80"}`}
+          >
+            <Import className="h-3 w-3" />
+            Import
+          </button>
+        ) : null}
       </div>
 
       {activeTab === "link" ? (
@@ -369,7 +394,32 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
             {isSaving ? "Uploading..." : "Upload File"}
           </Button>
         </form>
-      )}
+      ) : activeTab === "import" ? (
+        <div className="mt-4">
+          {connectedIntegrations.length > 1 ? (
+            <div className="mb-3 flex rounded-xl border border-white/10 bg-black/20 p-0.5 gap-0.5">
+              {connectedIntegrations.map((integration) => (
+                <button
+                  key={integration.platform}
+                  type="button"
+                  onClick={() => setImportPlatform(integration.platform)}
+                  className={`flex-1 rounded-[10px] px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] transition ${importPlatform === integration.platform ? "bg-white/10 text-foreground" : "text-muted-foreground hover:text-foreground/80"}`}
+                >
+                  {integration.platform === "runway" ? "Runway" : "ElevenLabs"}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {importPlatform ? (
+            <WorkflowImportPicker
+              key={`${draftId}-${importPlatform}`}
+              draftId={draftId}
+              platform={importPlatform}
+              onImported={(asset) => setAssets((current) => [...current, asset])}
+            />
+          ) : null}
+        </div>
+      ) : null}
 
       {error ? (
         <div className="mt-3 flex items-start gap-2 rounded-xl border border-destructive/35 bg-destructive/10 px-3 py-2.5 text-xs text-destructive">
@@ -399,6 +449,7 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
                 <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                   <span>{SOURCE_TYPE_LABELS[asset.sourceType]}</span>
                   {asset.stage ? <span>· {asset.stage}</span> : null}
+                  {asset.assetType === "import" ? <span>· Imported</span> : null}
                   {asset.assetType === "upload" && asset.mimeType ? (
                     <span>· {getMimeCategory(asset.mimeType)}</span>
                   ) : null}

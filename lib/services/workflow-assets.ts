@@ -16,6 +16,9 @@ type WorkflowAssetRow = {
   stage: string | null;
   notes: string | null;
   sort_order: number;
+  external_asset_id: string | null;
+  external_project_id: string | null;
+  source_metadata: Record<string, unknown> | null;
   created_at: string;
 };
 
@@ -35,12 +38,15 @@ function mapWorkflowAsset(row: WorkflowAssetRow): WorkflowAsset {
     stage: row.stage,
     notes: row.notes,
     sortOrder: row.sort_order,
+    externalAssetId: row.external_asset_id,
+    externalProjectId: row.external_project_id,
+    sourceMetadata: row.source_metadata,
     createdAt: row.created_at,
   };
 }
 
 const SELECT_FIELDS =
-  "id, draft_id, creator_id, label, asset_type, source_type, url, file_path, file_name, file_size, mime_type, stage, notes, sort_order, created_at";
+  "id, draft_id, creator_id, label, asset_type, source_type, url, file_path, file_name, file_size, mime_type, stage, notes, sort_order, external_asset_id, external_project_id, source_metadata, created_at";
 
 export async function listWorkflowAssets(draftId: string, creatorId: string): Promise<WorkflowAsset[]> {
   const supabase = await createServerSupabaseClient();
@@ -134,6 +140,51 @@ export async function addWorkflowUploadAsset(input: {
       file_name: input.fileName,
       file_size: input.fileSize,
       mime_type: input.mimeType,
+      stage: input.stage?.trim() || null,
+      notes: input.notes?.trim() || null,
+    })
+    .select(SELECT_FIELDS)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapWorkflowAsset(data as WorkflowAssetRow);
+}
+
+export async function addWorkflowImportedAsset(input: {
+  draftId: string;
+  creatorId: string;
+  label: string;
+  url: string;
+  sourceType: WorkflowAssetSourceType;
+  mimeType?: string | null;
+  externalAssetId: string;
+  externalProjectId?: string | null;
+  sourceMetadata?: Record<string, unknown> | null;
+  stage?: string | null;
+  notes?: string | null;
+}): Promise<WorkflowAsset> {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    throw new Error("Supabase is not configured.");
+  }
+
+  const { data, error } = await supabase
+    .from("workflow_assets")
+    .insert({
+      draft_id: input.draftId,
+      creator_id: input.creatorId,
+      label: input.label.trim(),
+      asset_type: "import" as WorkflowAssetType,
+      source_type: input.sourceType,
+      url: input.url.trim(),
+      mime_type: input.mimeType ?? null,
+      external_asset_id: input.externalAssetId,
+      external_project_id: input.externalProjectId ?? null,
+      source_metadata: input.sourceMetadata ?? null,
       stage: input.stage?.trim() || null,
       notes: input.notes?.trim() || null,
     })

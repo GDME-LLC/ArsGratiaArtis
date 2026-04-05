@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { IntegrationConnectPanel } from "@/components/workflows/integration-connect-panel";
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
 import { StatePanel } from "@/components/shared/state-panel";
 import { Button } from "@/components/ui/button";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { listCreatorFilms } from "@/lib/services/films";
+import { listCreatorIntegrations } from "@/lib/services/integrations";
 import { listToolCatalog } from "@/lib/services/tools";
 import { getUser } from "@/lib/supabase/auth";
 import { hasSupabaseServerEnv } from "@/lib/supabase/server";
@@ -42,9 +44,10 @@ export default async function SettingsPage() {
       );
     }
 
-    const [availableFilms, availableTools] = await Promise.all([
+    const [availableFilms, availableTools, integrations] = await Promise.all([
       listCreatorFilms(profile.id),
       listToolCatalog(),
+      profile.isCreator ? listCreatorIntegrations(profile.id) : Promise.resolve([]),
     ]);
 
     return (
@@ -55,7 +58,12 @@ export default async function SettingsPage() {
           </Button>
           {/* No separate 'My Studio' button; all navigation is via Creator Studio */}
         </div>
-        <ProfileSettingsForm profile={profile} availableFilms={availableFilms} availableTools={availableTools} />
+        <div className="grid gap-6">
+          <ProfileSettingsForm profile={profile} availableFilms={availableFilms} availableTools={availableTools} />
+          {profile.isCreator ? (
+            <IntegrationConnectPanel initialIntegrations={integrations} />
+          ) : null}
+        </div>
       </section>
     );
   } catch (error) {
