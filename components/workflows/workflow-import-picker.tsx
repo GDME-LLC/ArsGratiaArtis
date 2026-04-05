@@ -61,8 +61,8 @@ export function WorkflowImportPicker({ draftId, platform, onImported }: Workflow
 
     const endpoint =
       platform === "elevenlabs"
-        ? "/api/integrations/elevenlabs/assets"
-        : "/api/integrations/runway/assets";
+        ? "/api/workflows?_sub=elevenlabs-assets"
+        : "/api/workflows?_sub=runway-assets";
 
     void (async () => {
       try {
@@ -108,7 +108,7 @@ export function WorkflowImportPicker({ draftId, platform, onImported }: Workflow
         : item.text.slice(0, 60);
 
       try {
-        const res = await fetch("/api/integrations/import", {
+        const res = await fetch("/api/workflows?_sub=integration-import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -160,7 +160,7 @@ export function WorkflowImportPicker({ draftId, platform, onImported }: Workflow
       const label = task.name ?? `Runway output (${formatDate(task.createdAt)})`;
 
       try {
-        const res = await fetch("/api/integrations/import", {
+        const res = await fetch("/api/workflows?_sub=integration-import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

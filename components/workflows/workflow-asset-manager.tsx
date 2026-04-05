@@ -57,8 +57,8 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
 
       try {
         const [assetsRes, integrationsRes] = await Promise.all([
-          fetch(`/api/workflows/${draftId}/assets`, { cache: "no-store" }),
-          fetch("/api/integrations", { cache: "no-store" }),
+          fetch(`/api/workflows/${draftId}?_sub=assets`, { cache: "no-store" }),
+          fetch("/api/profile?_sub=integrations", { cache: "no-store" }),
         ]);
 
         const assetsPayload = (await assetsRes.json()) as { assets?: WorkflowAsset[]; error?: string };
@@ -112,7 +112,7 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
     setError(null);
 
     try {
-      const res = await fetch("/api/integrations/sync", {
+      const res = await fetch("/api/workflows?_sub=integration-sync", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ platform: importPlatform }),
@@ -146,7 +146,7 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
     setIsSaving(true);
 
     try {
-      const res = await fetch(`/api/workflows/${draftId}/assets`, {
+      const res = await fetch(`/api/workflows/${draftId}?_sub=assets`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -206,7 +206,7 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
         formData.append("notes", uploadForm.notes.trim());
       }
 
-      const res = await fetch("/api/uploads/workflow-asset", {
+      const res = await fetch("/api/uploads/image?_sub=workflow-asset", {
         method: "POST",
         body: formData,
       });
@@ -239,7 +239,7 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
     setDeletingId(asset.id);
 
     try {
-      const res = await fetch(`/api/workflows/${draftId}/assets/${asset.id}`, {
+      const res = await fetch(`/api/workflows/${draftId}?_sub=assets&_assetId=${encodeURIComponent(asset.id)}`, {
         method: "DELETE",
       });
 
@@ -350,11 +350,11 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
             </label>
           </div>
 
-          <Button type="submit" size="sm" variant="ghost" disabled={isSaving} className="mt-1 w-full">
+          <Button type="submit" variant="ghost" disabled={isSaving} className="mt-1 w-full">
             {isSaving ? "Adding..." : "Add Link"}
           </Button>
         </form>
-      ) : (
+      ) : activeTab === "upload" ? (
         <form onSubmit={handleUpload} className="mt-4 grid gap-2.5">
           <label className="grid gap-1.5">
             <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">File</span>
@@ -406,7 +406,7 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
             </label>
           </div>
 
-          <Button type="submit" size="sm" variant="ghost" disabled={isSaving || !uploadFile} className="mt-1 w-full">
+          <Button type="submit" variant="ghost" disabled={isSaving || !uploadFile} className="mt-1 w-full">
             {isSaving ? "Uploading..." : "Upload File"}
           </Button>
         </form>

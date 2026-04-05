@@ -1,0 +1,52 @@
+[
+    {
+        "check":  "public_workflow_tool_route",
+        "ok":  true,
+        "detail":  "status 200"
+    },
+    {
+        "check":  "auth_login",
+        "ok":  true,
+        "detail":  "status 200"
+    },
+    {
+        "check":  "create_workflow_draft",
+        "ok":  true,
+        "detail":  "status 200"
+    },
+    {
+        "check":  "list_workflow_drafts",
+        "ok":  true,
+        "detail":  "count 9"
+    },
+    {
+        "check":  "add_link_asset",
+        "ok":  true,
+        "detail":  "status 200"
+    },
+    {
+        "check":  "list_draft_assets",
+        "ok":  true,
+        "detail":  "count 1"
+    },
+    {
+        "check":  "seed_draft_via_film_create",
+        "ok":  true,
+        "detail":  "status 200"
+    },
+    {
+        "check":  "list_film_linked_assets",
+        "ok":  true,
+        "detail":  "count 1"
+    },
+    {
+        "check":  "list_integrations_endpoint",
+        "ok":  true,
+        "detail":  "count 0"
+    },
+    {
+        "check":  "integration_sync_endpoint",
+        "ok":  false,
+        "detail":  "status 404"
+    }
+]

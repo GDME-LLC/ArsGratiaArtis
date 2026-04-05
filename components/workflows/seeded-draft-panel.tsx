@@ -30,7 +30,7 @@ export function SeededDraftPanel({ draft }: SeededDraftPanelProps) {
       </p>
 
       <div className="mt-4 flex flex-col gap-2">
-        <Button asChild size="sm" variant="ghost" className="w-full justify-start gap-2">
+        <Button asChild variant="ghost" className="w-full justify-start gap-2">
           <Link href={`/upload?film=${draft.seededFilmId}`}>
             <Clapperboard className="h-3.5 w-3.5" />
             Open Film Editor

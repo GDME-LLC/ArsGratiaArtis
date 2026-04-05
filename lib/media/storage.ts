@@ -147,7 +147,7 @@ export function buildWorkflowAssetObjectPath(input: {
   ].join("/");
 }
 
-(url: string | null | undefined, bucketName = getMediaBucketName()) {
+export function extractStorageObjectPathFromUrl(url: string | null | undefined, bucketName = getMediaBucketName()) {
   if (!url) {
     return null;
   }

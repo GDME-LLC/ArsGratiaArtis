@@ -44,7 +44,7 @@ export function IntegrationConnectPanel({ initialIntegrations = [] }: Integratio
   useEffect(() => {
     void (async () => {
       try {
-        const res = await fetch("/api/integrations", { cache: "no-store" });
+        const res = await fetch("/api/profile?_sub=integrations", { cache: "no-store" });
         const payload = (await res.json()) as { integrations?: CreatorIntegration[]; error?: string };
         if (res.ok && payload.integrations) setIntegrations(payload.integrations);
       } catch {
@@ -85,7 +85,7 @@ export function IntegrationConnectPanel({ initialIntegrations = [] }: Integratio
       setError(null);
 
       try {
-        const res = await fetch("/api/integrations/connect", {
+        const res = await fetch("/api/profile?_sub=integration-connect", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ platform: connectingPlatform, api_key: trimmedKey }),
@@ -121,7 +121,7 @@ export function IntegrationConnectPanel({ initialIntegrations = [] }: Integratio
     setSuccessMsg(null);
 
     try {
-      const res = await fetch(`/api/integrations/${platform}`, { method: "DELETE" });
+      const res = await fetch(`/api/profile?_sub=integration-disconnect&platform=${encodeURIComponent(platform)}`, { method: "DELETE" });
       const payload = (await res.json()) as { ok?: boolean; error?: string };
 
       if (!res.ok || !payload.ok) {
@@ -247,7 +247,7 @@ export function IntegrationConnectPanel({ initialIntegrations = [] }: Integratio
                   </label>
 
                   <div className="flex items-center gap-2">
-                    <Button type="submit" size="sm" variant="ghost" disabled={isSaving} className="flex-1">
+                    <Button type="submit" variant="ghost" disabled={isSaving} className="flex-1">
                       {isSaving ? "Validating & Saving..." : `Connect ${PLATFORM_LABELS[platform]}`}
                     </Button>
                     <button

@@ -65,7 +65,7 @@ export function FilmAssetBrowser({ draftId, filmId }: FilmAssetBrowserProps) {
 
     void (async () => {
       try {
-        const res = await fetch(`/api/workflows/${draftId}/film-assets`, { cache: "no-store" });
+        const res = await fetch(`/api/workflows/${draftId}?_sub=film-assets`, { cache: "no-store" });
         const payload = (await res.json()) as { assets?: WorkflowAsset[]; error?: string };
 
         if (!mounted) return;
