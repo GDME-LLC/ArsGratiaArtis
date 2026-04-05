@@ -94,6 +94,11 @@ export function WorkflowDraftHistoryPanel({ drafts }: WorkflowDraftHistoryPanelP
                   <h3 className="title-md mt-2 text-foreground">{draft.title}</h3>
                   <p className="mt-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">Updated {new Date(draft.updatedAt).toLocaleDateString()}</p>
                   <p className="body-sm mt-3">{draft.concept || draft.creativeDirection || "Project seed ready for Start a Project."}</p>
+                  {draft.assetCount > 0 ? (
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                      {draft.assetCount} asset{draft.assetCount !== 1 ? "s" : ""} attached
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Button asChild size="lg" variant="ghost" disabled={busyId === draft.id}>

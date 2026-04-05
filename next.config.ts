@@ -16,6 +16,24 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/api/workflows/:id/assets/:assetId",
+          destination: "/api/workflows/:id?_sub=assets&_assetId=:assetId",
+        },
+        {
+          source: "/api/workflows/:id/assets",
+          destination: "/api/workflows/:id?_sub=assets",
+        },
+        {
+          source: "/api/uploads/workflow-asset",
+          destination: "/api/uploads/image?_sub=workflow-asset",
+        },
+      ],
+    };
+  },
   async headers() {
     return [
       {

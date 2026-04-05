@@ -46,6 +46,27 @@ export type ToolOption = {
 
 export type WorkflowDraftStatus = "draft" | "seeded" | "archived";
 
+export type WorkflowAssetType = "link" | "upload";
+export type WorkflowAssetSourceType = "runway" | "elevenlabs" | "generic";
+
+export type WorkflowAsset = {
+  id: string;
+  draftId: string;
+  creatorId: string;
+  label: string;
+  assetType: WorkflowAssetType;
+  sourceType: WorkflowAssetSourceType;
+  url: string | null;
+  filePath: string | null;
+  fileName: string | null;
+  fileSize: number | null;
+  mimeType: string | null;
+  stage: string | null;
+  notes: string | null;
+  sortOrder: number;
+  createdAt: string;
+};
+
 export type WorkflowDraft = {
   id: string;
   creatorId: string;
@@ -57,6 +78,7 @@ export type WorkflowDraft = {
   notes: string | null;
   status: WorkflowDraftStatus;
   seededFilmId: string | null;
+  assetCount: number;
   createdAt: string;
   updatedAt: string;
 };

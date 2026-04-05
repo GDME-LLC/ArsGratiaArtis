@@ -12,6 +12,7 @@ type WorkflowDraftRow = {
   notes: string | null;
   status: WorkflowDraftStatus;
   seeded_film_id: string | null;
+  asset_count: number;
   created_at: string;
   updated_at: string;
 };
@@ -36,6 +37,7 @@ function mapWorkflowDraft(row: WorkflowDraftRow): WorkflowDraft {
     notes: row.notes,
     status: row.status,
     seededFilmId: row.seeded_film_id,
+    assetCount: row.asset_count ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -50,7 +52,7 @@ export async function listCreatorWorkflowDrafts(creatorId: string, limit = 24): 
 
   const { data, error } = await supabase
     .from("workflow_drafts")
-    .select("id, creator_id, title, concept, creative_direction, selected_tools, workflow_steps, notes, status, seeded_film_id, created_at, updated_at")
+    .select("id, creator_id, title, concept, creative_direction, selected_tools, workflow_steps, notes, status, seeded_film_id, created_at, updated_at, workflow_assets(count)")
     .eq("creator_id", creatorId)
     .order("updated_at", { ascending: false })
     .limit(limit);
@@ -59,7 +61,11 @@ export async function listCreatorWorkflowDrafts(creatorId: string, limit = 24): 
     throw new Error(error.message);
   }
 
-  return (data ?? []).map((row) => mapWorkflowDraft(row as WorkflowDraftRow));
+  return (data ?? []).map((row) => {
+    const rawCount = (row as unknown as { workflow_assets: Array<{ count: number }> }).workflow_assets;
+    const assetCount = Array.isArray(rawCount) && rawCount[0] ? rawCount[0].count : 0;
+    return mapWorkflowDraft({ ...(row as unknown as WorkflowDraftRow), asset_count: assetCount });
+  });
 }
 
 export async function getCreatorWorkflowDraftById(draftId: string, creatorId: string): Promise<WorkflowDraft | null> {
@@ -71,7 +77,7 @@ export async function getCreatorWorkflowDraftById(draftId: string, creatorId: st
 
   const { data, error } = await supabase
     .from("workflow_drafts")
-    .select("id, creator_id, title, concept, creative_direction, selected_tools, workflow_steps, notes, status, seeded_film_id, created_at, updated_at")
+    .select("id, creator_id, title, concept, creative_direction, selected_tools, workflow_steps, notes, status, seeded_film_id, created_at, updated_at, workflow_assets(count)")
     .eq("id", draftId)
     .eq("creator_id", creatorId)
     .maybeSingle();
@@ -84,7 +90,9 @@ export async function getCreatorWorkflowDraftById(draftId: string, creatorId: st
     return null;
   }
 
-  return mapWorkflowDraft(data as WorkflowDraftRow);
+  const rawCount = (data as unknown as { workflow_assets: Array<{ count: number }> }).workflow_assets;
+  const assetCount = Array.isArray(rawCount) && rawCount[0] ? rawCount[0].count : 0;
+  return mapWorkflowDraft({ ...(data as unknown as WorkflowDraftRow), asset_count: assetCount });
 }
 
 export async function createWorkflowDraft(input: {
@@ -122,7 +130,7 @@ export async function createWorkflowDraft(input: {
     throw new Error(error.message);
   }
 
-  return mapWorkflowDraft(data as WorkflowDraftRow);
+  return mapWorkflowDraft({ ...(data as unknown as WorkflowDraftRow), asset_count: 0 });
 }
 
 export async function updateWorkflowDraft(input: {
@@ -166,7 +174,7 @@ export async function updateWorkflowDraft(input: {
     throw new Error("Workflow draft not found.");
   }
 
-  return mapWorkflowDraft(data as WorkflowDraftRow);
+  return mapWorkflowDraft({ ...(data as unknown as WorkflowDraftRow), asset_count: 0 });
 }
 
 export async function deleteWorkflowDraft(draftId: string, creatorId: string): Promise<void> {

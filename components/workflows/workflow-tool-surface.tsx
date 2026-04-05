@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, FolderOpen, RefreshCw, Save, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { WorkflowAssetManager } from "@/components/workflows/workflow-asset-manager";
 import { cn } from "@/lib/utils";
 import type { WorkflowDraft, WorkflowDraftStatus } from "@/types";
 
@@ -424,6 +425,10 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
           </div>
 
           <aside className="space-y-4">
+            {canPersist && activeDraftId ? (
+              <WorkflowAssetManager draftId={activeDraftId} />
+            ) : null}
+
             {canPersist ? (
               <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
                 <div className="flex items-center justify-between gap-3">
@@ -438,7 +443,10 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                     {savedDrafts.map((saved) => (
                       <div key={saved.id} className="rounded-xl border border-white/10 bg-black/25 p-3">
                         <p className="text-sm font-medium text-foreground">{saved.title}</p>
-                        <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-foreground/68">{saved.status} - updated {new Date(saved.updatedAt).toLocaleDateString()}</p>
+                        <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-foreground/68">
+                          {saved.status} - updated {new Date(saved.updatedAt).toLocaleDateString()}
+                          {saved.assetCount > 0 ? ` · ${saved.assetCount} asset${saved.assetCount !== 1 ? "s" : ""}` : ""}
+                        </p>
                         <div className="mt-2 flex flex-wrap gap-2">
                           <Button type="button" size="default" variant="ghost" className="h-9 px-3" onClick={() => handleOpenSavedDraft(saved)}>
                             Continue Later
