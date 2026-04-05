@@ -145,23 +145,20 @@ export function Hero({
                 <span>Audience Path</span>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+                <Button asChild size="lg" variant="ghost" className="w-full border-white/24 bg-black/28 text-foreground/88 hover:text-foreground sm:w-auto">
+                  <Link href="/workflow-tool">Workflow Tool</Link>
+                </Button>
+                <Button asChild size="lg" variant="ghost" className="w-full border-white/24 bg-black/28 text-foreground/88 hover:text-foreground sm:w-auto">
+                  <Link href="/filmmakers">Creators</Link>
+                </Button>
                 <Button
                   asChild
                   size="xl"
                   className="w-full normal-case tracking-[0.04em] border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.3),rgba(255,255,255,0.12))] text-black shadow-[0_14px_34px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.64),inset_0_-1px_0_rgba(132,140,152,0.42)] backdrop-blur-[8px] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(255,255,255,0.16))] sm:w-auto"
                 >
-                  <Link href="/workflow-tool">Open Workflow Tool</Link>
+                  <Link href="/feed">Browse Filmwork</Link>
                 </Button>
-
-                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-                  <Button asChild size="lg" variant="ghost" className="w-full border-white/24 bg-black/28 text-foreground/88 hover:text-foreground sm:w-auto">
-                    <Link href="/feed">Watch New Releases</Link>
-                  </Button>
-                  <Button asChild size="lg" variant="ghost" className="w-full border-white/24 bg-black/28 text-foreground/88 hover:text-foreground sm:w-auto">
-                    <Link href="/filmmakers">Meet the Filmmakers</Link>
-                  </Button>
-                </div>
               </div>
             </div>
             </div>

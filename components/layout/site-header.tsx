@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { getUser } from "@/lib/supabase/auth";
 
 const navItems = [
-  { href: "/workflow-tool", label: "Workflow Tool" },
   { href: "/manifesto", label: "Manifesto" },
 ] as const;
 

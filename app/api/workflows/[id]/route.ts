@@ -162,3 +162,45 @@ export async function DELETE(_: Request, { params }: WorkflowDraftRouteProps) {
     );
   }
 }
+
+export async function PATCH(request: Request, { params }: WorkflowDraftRouteProps) {
+  const { id } = await params;
+  const access = await requireCreator();
+
+  if ("error" in access) {
+    return access.error;
+  }
+
+  const payload = (await request.json()) as { status?: WorkflowDraftStatus };
+
+  if (!payload.status || !ALLOWED_STATUSES.includes(payload.status)) {
+    return NextResponse.json({ error: "Workflow draft status is invalid." }, { status: 400 });
+  }
+
+  try {
+    const current = await getCreatorWorkflowDraftById(id, access.profile.id);
+
+    if (!current) {
+      return NextResponse.json({ error: "Workflow draft not found." }, { status: 404 });
+    }
+
+    const draft = await updateWorkflowDraft({
+      id,
+      creatorId: access.profile.id,
+      title: current.title,
+      concept: current.concept,
+      creativeDirection: current.creativeDirection,
+      selectedTools: current.selectedTools,
+      workflowSteps: current.workflowSteps,
+      notes: current.notes,
+      status: payload.status,
+    });
+
+    return NextResponse.json({ draft });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Workflow draft status could not be updated." },
+      { status: 400 },
+    );
+  }
+}

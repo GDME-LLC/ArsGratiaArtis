@@ -210,6 +210,68 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
     })();
   }
 
+  async function updateDraftStatus(draftId: string, nextStatus: WorkflowDraftStatus) {
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(`/api/workflows/${draftId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      const payload = (await response.json()) as { error?: string; draft?: WorkflowDraft };
+
+      if (!response.ok || !payload.draft) {
+        setStatus(payload.error ?? "Workflow draft status could not be updated.");
+        return;
+      }
+
+      setSavedDrafts((current) => current.map((entry) => (entry.id === payload.draft?.id ? payload.draft : entry)));
+
+      if (activeDraftId === payload.draft.id) {
+        setDraft(hydrateFormFromDraft(payload.draft));
+      }
+
+      setStatus(nextStatus === "archived" ? "Workflow draft archived." : "Workflow draft restored.");
+    } catch {
+      setStatus("Network error while updating workflow draft status.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function deleteSavedDraft(draftId: string) {
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(`/api/workflows/${draftId}`, {
+        method: "DELETE",
+      });
+
+      const payload = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        setStatus(payload.error ?? "Workflow draft could not be deleted.");
+        return;
+      }
+
+      setSavedDrafts((current) => current.filter((entry) => entry.id !== draftId));
+
+      if (activeDraftId === draftId) {
+        handleStartNewDraft();
+      }
+
+      setStatus("Workflow draft deleted.");
+    } catch {
+      setStatus("Network error while deleting workflow draft.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   function handleOpenSavedDraft(saved: WorkflowDraft) {
     setActiveDraftId(saved.id);
     setDraft(hydrateFormFromDraft(saved));
@@ -375,8 +437,20 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                           <Button type="button" size="default" variant="ghost" className="h-9 px-3" onClick={() => handleOpenSavedDraft(saved)}>
                             Continue Later
                           </Button>
-                          <Button asChild size="default" variant="ghost" className="h-9 px-3">
+                          <Button asChild size="default" variant="ghost" className="h-9 px-3" disabled={saved.status === "archived"}>
                             <Link href={`/upload?workflowDraft=${saved.id}`}>Start a Project</Link>
+                          </Button>
+                          {saved.status === "archived" ? (
+                            <Button type="button" size="default" variant="ghost" className="h-9 px-3" disabled={isSaving} onClick={() => updateDraftStatus(saved.id, "draft")}>
+                              Unarchive
+                            </Button>
+                          ) : (
+                            <Button type="button" size="default" variant="ghost" className="h-9 px-3" disabled={isSaving} onClick={() => updateDraftStatus(saved.id, "archived")}>
+                              Archive
+                            </Button>
+                          )}
+                          <Button type="button" size="default" variant="ghost" className="h-9 px-3" disabled={isSaving} onClick={() => deleteSavedDraft(saved.id)}>
+                            Delete
                           </Button>
                         </div>
                       </div>

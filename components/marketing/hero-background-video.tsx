@@ -237,7 +237,7 @@ export function HeroBackgroundVideo() {
   }, [prefersReducedMotion]);
 
   const layerVisible = loopVisible || prefersReducedMotion;
-  const videoBaseClass = "public-background__hero-video absolute inset-0 h-full w-full translate-y-[11vh] scale-[1.12] object-cover object-center brightness-[0.9] transition-opacity duration-[720ms] ease-out sm:scale-[1.1] lg:scale-[1.08] xl:object-[24%_center]";
+  const videoBaseClass = "public-background__hero-video absolute inset-0 h-full w-full translate-y-[-2vh] scale-[1.12] object-cover object-center brightness-[0.9] transition-opacity duration-[720ms] ease-out sm:translate-y-[-3vh] sm:scale-[1.1] lg:translate-y-[-4vh] lg:scale-[1.08] xl:object-[24%_center]";
   const videoAClass = activeLayer === 0
     ? isCrossfading
       ? `${videoBaseClass} z-10 opacity-34`
