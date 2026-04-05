@@ -19,7 +19,7 @@ type UploadPageProps = {
 const releaseSteps = [
   {
     label: "Step 1",
-    title: "Shape the release",
+    title: "Shape the project foundation",
     description: "Set the title, slug, synopsis, and category before anything else.",
   },
   {
@@ -30,7 +30,7 @@ const releaseSteps = [
   {
     label: "Step 3",
     title: "Attach the final cut",
-    description: "Upload video last, once the release page already reads clearly and feels ready.",
+    description: "Publish video later, once the project page already reads clearly and feels ready.",
   },
 ];
 
@@ -110,10 +110,10 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
             <div className="max-w-3xl">
               <p className="display-kicker">Creator Workspace</p>
               <h1 className="headline-lg mt-3 sm:mt-4">
-                {film ? "Refine your release" : "Start a release"}
+                {film ? "Refine your project" : "Start a Project"}
               </h1>
               <p className="body-lg mt-3 max-w-2xl text-foreground/88 sm:mt-4">
-                Build the page first. Upload the final cut last. The release should already feel composed before the video arrives.
+                Build the project page first. Upload the final cut later. The release should feel composed before the video arrives.
               </p>
             </div>
 
@@ -138,7 +138,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     return (
       <section className="container-shell py-20">
         <StatePanel
-          title="The release editor could not be loaded"
+          title="The project editor could not be loaded"
           description={error instanceof Error ? error.message : "An unexpected error occurred."}
         />
       </section>

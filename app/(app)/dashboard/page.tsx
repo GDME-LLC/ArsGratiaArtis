@@ -62,7 +62,7 @@ export default async function DashboardPage() {
                 <CreatorBadgeList badges={profile.badges} />
               </div>
               <p className="body-lg mt-4">
-                Prepare releases, shape your Studio, and keep the next film moving without losing the thread.
+                Shape project foundations in Workflow Tool, develop them in Creator Studio, and move to release when the work is ready.
               </p>
               {profile.foundingCreator.isFoundingCreator ? (
                 <p className="mt-3 text-sm text-foreground/84">
@@ -73,7 +73,10 @@ export default async function DashboardPage() {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button asChild size="lg">
-                <Link href="/upload">Start a Release</Link>
+                <Link href="/upload">Start a Project</Link>
+              </Button>
+              <Button asChild variant="ghost" size="lg">
+                <Link href="/workflows">Workflow Tool</Link>
               </Button>
               <Button asChild variant="ghost" size="lg">
                 <Link href="/settings">Creator Studio</Link>
@@ -97,10 +100,10 @@ export default async function DashboardPage() {
             </article>
 
             <article className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="display-kicker">Ecosystem</p>
-              <p className="title-md mt-3 text-foreground">A concise guide beyond the platform</p>
+              <p className="display-kicker">Workflow Tool</p>
+              <p className="title-md mt-3 text-foreground">Upstream project planning before release</p>
               <p className="body-sm mt-3">
-                Keep tools, educational hubs, and communities within reach without turning your workspace into another production suite.
+                Capture concept, direction, tools, and early structure before moving the project into Start a Project.
               </p>
             </article>
 
@@ -122,19 +125,19 @@ export default async function DashboardPage() {
           <div className="mt-8 border-t border-white/10 pt-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="display-kicker">Resources</p>
-                <h2 className="headline-lg mt-3">A curated guide to the wider ecosystem</h2>
+                <p className="display-kicker">Workflow Tool</p>
+                <h2 className="headline-lg mt-3">Workflow drafts that seed Creator Studio projects</h2>
               </div>
               <Button asChild variant="ghost" size="lg">
-                <Link href="/resources">Open Resources</Link>
+                <Link href="/workflows">Open Workflow Tool</Link>
               </Button>
             </div>
 
             <div className="mt-6 rounded-[24px] border border-white/10 bg-black/20 p-6">
-              <p className="display-kicker">Outside the platform</p>
-              <p className="title-md mt-3 text-foreground">Find tools, learning, and communities without losing the focus on presentation.</p>
+              <p className="display-kicker">Project Pipeline</p>
+              <p className="title-md mt-3 text-foreground">Workflow Tool -&gt; Draft Project -&gt; Creator Studio -&gt; Start a Project</p>
               <p className="body-sm mt-3">
-                ArsNeos is where creators and films are presented. The Resources page helps you discover the surrounding ecosystem of platforms that support learning, production, and discovery across AI cinema.
+                Workflow Tool is part of Creator Studio: begin early structure there, then continue in Start a Project and move to release later in the lifecycle.
               </p>
             </div>
           </div>
@@ -147,7 +150,7 @@ export default async function DashboardPage() {
               </div>
               {profile.isCreator ? (
                 <Button asChild variant="ghost" size="lg">
-                  <Link href="/upload">Start Another Draft</Link>
+                  <Link href="/upload">Start Another Project</Link>
                 </Button>
               ) : null}
             </div>
@@ -162,10 +165,10 @@ export default async function DashboardPage() {
               </div>
             ) : films.length === 0 ? (
               <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6">
-                <p className="display-kicker">First Release</p>
-                <p className="title-md mt-3 text-foreground">No releases in your workspace yet</p>
+                <p className="display-kicker">First Project</p>
+                <p className="title-md mt-3 text-foreground">No projects in your workspace yet</p>
                 <p className="body-sm mt-3">
-                  Start with a draft release page. Poster-led release pages are supported, so artwork, title, and synopsis can go live before the final video is attached.
+                  Start with a project draft. You can shape title, poster, synopsis, and structure first, then publish the release when the final cut is ready.
                 </p>
               </div>
             ) : (

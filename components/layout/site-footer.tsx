@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Instagram, Linkedin, Youtube } from "lucide-react";
 
 import { securityConfig } from "@/lib/constants/security";
 import { siteConfig } from "@/lib/constants/site";
@@ -11,6 +12,12 @@ const footerLinks = [
   { href: "/report", label: "Report Abuse" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
+];
+
+const socialLinks = [
+  { href: "https://www.youtube.com", label: "YouTube", Icon: Youtube },
+  { href: "https://www.instagram.com", label: "Instagram", Icon: Instagram },
+  { href: "https://www.linkedin.com", label: "LinkedIn", Icon: Linkedin },
 ];
 
 export function SiteFooter() {
@@ -33,6 +40,20 @@ export function SiteFooter() {
           <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Copyright 2026 ArsNeos
           </p>
+          <div className="mt-4 flex items-center gap-2">
+            {socialLinks.map(({ href, label, Icon }) => (
+              <Link
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={label}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/12 bg-black/25 text-muted-foreground transition hover:border-white/24 hover:text-foreground"
+              >
+                <Icon className="h-4 w-4" />
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-5">

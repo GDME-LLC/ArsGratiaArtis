@@ -53,6 +53,54 @@ function ReleaseSection({ title, description, films, href, className }: ReleaseS
   );
 }
 
+function WorkflowSystemSection() {
+  return (
+    <SectionShell className="mt-6 sm:mt-7">
+      <div className="surface-panel cinema-frame overflow-hidden p-4 sm:p-6 lg:p-7">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)] lg:items-center">
+          <div>
+            <p className="eyebrow">Workflow Tool</p>
+            <h2 className="headline-lg mt-3 text-foreground">Project-first creation inside Creator Studio</h2>
+            <p className="body-lg mt-3 max-w-3xl">
+              Workflow Tool is the upstream layer for creator work. Start the concept, structure direction, shape a draft,
+              then move it into Creator Studio where Start a Project leads toward later release and publication.
+            </p>
+
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-foreground/72 sm:text-[11px]">
+              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Workflow Tool</span>
+              <span className="text-foreground/50">-&gt;</span>
+              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Saved Draft / Project</span>
+              <span className="text-foreground/50">-&gt;</span>
+              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Creator Studio</span>
+              <span className="text-foreground/50">-&gt;</span>
+              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Start a Project</span>
+              <span className="text-foreground/50">-&gt;</span>
+              <span className="rounded-full border border-white/14 bg-black/25 px-3 py-1.5">Release / Publish</span>
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-white/10 bg-black/25 p-5 sm:p-6">
+            <p className="display-kicker">Creator Entry</p>
+            <h3 className="title-md mt-3 text-foreground">Explore publicly, persist as a Creator</h3>
+            <p className="body-sm mt-3">
+              Public users can open Workflow Tool and begin shaping ideas. Save, draft, continue, and Studio transfer
+              actions activate after becoming a Creator.
+            </p>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Button asChild size="lg" className="w-full sm:w-auto">
+                <Link href="/workflow-tool">Open Workflow Tool</Link>
+              </Button>
+              <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
+                <Link href="/signup">Become a Creator</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </SectionShell>
+  );
+}
+
 export default async function HomePage() {
   const canLoad = hasSupabaseServerEnv();
   const platformSettings = canLoad ? await getPlatformSettings() : getDefaultPlatformSettings();
@@ -138,6 +186,8 @@ export default async function HomePage() {
         href="/feed"
         className="mt-6 sm:hidden"
       />
+
+      <WorkflowSystemSection />
 
       {foundingCreators.length > 0 ? (
         <SectionShell className="mt-6 sm:mt-7">

@@ -53,7 +53,7 @@ type HeroLineEditorProps = {
 const heroPanelLabels: Record<HeroPanelId, string> = {
   films: "Films",
   creators: "Creators",
-  resources: "Resources",
+  resources: "Workflow Tool",
 };
 
 function settingsToFormState(settings: PlatformSettings): FormState {

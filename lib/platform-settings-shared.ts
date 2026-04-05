@@ -140,10 +140,10 @@ export function getDefaultHeroContentSettings(): HeroContentSettings {
         },
       },
       resources: {
-        kicker: { text: "Resources", color: "gold", size: "md" },
-        title: { text: "Stay close to the wider field", color: "ivory", size: "md" },
+        kicker: { text: "Workflow Tool", color: "gold", size: "md" },
+        title: { text: "Begin with project workflow", color: "ivory", size: "md" },
         description: {
-          text: "Keep the best tools, research, and communities nearby without letting them overwhelm the films themselves.",
+          text: "Start concept and direction early, then carry saved draft foundations into Creator Studio for Start a Project.",
           color: "soft",
           size: "md",
         },

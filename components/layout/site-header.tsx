@@ -6,36 +6,23 @@ import { Button } from "@/components/ui/button";
 import { getUser } from "@/lib/supabase/auth";
 
 const navItems = [
-  { href: "/resources", label: "Explore Resources" },
-  { href: null, label: "Socials" },
+  { href: "/workflow-tool", label: "Workflow Tool" },
   { href: "/manifesto", label: "Manifesto" },
 ] as const;
 
 function HeaderNavButtons() {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      {navItems.map((item) =>
-        item.href ? (
-          <Button
-            key={item.label}
-            asChild
-            variant="ghost"
-            className="h-8 rounded-full px-3 text-[0.72rem] tracking-[0.08em] text-foreground/78 hover:text-foreground"
-          >
-            <Link href={item.href}>{item.label}</Link>
-          </Button>
-        ) : (
-          <Button
-            key={item.label}
-            type="button"
-            variant="ghost"
-            className="h-8 rounded-full px-3 text-[0.72rem] tracking-[0.08em] text-foreground/78 opacity-100"
-            disabled
-          >
-            {item.label}
-          </Button>
-        ),
-      )}
+      {navItems.map((item) => (
+        <Button
+          key={item.label}
+          asChild
+          variant="ghost"
+          className="h-8 rounded-full px-3 text-[0.72rem] tracking-[0.08em] text-foreground/78 hover:text-foreground"
+        >
+          <Link href={item.href}>{item.label}</Link>
+        </Button>
+      ))}
     </div>
   );
 }
