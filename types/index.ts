@@ -56,6 +56,7 @@ export type CreatorIntegration = {
   isActive: boolean;
   connectedAt: string;
   lastUsedAt: string | null;
+  lastSyncedAt: string | null;
 };
 
 export type WorkflowAssetType = "link" | "upload" | "import";
@@ -79,6 +80,7 @@ export type WorkflowAsset = {
   externalAssetId: string | null;
   externalProjectId: string | null;
   sourceMetadata: Record<string, unknown> | null;
+  linkedFilmId: string | null;
   createdAt: string;
 };
 

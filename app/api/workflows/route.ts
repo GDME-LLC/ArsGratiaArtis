@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 
 import { ensureProfileForUser } from "@/lib/profiles";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
-import { listElevenLabsHistory } from "@/lib/elevenlabs-api";
-import { listRunwayTasks } from "@/lib/runway-api";
+import { validateElevenLabsKey, listElevenLabsHistory } from "@/lib/elevenlabs-api";
+import { validateRunwayKey, listRunwayTasks } from "@/lib/runway-api";
 import { getCreatorApiKey } from "@/lib/services/integrations";
 import { addWorkflowImportedAsset } from "@/lib/services/workflow-assets";
 import { createWorkflowDraft, listCreatorWorkflowDrafts } from "@/lib/services/workflows";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
-import type { WorkflowDraftStatus, WorkflowAssetSourceType } from "@/types";
+import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
+import type { WorkflowDraftStatus, WorkflowAssetSourceType, IntegrationPlatform } from "@/types";
 
 type WorkflowDraftPayload = {
   title?: string;
@@ -228,4 +229,61 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+}
+
+export async function PATCH(request: Request) {
+  const url = new URL(request.url);
+  const sub = url.searchParams.get("_sub");
+
+  const access = await requireCreator();
+  if ("error" in access) return access.error;
+
+  if (sub !== "integration-sync") {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+
+  const ip = await getRequestIp();
+  const rateLimit = await enforceRateLimit({
+    ...rateLimitPresets.integrationSync,
+    key: `integration-sync:${ip}:${access.profile.id}`,
+  });
+
+  if (!rateLimit.ok) {
+    return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
+  }
+
+  const payload = (await request.json()) as { platform?: string };
+  const platform = payload.platform?.trim().toLowerCase();
+
+  if (!platform || !["runway", "elevenlabs"].includes(platform)) {
+    return NextResponse.json({ error: "platform must be runway or elevenlabs." }, { status: 400 });
+  }
+
+  const apiKey = await getCreatorApiKey(access.profile.id, platform as IntegrationPlatform);
+
+  if (!apiKey) {
+    return NextResponse.json({ error: `${platform === "elevenlabs" ? "ElevenLabs" : "Runway"} account not connected.` }, { status: 404 });
+  }
+
+  // Validate key still works
+  const validation =
+    platform === "elevenlabs"
+      ? await validateElevenLabsKey(apiKey)
+      : await validateRunwayKey(apiKey);
+
+  if (!validation.ok) {
+    return NextResponse.json({ error: validation.error ?? "API key is no longer valid." }, { status: 400 });
+  }
+
+  // Update last_synced_at
+  const serviceClient = createServiceRoleSupabaseClient();
+  if (serviceClient) {
+    void serviceClient
+      .from("creator_integrations")
+      .update({ last_synced_at: new Date().toISOString() })
+      .eq("creator_id", access.profile.id)
+      .eq("platform", platform);
+  }
+
+  return NextResponse.json({ ok: true, platform, syncedAt: new Date().toISOString() });
 }

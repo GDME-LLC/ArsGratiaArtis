@@ -66,6 +66,21 @@ const nextConfig: NextConfig = {
           source: "/api/integrations/import",
           destination: "/api/workflows?_sub=integration-import",
         },
+        // Phase 3: seed a draft into a film + carry assets
+        {
+          source: "/api/workflows/:id/seed",
+          destination: "/api/workflows/:id?_sub=seed",
+        },
+        // Phase 3: list assets linked to the film from a seeded draft
+        {
+          source: "/api/workflows/:id/film-assets",
+          destination: "/api/workflows/:id?_sub=film-assets",
+        },
+        // Phase 3: sync / validate platform integration
+        {
+          source: "/api/integrations/sync",
+          destination: "/api/workflows?_sub=integration-sync",
+        },
       ],
     };
   },

@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { carryWorkflowAssetsToFilm } from "@/lib/services/workflow-assets";
 import type { WorkflowDraft, WorkflowDraftStatus } from "@/types";
 
 type WorkflowDraftRow = {
@@ -228,5 +229,12 @@ export async function seedWorkflowDraftIntoProject(input: { draftId: string; cre
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  // Carry all workflow assets to the film project (best-effort, non-blocking)
+  try {
+    await carryWorkflowAssetsToFilm(input.draftId, input.filmId, input.creatorId);
+  } catch {
+    // Asset carry-through failure doesn't block seeding
   }
 }

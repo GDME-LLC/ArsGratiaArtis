@@ -11,6 +11,7 @@ type IntegrationRow = {
   is_active: boolean;
   connected_at: string;
   last_used_at: string | null;
+  last_synced_at: string | null;
 };
 
 function maskApiKey(key: string): string {
@@ -27,6 +28,7 @@ function mapIntegration(row: IntegrationRow): CreatorIntegration {
     isActive: row.is_active,
     connectedAt: row.connected_at,
     lastUsedAt: row.last_used_at,
+    lastSyncedAt: row.last_synced_at ?? null,
   };
 }
 
@@ -46,7 +48,7 @@ export async function listCreatorIntegrations(creatorId: string): Promise<Creato
 
   const { data, error } = await serviceClient
     .from("creator_integrations")
-    .select("id, creator_id, platform, api_key, is_active, connected_at, last_used_at")
+    .select("id, creator_id, platform, api_key, is_active, connected_at, last_used_at, last_synced_at")
     .eq("creator_id", creatorId)
     .order("connected_at", { ascending: true });
 
@@ -90,7 +92,7 @@ export async function connectIntegration(
       },
       { onConflict: "creator_id,platform" }
     )
-    .select("id, creator_id, platform, api_key, is_active, connected_at, last_used_at")
+    .select("id, creator_id, platform, api_key, is_active, connected_at, last_used_at, last_synced_at")
     .single();
 
   if (error || !data) {

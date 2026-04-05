@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 import { ensureProfileForUser } from "@/lib/profiles";
 import { enforceRateLimit, getRequestIp, rateLimitPresets } from "@/lib/security/rate-limit";
-import { addWorkflowLinkAsset, deleteWorkflowAsset, listWorkflowAssets } from "@/lib/services/workflow-assets";
-import { deleteWorkflowDraft, getCreatorWorkflowDraftById, updateWorkflowDraft } from "@/lib/services/workflows";
+import { addWorkflowLinkAsset, deleteWorkflowAsset, listWorkflowAssets, listFilmLinkedAssets } from "@/lib/services/workflow-assets";
+import { deleteWorkflowDraft, getCreatorWorkflowDraftById, seedWorkflowDraftIntoProject, updateWorkflowDraft } from "@/lib/services/workflows";
 import { getMediaBucketName } from "@/lib/media/storage";
 import { createServerSupabaseClient, hasSupabaseServerEnv } from "@/lib/supabase/server";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
@@ -105,6 +105,28 @@ export async function GET(request: Request, { params }: WorkflowDraftRouteProps)
     } catch (error) {
       return NextResponse.json(
         { error: error instanceof Error ? error.message : "Workflow assets could not be loaded." },
+        { status: 400 },
+      );
+    }
+  }
+
+  if (sub === "film-assets") {
+    try {
+      const draft = await getCreatorWorkflowDraftById(id, access.profile.id);
+
+      if (!draft) {
+        return NextResponse.json({ error: "Workflow draft not found." }, { status: 404 });
+      }
+
+      if (!draft.seededFilmId) {
+        return NextResponse.json({ assets: [], seededFilmId: null });
+      }
+
+      const assets = await listFilmLinkedAssets(draft.seededFilmId, access.profile.id);
+      return NextResponse.json({ assets, seededFilmId: draft.seededFilmId });
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Film assets could not be loaded." },
         { status: 400 },
       );
     }
@@ -320,13 +342,46 @@ export async function POST(request: Request, { params }: WorkflowDraftRouteProps
   return NextResponse.json({ error: "Method not allowed for this route." }, { status: 405 });
 }
 
-
 export async function PATCH(request: Request, { params }: WorkflowDraftRouteProps) {
   const { id } = await params;
   const access = await requireCreator();
 
   if ("error" in access) {
     return access.error;
+  }
+
+  const url = new URL(request.url);
+  const sub = url.searchParams.get("_sub");
+
+  // Seed handler: links draft to a film and carries assets
+  if (sub === "seed") {
+    const ip = await getRequestIp();
+    const rateLimit = await enforceRateLimit({
+      ...rateLimitPresets.films,
+      key: `workflow-seed:${ip}:${access.profile.id}`,
+    });
+
+    if (!rateLimit.ok) {
+      return NextResponse.json({ error: rateLimit.message }, { status: rateLimit.status });
+    }
+
+    const payload = (await request.json()) as { film_id?: string };
+    const filmId = payload.film_id?.trim();
+
+    if (!filmId) {
+      return NextResponse.json({ error: "film_id is required." }, { status: 400 });
+    }
+
+    try {
+      await seedWorkflowDraftIntoProject({ draftId: id, creatorId: access.profile.id, filmId });
+      const draft = await getCreatorWorkflowDraftById(id, access.profile.id);
+      return NextResponse.json({ draft, ok: true });
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Draft could not be seeded." },
+        { status: 400 },
+      );
+    }
   }
 
   const payload = (await request.json()) as { status?: WorkflowDraftStatus };

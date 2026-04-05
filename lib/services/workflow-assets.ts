@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServiceRoleSupabaseClient } from "@/lib/supabase/service-role";
 import type { WorkflowAsset, WorkflowAssetSourceType, WorkflowAssetType } from "@/types";
 
 type WorkflowAssetRow = {
@@ -19,6 +20,7 @@ type WorkflowAssetRow = {
   external_asset_id: string | null;
   external_project_id: string | null;
   source_metadata: Record<string, unknown> | null;
+  linked_film_id: string | null;
   created_at: string;
 };
 
@@ -41,12 +43,13 @@ function mapWorkflowAsset(row: WorkflowAssetRow): WorkflowAsset {
     externalAssetId: row.external_asset_id,
     externalProjectId: row.external_project_id,
     sourceMetadata: row.source_metadata,
+    linkedFilmId: row.linked_film_id,
     createdAt: row.created_at,
   };
 }
 
 const SELECT_FIELDS =
-  "id, draft_id, creator_id, label, asset_type, source_type, url, file_path, file_name, file_size, mime_type, stage, notes, sort_order, external_asset_id, external_project_id, source_metadata, created_at";
+  "id, draft_id, creator_id, label, asset_type, source_type, url, file_path, file_name, file_size, mime_type, stage, notes, sort_order, external_asset_id, external_project_id, source_metadata, linked_film_id, created_at";
 
 export async function listWorkflowAssets(draftId: string, creatorId: string): Promise<WorkflowAsset[]> {
   const supabase = await createServerSupabaseClient();
@@ -234,3 +237,63 @@ export async function deleteWorkflowAsset(assetId: string, draftId: string, crea
 
   return { filePath: (existing as { file_path: string | null }).file_path ?? null };
 }
+
+/**
+ * Links all workflow assets for a draft to a film project.
+ * Called automatically when a draft is seeded into a film.
+ * Uses service role to bypass RLS (assets may not be linked yet).
+ */
+export async function carryWorkflowAssetsToFilm(
+  draftId: string,
+  filmId: string,
+  creatorId: string
+): Promise<number> {
+  const serviceClient = createServiceRoleSupabaseClient();
+
+  if (!serviceClient) {
+    throw new Error("Service client unavailable.");
+  }
+
+  const { data, error } = await serviceClient
+    .from("workflow_assets")
+    .update({ linked_film_id: filmId })
+    .eq("draft_id", draftId)
+    .eq("creator_id", creatorId)
+    .is("linked_film_id", null)
+    .select("id");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []).length;
+}
+
+/**
+ * Lists all workflow assets linked to a specific film project.
+ * Returns assets sorted by stage then creation order.
+ */
+export async function listFilmLinkedAssets(filmId: string, creatorId: string): Promise<WorkflowAsset[]> {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("workflow_assets")
+    .select(SELECT_FIELDS)
+    .eq("linked_film_id", filmId)
+    .eq("creator_id", creatorId)
+    .order("stage", { ascending: true, nullsFirst: false })
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true })
+    .limit(96);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []).map((row) => mapWorkflowAsset(row as WorkflowAssetRow));
+}
+

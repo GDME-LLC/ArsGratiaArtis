@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, FolderOpen, RefreshCw, Save, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { SeededDraftPanel } from "@/components/workflows/seeded-draft-panel";
 import { WorkflowAssetManager } from "@/components/workflows/workflow-asset-manager";
 import { cn } from "@/lib/utils";
 import type { WorkflowDraft, WorkflowDraftStatus } from "@/types";
@@ -56,6 +57,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   const [status, setStatus] = useState<string | null>(null);
   const [savedDrafts, setSavedDrafts] = useState<WorkflowDraft[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
+  const activeDraft = useMemo(() => savedDrafts.find((d) => d.id === activeDraftId) ?? null, [savedDrafts, activeDraftId]);
   const [isLoadingDrafts, setIsLoadingDrafts] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -425,6 +427,9 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
           </div>
 
           <aside className="space-y-4">
+            {canPersist && activeDraft?.status === "seeded" ? (
+              <SeededDraftPanel draft={activeDraft} />
+            ) : null}
             {canPersist && activeDraftId ? (
               <WorkflowAssetManager draftId={activeDraftId} />
             ) : null}

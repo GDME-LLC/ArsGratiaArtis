@@ -1,17 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ExternalLink, FileUp, Import, Link2, Trash2, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ExternalLink, FileUp, Import, Layers, Link2, RefreshCw, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { WorkflowImportPicker } from "@/components/workflows/workflow-import-picker";
+import { WORKFLOW_STAGES } from "@/lib/constants/process";
 import type { CreatorIntegration, IntegrationPlatform, WorkflowAsset, WorkflowAssetSourceType } from "@/types";
-
-const SOURCE_TYPE_LABELS: Record<WorkflowAssetSourceType, string> = {
-  runway: "Runway",
-  elevenlabs: "ElevenLabs",
-  generic: "Other",
-};
 
 const ACCEPTED_FILE_TYPES = [
   "image/jpeg",
@@ -40,8 +35,11 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
   const [assets, setAssets] = useState<WorkflowAsset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("link");
+  const [groupByStage, setGroupByStage] = useState(false);
   const [connectedIntegrations, setConnectedIntegrations] = useState<CreatorIntegration[]>([]);
   const [importPlatform, setImportPlatform] = useState<IntegrationPlatform | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncedAt, setSyncedAt] = useState<string | null>(null);
   const [linkForm, setLinkForm] = useState(emptyLinkForm);
   const [uploadForm, setUploadForm] = useState(emptyUploadForm);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -81,6 +79,8 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
           setConnectedIntegrations(integrationsPayload.integrations);
           if (integrationsPayload.integrations.length > 0) {
             setImportPlatform(integrationsPayload.integrations[0].platform);
+            const first = integrationsPayload.integrations[0];
+            if (first.lastSyncedAt) setSyncedAt(first.lastSyncedAt);
           }
         }
       } catch {
@@ -105,6 +105,34 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
     setError(null);
     setSuccessMsg(null);
   }
+
+  const handleSync = useCallback(async () => {
+    if (!importPlatform || isSyncing) return;
+    setIsSyncing(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/integrations/sync", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ platform: importPlatform }),
+      });
+
+      const payload = (await res.json()) as { ok?: boolean; syncedAt?: string; error?: string };
+
+      if (!res.ok) {
+        setError(payload.error ?? "Sync failed. Please try again.");
+        return;
+      }
+
+      if (payload.syncedAt) setSyncedAt(payload.syncedAt);
+      setSuccessMsg("Platform sync complete.");
+    } catch {
+      setError("Network error during sync.");
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [importPlatform, isSyncing]);
 
   async function handleAddLink(event: React.FormEvent) {
     event.preventDefault();
@@ -230,26 +258,6 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
     }
   }
 
-  function getMimeCategory(mimeType: string | null) {
-    if (!mimeType) {
-      return null;
-    }
-
-    if (mimeType.startsWith("image/")) {
-      return "Image";
-    }
-
-    if (mimeType.startsWith("audio/")) {
-      return "Audio";
-    }
-
-    if (mimeType.startsWith("video/")) {
-      return "Video";
-    }
-
-    return null;
-  }
-
   return (
     <article className="rounded-[24px] border border-white/12 bg-black/30 p-5">
       <div className="flex items-center justify-between gap-3">
@@ -329,12 +337,16 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
 
             <label className="grid gap-1.5">
               <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Stage</span>
-              <input
+              <select
                 value={linkForm.stage}
                 onChange={(e) => setLinkForm((f) => ({ ...f, stage: e.target.value }))}
-                placeholder="e.g. Pre-production"
                 className="h-9 rounded-xl border border-white/12 bg-black/30 px-3 text-xs text-foreground outline-none transition focus:border-white/34"
-              />
+              >
+                <option value="">— None —</option>
+                {WORKFLOW_STAGES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
             </label>
           </div>
 
@@ -381,12 +393,16 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
 
             <label className="grid gap-1.5">
               <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Stage</span>
-              <input
+              <select
                 value={uploadForm.stage}
                 onChange={(e) => setUploadForm((f) => ({ ...f, stage: e.target.value }))}
-                placeholder="e.g. Post-production"
                 className="h-9 rounded-xl border border-white/12 bg-black/30 px-3 text-xs text-foreground outline-none transition focus:border-white/34"
-              />
+              >
+                <option value="">— None —</option>
+                {WORKFLOW_STAGES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
             </label>
           </div>
 
@@ -411,12 +427,30 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
             </div>
           ) : null}
           {importPlatform ? (
-            <WorkflowImportPicker
-              key={`${draftId}-${importPlatform}`}
-              draftId={draftId}
-              platform={importPlatform}
-              onImported={(asset) => setAssets((current) => [...current, asset])}
-            />
+            <>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  disabled={isSyncing}
+                  onClick={handleSync}
+                  className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground transition hover:border-white/24 hover:text-foreground disabled:opacity-40"
+                >
+                  <RefreshCw className={`h-3 w-3 ${isSyncing ? "animate-spin" : ""}`} />
+                  {isSyncing ? "Syncing..." : "Sync Now"}
+                </button>
+                {syncedAt ? (
+                  <span className="text-[10px] text-muted-foreground/50">
+                    Synced {new Date(syncedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                ) : null}
+              </div>
+              <WorkflowImportPicker
+                key={`${draftId}-${importPlatform}`}
+                draftId={draftId}
+                platform={importPlatform}
+                onImported={(asset) => setAssets((current) => [...current, asset])}
+              />
+            </>
           ) : null}
         </div>
       ) : null}
@@ -441,44 +475,55 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
 
       {assets.length > 0 ? (
         <div className="mt-4 space-y-2">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{assets.length} asset{assets.length !== 1 ? "s" : ""}</p>
-          {assets.map((asset) => (
-            <div key={asset.id} className="flex items-start gap-2 rounded-xl border border-white/10 bg-black/25 p-3">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-foreground truncate">{asset.label}</p>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                  <span>{SOURCE_TYPE_LABELS[asset.sourceType]}</span>
-                  {asset.stage ? <span>· {asset.stage}</span> : null}
-                  {asset.assetType === "import" ? <span>· Imported</span> : null}
-                  {asset.assetType === "upload" && asset.mimeType ? (
-                    <span>· {getMimeCategory(asset.mimeType)}</span>
-                  ) : null}
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{assets.length} asset{assets.length !== 1 ? "s" : ""}</p>
+            <button
+              type="button"
+              onClick={() => setGroupByStage((v) => !v)}
+              className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition ${groupByStage ? "border-white/20 bg-white/10 text-foreground" : "border-white/8 text-muted-foreground hover:border-white/16 hover:text-foreground/70"}`}
+            >
+              <Layers className="h-2.5 w-2.5" />
+              By Stage
+            </button>
+          </div>
+
+          {groupByStage ? (
+            (() => {
+              const stageMap = new Map<string, WorkflowAsset[]>();
+              const untagged: WorkflowAsset[] = [];
+              for (const asset of assets) {
+                if (!asset.stage) { untagged.push(asset); continue; }
+                const g = stageMap.get(asset.stage) ?? [];
+                g.push(asset);
+                stageMap.set(asset.stage, g);
+              }
+              const orderedStages = WORKFLOW_STAGES.filter((s) => stageMap.has(s));
+              const unknownStages = [...stageMap.keys()].filter((s) => !WORKFLOW_STAGES.includes(s as never));
+              const allGroups: Array<[string, WorkflowAsset[]]> = [
+                ...orderedStages.map((s): [string, WorkflowAsset[]] => [s, stageMap.get(s)!]),
+                ...unknownStages.map((s): [string, WorkflowAsset[]] => [s, stageMap.get(s)!]),
+                ...(untagged.length > 0 ? [["Untagged", untagged] as [string, WorkflowAsset[]]] : []),
+              ];
+              return (
+                <div className="space-y-4">
+                  {allGroups.map(([stage, stageAssets]) => (
+                    <div key={stage}>
+                      <p className="mb-1.5 text-[10px] uppercase tracking-[0.14em] text-muted-foreground/60">{stage}</p>
+                      <div className="space-y-1.5">
+                        {stageAssets.map((asset) => (
+                          <AssetRow key={asset.id} asset={asset} deletingId={deletingId} onDelete={handleDelete} />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-1">
-                {asset.url ? (
-                  <a
-                    href={asset.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition"
-                    title="Open asset"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                ) : null}
-                <button
-                  type="button"
-                  disabled={deletingId === asset.id}
-                  onClick={() => handleDelete(asset)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-destructive transition disabled:opacity-40"
-                  title="Remove asset"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
+              );
+            })()
+          ) : (
+            assets.map((asset) => (
+              <AssetRow key={asset.id} asset={asset} deletingId={deletingId} onDelete={handleDelete} />
+            ))
+          )}
         </div>
       ) : (
         !isLoading ? (
@@ -486,5 +531,65 @@ export function WorkflowAssetManager({ draftId }: WorkflowAssetManagerProps) {
         ) : null
       )}
     </article>
+  );
+}
+
+type AssetRowProps = {
+  asset: WorkflowAsset;
+  deletingId: string | null;
+  onDelete: (asset: WorkflowAsset) => Promise<void>;
+};
+
+function AssetRow({ asset, deletingId, onDelete }: AssetRowProps) {
+  function getMimeCategory(mimeType: string | null) {
+    if (!mimeType) return null;
+    if (mimeType.startsWith("image/")) return "Image";
+    if (mimeType.startsWith("audio/")) return "Audio";
+    if (mimeType.startsWith("video/")) return "Video";
+    return null;
+  }
+
+  const SOURCE_TYPE_LABELS: Record<WorkflowAssetSourceType, string> = {
+    runway: "Runway",
+    elevenlabs: "ElevenLabs",
+    generic: "Other",
+  };
+
+  return (
+    <div className="flex items-start gap-2 rounded-xl border border-white/10 bg-black/25 p-3">
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium text-foreground truncate">{asset.label}</p>
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+          <span>{SOURCE_TYPE_LABELS[asset.sourceType]}</span>
+          {asset.stage ? <span>· {asset.stage}</span> : null}
+          {asset.assetType === "import" ? <span>· Imported</span> : null}
+          {asset.assetType === "upload" && asset.mimeType ? (
+            <span>· {getMimeCategory(asset.mimeType)}</span>
+          ) : null}
+        </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        {asset.url ? (
+          <a
+            href={asset.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition"
+            title="Open asset"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        ) : null}
+        <button
+          type="button"
+          disabled={deletingId === asset.id}
+          onClick={() => onDelete(asset)}
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-destructive transition disabled:opacity-40"
+          title="Remove asset"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </div>
   );
 }

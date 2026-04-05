@@ -2,6 +2,18 @@ export const FILM_PROCESS_SUMMARY_LIMIT = 220;
 export const CREATIVE_PROCESS_SUMMARY_LIMIT = 280;
 export const MAX_TOOL_SELECTIONS = 8;
 
+export const WORKFLOW_STAGES = [
+  "Development",
+  "Pre-Production",
+  "Production",
+  "Post-Production",
+  "Sound Design",
+  "Color Grade",
+  "Delivery",
+] as const;
+
+export type WorkflowStage = (typeof WORKFLOW_STAGES)[number];
+
 export const processTagOptions = [
   "AI video",
   "Image-to-video",
