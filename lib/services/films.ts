@@ -296,6 +296,7 @@ export async function createOrUpdateFilm(input: {
   promptVisibility: "public" | "followers" | "private";
   visibility: "public" | "unlisted" | "private";
   publishStatus: "draft" | "published" | "archived";
+  workflowDraftId?: string | null;
 }) {
   const supabase = await createServerSupabaseClient();
   const serviceRoleSupabase = createServiceRoleSupabaseClient();
@@ -323,24 +324,30 @@ export async function createOrUpdateFilm(input: {
       throw new Error("Only your own draft films can be edited in this v1.");
     }
 
+    const updatePayload: Record<string, unknown> = {
+      title: input.title,
+      slug: input.slug,
+      synopsis: input.synopsis,
+      description: input.description,
+      category: input.category,
+      poster_url: input.posterUrl,
+      prompt_text: input.promptText,
+      process_summary: input.processSummary,
+      process_notes: input.processNotes,
+      process_tags: input.processTags,
+      prompt_visibility: input.promptVisibility,
+      visibility: input.visibility,
+      publish_status: input.publishStatus,
+      published_at: publishedAt,
+    };
+
+    if (input.workflowDraftId) {
+      updatePayload.workflow_draft_id = input.workflowDraftId;
+    }
+
     const { data, error } = await supabase
       .from("films")
-      .update({
-        title: input.title,
-        slug: input.slug,
-        synopsis: input.synopsis,
-        description: input.description,
-        category: input.category,
-        poster_url: input.posterUrl,
-        prompt_text: input.promptText,
-        process_summary: input.processSummary,
-        process_notes: input.processNotes,
-        process_tags: input.processTags,
-        prompt_visibility: input.promptVisibility,
-        visibility: input.visibility,
-        publish_status: input.publishStatus,
-        published_at: publishedAt,
-      })
+      .update(updatePayload)
       .eq("id", input.filmId)
       .eq("creator_id", input.creator.id)
       .select("id, slug")
@@ -362,6 +369,7 @@ export async function createOrUpdateFilm(input: {
     .from("films")
     .insert({
       creator_id: input.creator.id,
+      workflow_draft_id: input.workflowDraftId ?? null,
       title: input.title,
       slug: input.slug,
       synopsis: input.synopsis,

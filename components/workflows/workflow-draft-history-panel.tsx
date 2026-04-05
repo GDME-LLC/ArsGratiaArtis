@@ -99,9 +99,15 @@ export function WorkflowDraftHistoryPanel({ drafts }: WorkflowDraftHistoryPanelP
                   <Button asChild size="lg" variant="ghost" disabled={busyId === draft.id}>
                     <Link href={`/workflows?draft=${draft.id}`}>Continue Later</Link>
                   </Button>
-                  <Button asChild size="lg" disabled={busyId === draft.id || draft.status === "archived"}>
-                    <Link href={`/upload?workflowDraft=${draft.id}`}>Start a Project</Link>
-                  </Button>
+                  {draft.status === "seeded" && draft.seededFilmId ? (
+                    <Button asChild size="lg" disabled={busyId === draft.id}>
+                      <Link href={`/upload?film=${draft.seededFilmId}`}>Open Seeded Project</Link>
+                    </Button>
+                  ) : (
+                    <Button asChild size="lg" disabled={busyId === draft.id || draft.status === "archived"}>
+                      <Link href={`/upload?workflowDraft=${draft.id}`}>Start a Project</Link>
+                    </Button>
+                  )}
                   {draft.status === "archived" ? (
                     <Button type="button" size="lg" variant="ghost" disabled={busyId === draft.id} onClick={() => patchStatus(draft.id, "draft")}>
                       Unarchive

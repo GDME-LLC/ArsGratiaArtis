@@ -197,7 +197,7 @@ export function FilmEditorForm({ initialFilm, initialWorkflowDraft, availableToo
           </p>
           {workflowSeed ? (
             <p className="mt-3 rounded-xl border border-white/14 bg-black/25 px-3 py-2 text-xs uppercase tracking-[0.14em] text-foreground/78">
-              Seeded from workflow draft: {workflowSeed.title}
+              Seeded from workflow draft: {workflowSeed.title}{workflowSeed.status === "seeded" ? " (already linked to a project)" : ""}
             </p>
           ) : null}
         </div>

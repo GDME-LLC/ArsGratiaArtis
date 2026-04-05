@@ -205,6 +205,12 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
         return;
       }
 
+      if (saved.status === "seeded" && saved.seededFilmId) {
+        setStatus("This workflow draft is already seeded. Opening the existing project.");
+        router.push(`/upload?film=${saved.seededFilmId}`);
+        return;
+      }
+
       setStatus("Workflow draft saved. Opening Start a Project with this seed.");
       router.push(`/upload?workflowDraft=${saved.id}`);
     })();
@@ -437,9 +443,15 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                           <Button type="button" size="default" variant="ghost" className="h-9 px-3" onClick={() => handleOpenSavedDraft(saved)}>
                             Continue Later
                           </Button>
-                          <Button asChild size="default" variant="ghost" className="h-9 px-3" disabled={saved.status === "archived"}>
-                            <Link href={`/upload?workflowDraft=${saved.id}`}>Start a Project</Link>
-                          </Button>
+                          {saved.status === "seeded" && saved.seededFilmId ? (
+                            <Button asChild size="default" variant="ghost" className="h-9 px-3">
+                              <Link href={`/upload?film=${saved.seededFilmId}`}>Open Seeded Project</Link>
+                            </Button>
+                          ) : (
+                            <Button asChild size="default" variant="ghost" className="h-9 px-3" disabled={saved.status === "archived"}>
+                              <Link href={`/upload?workflowDraft=${saved.id}`}>Start a Project</Link>
+                            </Button>
+                          )}
                           {saved.status === "archived" ? (
                             <Button type="button" size="default" variant="ghost" className="h-9 px-3" disabled={isSaving} onClick={() => updateDraftStatus(saved.id, "draft")}>
                               Unarchive

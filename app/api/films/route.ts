@@ -141,6 +141,7 @@ async function saveFilm(request: Request, method: "POST" | "PUT") {
       promptVisibility,
       visibility,
       publishStatus,
+      workflowDraftId: payload.workflow_draft_id?.trim() || null,
     });
 
     if (payload.workflow_draft_id?.trim()) {
