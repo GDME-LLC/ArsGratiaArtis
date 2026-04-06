@@ -5,32 +5,11 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { Button } from "@/components/ui/button";
 import { getUser } from "@/lib/supabase/auth";
 
-const navItems = [
-  { href: "/manifesto", label: "Manifesto" },
-] as const;
-
-function HeaderNavButtons() {
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {navItems.map((item) => (
-        <Button
-          key={item.label}
-          asChild
-          variant="ghost"
-          className="h-8 rounded-full px-3 text-[0.72rem] tracking-[0.08em] text-foreground/78 hover:text-foreground"
-        >
-          <Link href={item.href}>{item.label}</Link>
-        </Button>
-      ))}
-    </div>
-  );
-}
-
 export async function SiteHeader() {
   const user = await getUser();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/6 bg-black/8 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-white/12 bg-black/28 backdrop-blur-xl">
       <div className="container-shell py-1 sm:py-1.5">
         <div className="flex min-h-[3.4rem] items-center justify-between gap-3 sm:min-h-[3.8rem] sm:gap-4">
           <div className="flex min-w-0 items-center gap-3 pr-2 sm:pr-0 lg:gap-5">
@@ -46,9 +25,6 @@ export async function SiteHeader() {
                 priority
               />
             </Link>
-            <div className="hidden md:flex">
-              <HeaderNavButtons />
-            </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -74,10 +50,6 @@ export async function SiteHeader() {
               </>
             )}
           </div>
-        </div>
-
-        <div className="mt-1.5 flex justify-center md:hidden">
-          <HeaderNavButtons />
         </div>
       </div>
     </header>

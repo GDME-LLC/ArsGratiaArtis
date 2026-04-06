@@ -273,16 +273,25 @@
   }
 
   .public-home-hero-copy {
-    border-radius: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background:
-      radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.12), transparent 34%),
-      linear-gradient(180deg, rgba(7, 10, 17, 0.66), rgba(5, 7, 12, 0.82));
-    box-shadow:
-      0 22px 64px rgba(0, 0, 0, 0.34),
-      inset 0 1px 0 rgba(255, 255, 255, 0.16);
-    backdrop-filter: blur(14px);
+    position: relative;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
     transition-delay: 120ms;
+  }
+
+  .public-home-hero-copy::before {
+    content: "";
+    position: absolute;
+    inset: -0.65rem -0.8rem;
+    z-index: -1;
+    border-radius: 2rem;
+    background:
+      radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.16), transparent 42%),
+      radial-gradient(circle at 72% 34%, rgba(193, 204, 224, 0.08), transparent 44%),
+      linear-gradient(180deg, rgba(7, 10, 17, 0.36), rgba(5, 7, 12, 0.58));
+    filter: blur(18px);
   }
 
   .public-home-hero-actions {
@@ -298,9 +307,10 @@
   }
 
   @media (max-width: 639px) {
-    .public-home-hero-copy {
-      border-radius: 1.2rem;
-      backdrop-filter: blur(10px);
+    .public-home-hero-copy::before {
+      inset: -0.4rem -0.45rem;
+      border-radius: 1.35rem;
+      filter: blur(13px);
     }
   }
 
