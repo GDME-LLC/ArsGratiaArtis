@@ -64,7 +64,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
 
   const hasDraftInProgress = canPersist && savedDrafts.some((entry) => entry.status !== "archived");
 
-  const persistencePrompt = "Become a Creator to save progress, create drafts, and build projects in your Studio.";
+  const persistencePrompt = "Become a Creator to save progress, create drafts, and continue from your dashboard.";
 
   const directConnectTools = ["Runway", "ElevenLabs", "Google Drive", "Luma Dream Machine"];
   const importFriendlyTools = [
@@ -150,6 +150,26 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   function openImportProject() {
     setActiveSurface("import");
     setStatus("Import an active project using integrations, uploads, exports, and links.");
+  }
+
+  function openConnectTools() {
+    setActiveSurface("import");
+    setStatus("Connect tools to import assets and keep project work in sync.");
+  }
+
+  function openUploadExports() {
+    setActiveSurface("import");
+    setStatus("Upload exports and source files from any tool you already use.");
+  }
+
+  function openAddProjectLink() {
+    setActiveSurface("import");
+    setStatus("Add project links so collaborators and references stay in one place.");
+  }
+
+  function connectProvider(provider: string) {
+    setActiveSurface("import");
+    setStatus(`Connecting ${provider}... Import actions will appear here after account link.`);
   }
 
   async function persistDraft(nextStatus: WorkflowDraftStatus = "draft") {
@@ -314,45 +334,46 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
   }
 
   return (
-    <section className="container-shell pb-16 pt-8 sm:pb-20 sm:pt-10 lg:pt-12">
+    <section className="container-shell pb-14 pt-6 sm:pb-20 sm:pt-10 lg:pt-12">
       <div className="surface-panel cinema-frame overflow-hidden p-4 sm:p-6 lg:p-8">
         <div>
           <p className="display-kicker">Project Builder</p>
           <h1 className="headline-xl mt-3 text-foreground">Bring your project together</h1>
           <p className="body-lg mt-4 max-w-3xl text-foreground/86">
-            Start a new AI film project or import active work from tools and files you already use.
+            Start a project, connect your tools, add exports and links, and move toward release from one place.
           </p>
 
-          <div className="mt-7 grid gap-3 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={openStartProject}
-              className={cn(
-                "rounded-2xl border p-5 text-left transition",
-                activeSurface === "start"
-                  ? "border-white/36 bg-black/45 shadow-[0_10px_28px_rgba(0,0,0,0.36)]"
-                  : "border-white/14 bg-black/26 hover:border-white/26 hover:bg-black/34",
-              )}
-            >
-              <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Beginner path</p>
-              <p className="title-md mt-2 text-foreground">Start Project</p>
-              <p className="body-sm mt-2 text-foreground/82">Open a guided project-start flow for title, idea, format, and optional tools.</p>
-            </button>
-
-            <button
-              type="button"
-              onClick={openImportProject}
-              className={cn(
-                "rounded-2xl border p-5 text-left transition",
-                activeSurface === "import"
-                  ? "border-white/36 bg-black/45 shadow-[0_10px_28px_rgba(0,0,0,0.36)]"
-                  : "border-white/14 bg-black/26 hover:border-white/26 hover:bg-black/34",
-              )}
-            >
-              <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Advanced path</p>
-              <p className="title-md mt-2 text-foreground">Import Project</p>
-              <p className="body-sm mt-2 text-foreground/82">Connect integrations, upload exports, attach links, and continue active drafts.</p>
-            </button>
+          <div className="mt-5 flex flex-col gap-2.5 sm:mt-6 sm:flex-row sm:flex-wrap">
+            <Button type="button" size="lg" className="w-full sm:w-auto" onClick={openStartProject}>
+              Start a Project
+            </Button>
+            <Button type="button" size="lg" variant="ghost" className="w-full sm:w-auto" onClick={openConnectTools}>
+              Connect Tools
+            </Button>
+            <Button type="button" size="lg" variant="ghost" className="w-full sm:w-auto" onClick={openUploadExports}>
+              Upload Exports
+            </Button>
+            <Button type="button" size="lg" variant="ghost" className="w-full sm:w-auto" onClick={openAddProjectLink}>
+              Add Project Link
+            </Button>
+            {hasDraftInProgress ? (
+              <Button
+                type="button"
+                size="lg"
+                variant="ghost"
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  const latest = savedDrafts.find((entry) => entry.status !== "archived");
+                  if (latest) {
+                    handleOpenSavedDraft(latest);
+                  } else {
+                    openImportProject();
+                  }
+                }}
+              >
+                Continue Draft
+              </Button>
+            ) : null}
           </div>
 
           {activeSurface === "idle" && hasDraftInProgress ? (
@@ -457,30 +478,26 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Connect directly</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      <div className="mt-2 flex flex-wrap gap-2.5">
                         {directConnectTools.map((tool) => (
-                          <span
+                          <Button
                             key={tool}
-                            className="cursor-default select-none rounded-full border border-white/14 bg-white/[0.04] px-3 py-1.5 text-xs text-foreground/76"
+                            type="button"
+                            variant="ghost"
+                            className="h-9 border-white/16 px-3 transition hover:border-white/26"
+                            onClick={() => connectProvider(tool)}
                           >
-                            {tool}
-                          </span>
+                            Connect {tool}
+                          </Button>
                         ))}
                       </div>
                     </div>
 
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Add via exports, uploads, or links</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {importFriendlyTools.map((tool) => (
-                          <span
-                            key={tool}
-                            className="cursor-default select-none rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs text-foreground/66"
-                          >
-                            {tool}
-                          </span>
-                        ))}
-                      </div>
+                      <p className="mt-2 text-sm leading-6 text-foreground/72">
+                        {importFriendlyTools.join(" • ")}
+                      </p>
                     </div>
                   </div>
 
@@ -576,11 +593,11 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                     </div>
 
                     {savedDrafts.length === 0 ? (
-                      <p className="body-sm mt-3">No saved workflow drafts yet.</p>
+                      <p className="body-sm mt-3">No saved project drafts yet.</p>
                     ) : (
                       <div className="mt-3 space-y-2.5">
                         {savedDrafts.map((saved) => (
-                          <div key={saved.id} className="rounded-xl border border-white/10 bg-black/25 p-3">
+                          <div key={saved.id} className="rounded-xl border border-white/10 bg-black/25 p-3 transition hover:border-white/20">
                             <p className="text-sm font-medium text-foreground">{saved.title}</p>
                             <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-foreground/68">
                               {saved.status} - updated {new Date(saved.updatedAt).toLocaleDateString()}
@@ -592,7 +609,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                               </Button>
                               {saved.status === "seeded" && saved.seededFilmId ? (
                                 <Button asChild size="default" variant="ghost" className="h-9 px-3">
-                                  <Link href={`/upload?film=${saved.seededFilmId}`}>Open Seeded Project</Link>
+                                  <Link href={`/upload?film=${saved.seededFilmId}`}>Open Seeded Release</Link>
                                 </Button>
                               ) : (
                                 <Button asChild size="default" variant="ghost" className="h-9 px-3" disabled={saved.status === "archived"}>

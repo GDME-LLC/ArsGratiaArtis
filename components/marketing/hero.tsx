@@ -152,10 +152,10 @@ export function Hero({
                   <Link href="/feed">Browse Filmwork</Link>
                 </Button>
                 <Button asChild size="lg" variant="ghost" className="w-full border-white/30 bg-black/40 text-foreground/92 hover:bg-black/52 hover:text-foreground sm:w-auto">
-                  <Link href="/filmmakers">Creators</Link>
+                  <Link href="/filmmakers">Filmmakers</Link>
                 </Button>
                 <Button asChild size="lg" variant="ghost" className="w-full border-white/30 bg-black/40 text-foreground/92 hover:bg-black/52 hover:text-foreground sm:w-auto">
-                  <Link href="/workflow-tool">Start a Project</Link>
+                  <Link href="/signup">Start Creating</Link>
                 </Button>
               </div>
             </div>
@@ -172,7 +172,7 @@ export function Hero({
               <>
                 <Link
                   href={`/film/${spotlightFilm.slug}`}
-                  className="mt-3 block overflow-hidden shadow-[0_16px_36px_rgba(0,0,0,0.34)] transition hover:-translate-y-0.5"
+                  className="mt-3 block overflow-hidden shadow-[0_16px_36px_rgba(0,0,0,0.34)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                 >
                   {spotlightArtworkUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
