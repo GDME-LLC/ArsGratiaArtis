@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { TurnstileWidget } from "@/components/security/turnstile-widget";
 import { Button } from "@/components/ui/button";
-import { getMuxPlaybackUrl } from "@/lib/films/playback";
+import { getMuxPlaybackSources } from "@/lib/films/playback";
 import { validateVideoUploadMetadata } from "@/lib/films/upload";
 
 type FilmVideoUploadProps = {
@@ -25,8 +25,8 @@ export function FilmVideoUpload({
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const playbackUrl = useMemo(
-    () => (muxPlaybackId ? getMuxPlaybackUrl(muxPlaybackId) : null),
+  const playbackSources = useMemo(
+    () => (muxPlaybackId ? getMuxPlaybackSources(muxPlaybackId) : null),
     [muxPlaybackId],
   );
 
@@ -178,15 +178,17 @@ export function FilmVideoUpload({
         </div>
       ) : null}
 
-      {playbackUrl ? (
+      {playbackSources ? (
         <div className="mt-6 overflow-hidden rounded-[24px] border border-white/10 bg-black/40">
           <video
             className="aspect-video w-full bg-black"
             controls
             playsInline
             preload="metadata"
-            src={playbackUrl}
-          />
+          >
+            <source src={playbackSources.hls} type="application/x-mpegURL" />
+            <source src={playbackSources.mp4} type="video/mp4" />
+          </video>
         </div>
       ) : null}
 

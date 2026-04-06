@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { findResourceEntryByToolSlug } from "@/lib/resources/tool-links";
 import { getFilmArtworkUrl } from "@/lib/films/artwork";
 import { getModerationStatusDescription, getModerationStatusLabel } from "@/lib/films/moderation";
-import { getMuxPlaybackUrl } from "@/lib/films/playback";
+import { getMuxPlaybackSources } from "@/lib/films/playback";
 import { listFilmComments } from "@/lib/services/comments";
 import { getPublicFilmBySlug } from "@/lib/services/films";
 import { getUser } from "@/lib/supabase/auth";
@@ -48,7 +48,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
     notFound();
   }
 
-  const playbackUrl = data.muxPlaybackId ? getMuxPlaybackUrl(data.muxPlaybackId) : null;
+  const playbackSources = data.muxPlaybackId ? getMuxPlaybackSources(data.muxPlaybackId) : null;
   const artworkUrl = getFilmArtworkUrl({ posterUrl: data.posterUrl, muxPlaybackId: data.muxPlaybackId });
   const releaseDate = formatReleaseDate(data.publishedAt);
   const creatorName = resolveCreatorName({ handle: data.creator.handle, displayName: data.creator.displayName });
@@ -89,8 +89,11 @@ export default async function FilmPage({ params }: FilmPageProps) {
             <p className="mt-2">{moderationDescription}</p>
           </div>
         ) : null}
-        {playbackUrl ? (
-          <video className="aspect-video w-full bg-black" controls playsInline preload="metadata" poster={artworkUrl ?? undefined} src={playbackUrl} />
+        {playbackSources ? (
+          <video className="aspect-video w-full bg-black" controls playsInline preload="metadata" poster={artworkUrl ?? undefined}>
+            <source src={playbackSources.hls} type="application/x-mpegURL" />
+            <source src={playbackSources.mp4} type="video/mp4" />
+          </video>
         ) : (
           <div className="p-6 sm:p-8">
             <div className="mx-auto w-full max-w-[280px]">
