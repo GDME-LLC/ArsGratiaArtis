@@ -346,17 +346,6 @@
     inset: -8%;
   }
 
-  .public-background__video {
-    inset: -6%;
-    width: 112%;
-    height: 112%;
-    object-fit: cover;
-    object-position: center;
-    opacity: 0.52;
-    filter: saturate(0.9) brightness(0.62) contrast(1.04);
-    animation: public-background-video-drift 56s ease-in-out infinite alternate;
-  }
-
   .public-background__base {
     inset: 0;
     background:
@@ -557,7 +546,6 @@
     .public-home-hero-copy,
     .public-home-hero-actions,
     .studio-module,
-    .public-background__video,
     .public-intro-overlay,
     .public-intro-overlay__media,
     .public-intro-overlay__fallback,
@@ -583,16 +571,6 @@
   100% {
     opacity: 1;
     transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes public-background-video-drift {
-  0% {
-    transform: translate3d(-1.2%, -0.6%, 0) scale(1.04);
-  }
-
-  100% {
-    transform: translate3d(1.1%, 0.8%, 0) scale(1.08);
   }
 }
 

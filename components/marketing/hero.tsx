@@ -8,6 +8,7 @@ import {
   type HeroCopyColor,
   type HeroCopySize,
 } from "@/lib/platform-settings-shared";
+import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
 import { Button } from "@/components/ui/button";
 import { cn, resolveCreatorName } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
@@ -113,6 +114,7 @@ export function Hero({
   return (
     <section className="relative -mt-[3.85rem] w-full pt-[4.05rem] sm:-mt-[4.2rem] sm:pt-[4.45rem]">
       <div className="relative min-h-[108vh] overflow-hidden py-6 sm:py-7 lg:py-8">
+        <HeroBackgroundVideo />
         <div
           className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(4,6,11,0.3)_0%,rgba(4,6,11,0.52)_58%,rgba(3,5,9,0.76)_100%)]"
           aria-hidden="true"
