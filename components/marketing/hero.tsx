@@ -114,7 +114,7 @@ export function Hero({
     <section className="relative -mt-[3.85rem] w-full pt-[4.05rem] sm:-mt-[4.2rem] sm:pt-[4.45rem]">
       <div className="relative min-h-[108vh] overflow-hidden py-6 sm:py-7 lg:py-8">
         <div
-          className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_82%_14%,rgba(232,238,247,0.08),transparent_28%),linear-gradient(180deg,rgba(4,6,11,0.36)_0%,rgba(4,6,11,0.54)_58%,rgba(3,5,9,0.76)_100%)]"
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(4,6,11,0.3)_0%,rgba(4,6,11,0.52)_58%,rgba(3,5,9,0.76)_100%)]"
           aria-hidden="true"
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-28 bg-[linear-gradient(180deg,rgba(6,8,12,0)_0%,rgba(6,8,12,0.9)_100%)] sm:h-36" />

@@ -20,8 +20,18 @@ const variantClassMap: Record<PublicExperienceVariant, string> = {
 export function CinematicBackground({ variant, platform = "desktop" }: CinematicBackgroundProps) {
   return (
     <div className={`public-background ${variantClassMap[variant]}`} aria-hidden="true" data-platform={platform}>
+      <video
+        className="public-background__video"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+      >
+        <source src="/video/space%20background.mov" type="video/mp4" />
+        <source src="/video/space%20background.mov" type="video/quicktime" />
+      </video>
       <div className="public-background__base" />
-      <div className="public-background__haze public-background__drift-slower" />
       <div className="public-background__vignette" />
     </div>
   );
