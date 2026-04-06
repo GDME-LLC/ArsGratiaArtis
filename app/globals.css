@@ -355,87 +355,12 @@
       linear-gradient(180deg, rgba(5, 6, 10, 0.9) 0%, rgba(6, 7, 13, 0.96) 38%, rgba(4, 5, 9, 0.99) 100%);
   }
 
-  .public-background__starfield {
-    background-image:
-      radial-gradient(circle, rgba(255, 255, 255, 0.66) 0 0.8px, transparent 1.2px),
-      radial-gradient(circle, rgba(212, 216, 224, 0.34) 0 1px, transparent 1.5px);
-    background-size: 240px 240px, 360px 360px;
-    background-position: 0 0, 60px 90px;
-    background-repeat: repeat;
-    opacity: 0.22;
-  }
-
-  .public-background__nebula {
-    background:
-      radial-gradient(circle at 24% 28%, rgba(166, 172, 184, 0.11), transparent 22%),
-      radial-gradient(circle at 74% 20%, rgba(214, 219, 228, 0.08), transparent 20%),
-      radial-gradient(circle at 68% 66%, rgba(138, 144, 156, 0.09), transparent 24%);
-    filter: blur(12px);
-    opacity: 0.5;
-  }
-
   .public-background__haze {
     background:
       radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.05), transparent 16%),
       radial-gradient(circle at 10% 40%, rgba(255, 255, 255, 0.025), transparent 24%),
       linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.016) 45%, rgba(0, 0, 0, 0.14) 100%);
     opacity: 0.68;
-  }
-
-  .public-background__light {
-    background:
-      radial-gradient(circle at 50% 14%, rgba(255, 255, 255, 0.08), transparent 14%),
-      radial-gradient(circle at 82% 36%, rgba(205, 211, 220, 0.05), transparent 18%);
-    filter: blur(34px);
-    opacity: 0.36;
-  }
-
-  .public-background__spotlights {
-    inset: -6% -2% -10%;
-    mix-blend-mode: screen;
-    opacity: 0.9;
-    filter: blur(9px);
-  }
-
-  .public-background__spotlight {
-    position: absolute;
-    bottom: -22%;
-    width: 38vw;
-    min-width: 16rem;
-    max-width: 30rem;
-    height: 104vh;
-    opacity: 0.22;
-    transform-origin: 50% 100%;
-    border-radius: 999px 999px 0 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(244, 247, 252, 0.07) 24%, rgba(232, 237, 245, 0.22) 62%, rgba(220, 227, 238, 0.38) 100%);
-    clip-path: polygon(0% 0%, 100% 0%, 58% 100%, 42% 100%);
-    animation: public-spotlight-sweep 96s ease-in-out infinite;
-  }
-
-  .public-background__spotlight::after {
-    content: "";
-    position: absolute;
-    inset: auto 14% -4% 14%;
-    height: 28%;
-    border-radius: 999px;
-    background: radial-gradient(circle, rgba(232, 238, 248, 0.16), rgba(232, 238, 248, 0));
-    filter: blur(24px);
-  }
-
-  .public-background__spotlight--left {
-    left: -2%;
-  }
-
-  .public-background__spotlight--center {
-    left: 21%;
-  }
-
-  .public-background__spotlight--right {
-    right: 15%;
-  }
-
-  .public-background__spotlight--far-right {
-    right: -4%;
   }
 
   .public-background__grain {
@@ -605,20 +530,6 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   }
 
-  html[data-platform="mobile"] .public-background__spotlights,
-  .public-experience[data-platform="mobile"] .public-background__spotlights {
-    opacity: 0.56;
-    filter: blur(9px);
-  }
-
-  html[data-platform="mobile"] .public-background__spotlight,
-  .public-experience[data-platform="mobile"] .public-background__spotlight {
-    width: 40vw;
-    min-width: 10rem;
-    height: 72vh;
-    opacity: 0.24;
-  }
-
   html[data-platform="mobile"] .public-intro-overlay__proscenium,
   .public-intro-overlay[data-platform="mobile"] .public-intro-overlay__proscenium {
     inset: 8vh 1rem 6vh;
@@ -651,7 +562,6 @@
     .public-home-hero-actions,
     .studio-module,
     .public-background__haze,
-    .public-background__spotlight,
     .public-intro-overlay,
     .public-intro-overlay__media,
     .public-intro-overlay__fallback,
@@ -689,29 +599,6 @@
     transform: translate3d(0.5%, 0.5%, 0) scale(1.01);
   }
 }
-
-@keyframes public-spotlight-sweep {
-  0% {
-    opacity: 0.12;
-    transform: rotate(-11deg);
-  }
-
-  34% {
-    opacity: 0.24;
-    transform: rotate(-3deg);
-  }
-
-  68% {
-    opacity: 0.22;
-    transform: rotate(8deg);
-  }
-
-  100% {
-    opacity: 0.12;
-    transform: rotate(-11deg);
-  }
-}
-
 
 @keyframes public-intro-veil {
   0% {
