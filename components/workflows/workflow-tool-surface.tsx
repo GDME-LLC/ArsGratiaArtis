@@ -230,7 +230,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
         return;
       }
 
-      setStatus("Workflow draft saved. Opening Start a Project with this seed.");
+      setStatus("Project saved. Opening upload and editing with this draft.");
       router.push(`/upload?workflowDraft=${saved.id}`);
     })();
   }
@@ -317,7 +317,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
     <section className="container-shell pb-16 pt-8 sm:pb-20 sm:pt-10 lg:pt-12">
       <div className="surface-panel cinema-frame overflow-hidden p-4 sm:p-6 lg:p-8">
         <div>
-          <p className="display-kicker">Workflow Tool</p>
+          <p className="display-kicker">Project Builder</p>
           <h1 className="headline-xl mt-3 text-foreground">Bring your project together</h1>
           <p className="body-lg mt-4 max-w-3xl text-foreground/86">
             Start a new AI film project or import active work from tools and files you already use.
@@ -335,7 +335,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
               )}
             >
               <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/72">Beginner path</p>
-              <p className="title-md mt-2 text-foreground">Start a Project</p>
+              <p className="title-md mt-2 text-foreground">Start Project</p>
               <p className="body-sm mt-2 text-foreground/82">Open a guided project-start flow for title, idea, format, and optional tools.</p>
             </button>
 
@@ -358,7 +358,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
           {activeSurface === "idle" && hasDraftInProgress ? (
             <article className="mt-6 rounded-[24px] border border-white/12 bg-black/24 p-5">
               <p className="display-kicker">Draft in progress</p>
-              <p className="body-sm mt-2 text-foreground/84">Continue where you left off or move your current draft into Creator Studio.</p>
+              <p className="body-sm mt-2 text-foreground/84">Continue where you left off or move your draft into upload and release editing.</p>
               <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button
                   type="button"
@@ -377,7 +377,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                   Continue Draft
                 </Button>
                 <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
-                  <Link href="/dashboard">Open in Creator Studio</Link>
+                  <Link href="/dashboard">Open in Dashboard</Link>
                 </Button>
               </div>
             </article>
@@ -436,7 +436,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                   {isSaving ? "Saving..." : "Save Progress"}
                 </Button>
                 <Button asChild type="button" variant="ghost" size="lg" className="w-full sm:w-auto">
-                  <Link href="/dashboard">Open in Creator Studio</Link>
+                  <Link href="/dashboard">Open in Dashboard</Link>
                 </Button>
                 <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => setActiveSurface("idle")}>
                   Back
@@ -549,7 +549,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                       {isSaving ? "Saving..." : "Save Progress"}
                     </Button>
                     <Button asChild type="button" variant="ghost" size="lg" className="w-full sm:w-auto">
-                      <Link href="/dashboard">Open in Creator Studio</Link>
+                      <Link href="/dashboard">Open in Dashboard</Link>
                     </Button>
                     <Button type="button" variant="ghost" size="lg" className="w-full sm:w-auto" onClick={() => setActiveSurface("idle")}>
                       Back
@@ -638,11 +638,11 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
 
           {activeSurface !== "import" ? (
             <article className="mt-6 rounded-[24px] border border-white/12 bg-black/24 p-5">
-              <p className="display-kicker">Creator Studio Access</p>
+              <p className="display-kicker">Dashboard Access</p>
               <p className="title-md mt-3 text-foreground">{canPersist ? "Save and continue is active" : "Sign in to save and continue"}</p>
               <p className="body-sm mt-3">
                 {canPersist
-                  ? "Your drafts, assets, and project handoff are available in Creator Studio."
+                  ? "Your drafts, assets, and project handoff are available in your Dashboard hub."
                   : "You can plan freely now. Saving drafts, asset organization, and continue-later unlock after enabling Creator access."}
               </p>
               {!canPersist ? (
@@ -651,7 +651,7 @@ export function WorkflowToolSurface({ canPersist, isSignedIn, entryPoint = "dire
                 </Button>
               ) : (
                 <Button asChild variant="ghost" size="lg" className="mt-4 w-full sm:w-auto">
-                  <Link href="/dashboard">Open Creator Studio</Link>
+                  <Link href="/dashboard">Open Dashboard</Link>
                 </Button>
               )}
               {activeSurface !== "idle" ? <p className="body-sm mt-3 text-foreground/62">Opened from: {entryPoint}</p> : null}

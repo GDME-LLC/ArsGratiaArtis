@@ -74,8 +74,8 @@ export function FilmEditorForm({ initialFilm, initialWorkflowDraft, availableToo
     : isPosterUploading
       ? "Uploading Poster..."
       : initialFilm?.id
-        ? "Save Project"
-        : "Create Draft Project";
+        ? "Save Release"
+        : "Create Draft Release";
   const isPublishing = form.publish_status === "published";
 
   function toggleTool(toolId: string) {
@@ -533,8 +533,8 @@ export function FilmEditorForm({ initialFilm, initialWorkflowDraft, availableToo
 
       <div className="app-stack-card flex flex-col gap-3 rounded-[22px] border border-white/10 bg-black/20 p-3.5 sm:rounded-[24px] sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div>
-          <p className="display-kicker">Save</p>
-          <p className="body-sm mt-2 text-muted-foreground">{initialFilm?.id ? "Update the current release draft." : "Create the draft first, then return here to upload the final cut."}</p>
+          <p className="display-kicker">Save Progress</p>
+          <p className="body-sm mt-2 text-muted-foreground">{initialFilm?.id ? "Update this release draft and continue editing." : "Create the draft now, then return to upload and publish the final cut."}</p>
         </div>
         <Button type="submit" size="xl" className="w-full sm:w-auto" disabled={isSaving || isPosterUploading}>
           {submitLabel}

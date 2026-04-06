@@ -20,19 +20,19 @@ type UploadPageProps = {
 
 const releaseSteps = [
   {
-    label: "Step 1",
-    title: "Shape the project foundation",
-    description: "Set the title, slug, synopsis, and category before anything else.",
+    label: "Action 1",
+    title: "Shape the page",
+    description: "Set the title, route, synopsis, and category so the release already reads with intent.",
   },
   {
-    label: "Step 2",
-    title: "Frame the presentation",
-    description: "Choose the poster, credits, and production notes that deserve to live with the work.",
+    label: "Action 2",
+    title: "Add context",
+    description: "Choose poster, credits, and process notes that support the work without overexplaining it.",
   },
   {
-    label: "Step 3",
-    title: "Attach the final cut",
-    description: "Publish video later, once the project page already reads clearly and feels ready.",
+    label: "Action 3",
+    title: "Upload and publish",
+    description: "Attach the final cut once the page is composed, then publish when the release feels complete.",
   },
 ];
 
@@ -41,8 +41,8 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     return (
       <section className="container-shell py-20">
         <StatePanel
-          title="The creator editor needs live auth and database access"
-          description="Local shell mode can render this page, but draft creation and saved edits only work once Supabase is connected."
+          title="Creator editor needs a live connection"
+          description="The surface can render in shell mode, but saving drafts and edits works only after Supabase is connected."
         />
       </section>
     );
@@ -62,7 +62,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <section className="container-shell py-20">
           <StatePanel
             title="Profile unavailable"
-            description="Your account is signed in, but the creator record could not be loaded right now."
+            description="Your account is signed in, but your creator profile could not be loaded right now."
           />
         </section>
       );
@@ -72,8 +72,8 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
       return (
         <section className="container-shell py-20">
           <StatePanel
-            title="Creator mode required"
-            description="Turn on creator mode in settings before creating or editing releases."
+            title="Creator access is required"
+            description="Enable creator mode in settings before creating or editing projects."
           />
         </section>
       );
@@ -91,7 +91,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <section className="container-shell py-20">
           <StatePanel
             title="Draft not found"
-            description="That release draft either does not exist or does not belong to the current account."
+            description="That project draft either does not exist or does not belong to this account."
           />
         </section>
       );
@@ -111,12 +111,12 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <div className="surface-panel cinema-frame app-stack-shell px-3 py-4 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
           <div className="relative isolate rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(190,155,89,0.22),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] px-3.5 py-4 sm:rounded-[28px] sm:px-6 sm:py-7 lg:px-8 lg:py-8">
             <div className="max-w-3xl">
-              <p className="display-kicker">Creator Workspace</p>
+              <p className="display-kicker">Creator Hub</p>
               <h1 className="headline-lg mt-3 sm:mt-4">
-                {film ? "Refine your project" : "Start a Project"}
+                {film ? "Continue this release" : "Start a new release"}
               </h1>
               <p className="body-lg mt-3 max-w-2xl text-foreground/88 sm:mt-4">
-                Build the project page first. Upload the final cut later. The release should feel composed before the video arrives.
+                Keep the flow simple: shape the page, add the right context, then upload and publish when the work is ready.
               </p>
             </div>
 
@@ -141,7 +141,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
     return (
       <section className="container-shell py-20">
         <StatePanel
-          title="The project editor could not be loaded"
+          title="Creator editor could not be loaded"
           description={error instanceof Error ? error.message : "An unexpected error occurred."}
         />
       </section>
