@@ -13,4 +13,5 @@ coverage
 .env.test.local
 .env.production.local
 .next-build 
+public/video/gold lights background.mov
 

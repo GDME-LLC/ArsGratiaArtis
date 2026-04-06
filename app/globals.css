@@ -273,6 +273,15 @@
   }
 
   .public-home-hero-copy {
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background:
+      radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.12), transparent 34%),
+      linear-gradient(180deg, rgba(7, 10, 17, 0.66), rgba(5, 7, 12, 0.82));
+    box-shadow:
+      0 22px 64px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(14px);
     transition-delay: 120ms;
   }
 
@@ -286,6 +295,13 @@
 
   .public-home-hero-panels {
     transition-delay: 400ms;
+  }
+
+  @media (max-width: 639px) {
+    .public-home-hero-copy {
+      border-radius: 1.2rem;
+      backdrop-filter: blur(10px);
+    }
   }
 
   .public-experience[data-hero-visible="false"] .public-home-hero-copy,

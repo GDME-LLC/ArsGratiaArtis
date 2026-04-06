@@ -8,7 +8,6 @@ import {
   type HeroCopyColor,
   type HeroCopySize,
 } from "@/lib/platform-settings-shared";
-import { HeroBackgroundVideo } from "@/components/marketing/hero-background-video";
 import { Button } from "@/components/ui/button";
 import { cn, resolveCreatorName } from "@/lib/utils";
 import type { PublicFilmCard } from "@/types";
@@ -114,8 +113,11 @@ export function Hero({
   return (
     <section className="relative -mt-[3.85rem] w-full pt-[4.05rem] sm:-mt-[4.2rem] sm:pt-[4.45rem]">
       <div className="relative min-h-[108vh] overflow-hidden py-6 sm:py-7 lg:py-8">
-        <HeroBackgroundVideo />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 bg-[linear-gradient(180deg,rgba(6,8,12,0)_0%,rgba(6,8,12,0.86)_100%)] sm:h-36" />
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_82%_14%,rgba(232,238,247,0.08),transparent_28%),linear-gradient(180deg,rgba(4,6,11,0.36)_0%,rgba(4,6,11,0.54)_58%,rgba(3,5,9,0.76)_100%)]"
+          aria-hidden="true"
+        />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-28 bg-[linear-gradient(180deg,rgba(6,8,12,0)_0%,rgba(6,8,12,0.9)_100%)] sm:h-36" />
         <div className="relative z-10 grid gap-8 px-5 sm:px-7 lg:-translate-y-14 lg:grid-cols-[minmax(0,1fr)_15.5rem] lg:items-end lg:px-10 xl:px-14">
           <div className="max-w-3xl">
             <div className="public-home-hero-copy px-5 py-5 sm:px-6 sm:py-6 lg:px-7 lg:py-7">
@@ -147,10 +149,10 @@ export function Hero({
                 >
                   <Link href="/feed">Browse Filmwork</Link>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="w-full border-white/24 bg-black/28 text-foreground/88 hover:text-foreground sm:w-auto">
+                <Button asChild size="lg" variant="ghost" className="w-full border-white/30 bg-black/40 text-foreground/92 hover:bg-black/52 hover:text-foreground sm:w-auto">
                   <Link href="/filmmakers">Creators</Link>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="w-full border-white/24 bg-black/28 text-foreground/88 hover:text-foreground sm:w-auto">
+                <Button asChild size="lg" variant="ghost" className="w-full border-white/30 bg-black/40 text-foreground/92 hover:bg-black/52 hover:text-foreground sm:w-auto">
                   <Link href="/workflow-tool">Start a Project</Link>
                 </Button>
               </div>
@@ -162,7 +164,7 @@ export function Hero({
           </div>
 
           
-          <div className="public-home-hero-feature hidden border border-white/30 bg-black p-3 shadow-[0_14px_34px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.34),inset_0_-1px_0_rgba(116,124,136,0.34)] lg:block lg:w-[14.75rem] lg:self-start lg:translate-y-10 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)] xl:translate-y-8">
+          <div className="public-home-hero-feature hidden border border-white/32 bg-[linear-gradient(180deg,rgba(6,8,14,0.82),rgba(4,6,11,0.92))] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.34),inset_0_-1px_0_rgba(116,124,136,0.34)] lg:block lg:w-[14.75rem] lg:self-start lg:translate-y-10 lg:justify-self-end lg:text-right lg:drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)] xl:translate-y-8">
             <p className="bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(214,222,233,0.88)_52%,rgba(166,176,190,0.84))] bg-clip-text font-sans text-[0.82rem] font-semibold uppercase tracking-[0.3em] text-transparent drop-shadow-[0_2px_12px_rgba(255,255,255,0.34)] sm:text-[0.88rem] sm:tracking-[0.34em]">{spotlightFilm ? spotlightLabel : "First Release"}</p>
             {spotlightFilm ? (
               <>
