@@ -522,16 +522,49 @@ export async function getPublicFilmBySlug(slug: string): Promise<PublicFilmPageD
     getViewerLikedFilmIds([data.id], user?.id),
   ]);
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("handle, display_name, avatar_url, follower_count, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at")
-    .eq("id", data.creator_id)
-    .maybeSingle();
-  const badgeMap = await getCreatorBadgesByProfileIds([String(data.creator_id)]);
+  const profileSelectBase = "handle, display_name, avatar_url, is_founding_creator, founding_creator_number, founding_creator_awarded_at, founding_creator_featured, founding_creator_notes, founding_creator_invited_at, founding_creator_accepted_at";
+  const profileSelectWithFollowers = `follower_count, ${profileSelectBase}`;
 
-  if (profileError) {
-    throw new Error(profileError.message);
+  let profile: {
+    handle?: string | null;
+    display_name?: string | null;
+    avatar_url?: string | null;
+    follower_count?: number | null;
+    is_founding_creator?: boolean | null;
+    founding_creator_number?: number | null;
+    founding_creator_awarded_at?: string | null;
+    founding_creator_featured?: boolean | null;
+    founding_creator_notes?: string | null;
+    founding_creator_invited_at?: string | null;
+    founding_creator_accepted_at?: string | null;
+  } | null = null;
+
+  try {
+    const { data: profileWithFollowers, error: profileWithFollowersError } = await supabase
+      .from("profiles")
+      .select(profileSelectWithFollowers)
+      .eq("id", data.creator_id)
+      .maybeSingle();
+
+    if (profileWithFollowersError) {
+      throw profileWithFollowersError;
+    }
+
+    profile = profileWithFollowers;
+  } catch {
+    const { data: fallbackProfile, error: fallbackProfileError } = await supabase
+      .from("profiles")
+      .select(profileSelectBase)
+      .eq("id", data.creator_id)
+      .maybeSingle();
+
+    if (fallbackProfileError) {
+      throw new Error(fallbackProfileError.message);
+    }
+
+    profile = fallbackProfile;
   }
+  const badgeMap = await getCreatorBadgesByProfileIds([String(data.creator_id)]);
 
   let isFollower = false;
 
